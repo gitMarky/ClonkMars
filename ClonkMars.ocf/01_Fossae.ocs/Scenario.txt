@@ -1,0 +1,6 @@
+[Head]
+Icon=23
+Title=Cerberus Fossae
+
+[Definitions]
+Definition2=ClonkMars.ocd
