@@ -6,8 +6,8 @@ func InitializeMap(proplist map)
 {
     Resize(100, 50);
     
-    var ground_base = this->MapShapeSinus(5, 50, 0, 50);
-    var ground_shape = this->MapShapeTurbulence(ground_base, 5);
+    var ground_base = this->MapShapeSinus(10, 80, 0, 50, nil, 15);
+    var ground_shape = this->MapShapeTurbulence(ground_base, 7);
 
     // Actual map
     this->Draw("Earth-earth", ground_shape);
@@ -17,11 +17,11 @@ func InitializeMap(proplist map)
 }
 
 
-func MapShapeSinus(int amplitude, int period, int offset_x, int offset_y, array rect)
+func MapShapeSinus(int amplitude, int period, int offset_x, int offset_y, array rect, int border)
 {
-    if (!rect) rect = [0,0,this.Wdt, this.Hgt];
-    var points_x = [rect[2], rect[0]];
-    var points_y = [rect[3], rect[3]];
+    if (!rect) rect = [0, 0, this.Wdt, this.Hgt];
+    var points_x = [rect[0] + rect[2] + border, rect[0] - border];
+    var points_y = [rect[3] + border, rect[3] + border];
     
     offset_x = rect[2] * offset_x / 100;    
     offset_y = rect[3] * offset_y / 100;
