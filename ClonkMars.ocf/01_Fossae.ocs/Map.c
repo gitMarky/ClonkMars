@@ -4,10 +4,10 @@
 
 func InitializeMap(proplist map)
 {
-    Resize(100, 50);
-    
-    var ground_base = this->MapShapeSinus(10, 80, 0, 50, nil, 15);
-    var ground_shape = this->MapShapeTurbulence(ground_base, 7);
+    Resize(120, 90);
+
+    var ground_base = this->MapShapeSinus(6, 74, 0, 55, nil, 15);
+    var ground_shape = this->MapShapeTurbulence(ground_base, 10);
 
     // Actual map
     this->Draw("Earth-earth", ground_shape);
