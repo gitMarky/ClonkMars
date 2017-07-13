@@ -5,6 +5,6 @@ Instable=1
 MaxAirSpeed=25
 MaxSlide=10000
 WindDrift=30
-Corrosive=60
+Corrosive=75
 Placement=10
 TextureOverlay=acid

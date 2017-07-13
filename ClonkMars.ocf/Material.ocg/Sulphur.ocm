@@ -1,7 +1,7 @@
 [Material]
 Name=Sulphur
 Shape=Smooth
-Density=60
+Density=50
 Friction=75
 BlastFree=1
 DigFree=1
@@ -11,7 +11,6 @@ Blast2Object=Firestone
 Blast2ObjectRatio=115
 MaxAirSpeed=100
 MaxSlide=1
-Corrode=50
+Corrode=90
 Placement=40
-Inflammable=1
 MinShapeOverlap=50
