@@ -1,0 +1,16 @@
+[Material]
+Name=Crystal
+Shape=Rough
+Density=70
+Friction=15
+BlastFree=1
+Blast2Object=Amethyst
+Blast2ObjectRatio=100
+MaxAirSpeed=100
+MaxSlide=1
+Placement=21
+TextureOverlay=crystal
+LightEmit=128,90,164
+LightSpot=160,96,128
+LightAngle=204
+MinShapeOverlap=30

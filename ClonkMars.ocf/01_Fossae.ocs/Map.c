@@ -14,7 +14,7 @@ func InitializeMap(proplist map)
     this->Draw("Earth-earth", ground_shape);
     // Additional materials
     this->DrawSpots("Rock-rock", 5, [10, 30], [8, 12], nil, nil, ["Oil"]);
-    this->DrawSpots("Amethyst-amethyst", 4, [8, 12], [4, 8], this->RectangleRelative(0, 80, 100, 20));
+    this->DrawSpots("Crystal-crystal", 4, [8, 12], [4, 8], this->RectangleRelative(0, 80, 100, 20));
     this->DrawSpots("Oil-oil", 4, [3, 6], [8, 14], this->RectangleRelative(10, 70, 80, 20));
     // Make sure liquids don't border tunnel or sky sideways
     FixLiquidBorders();

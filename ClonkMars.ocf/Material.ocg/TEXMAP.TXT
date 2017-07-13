@@ -45,7 +45,7 @@ OverloadTextures
 58=FlySand-sand
 59=FlyAshes-ashes
 
-60=Amethyst-amethyst
+60=Crystal-crystal
 
 65=Ice-ice
 67=Ice-ice2
