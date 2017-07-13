@@ -14,3 +14,6 @@ Corrode=75
 Soil=1
 Placement=30
 TextureOverlay=earth
+PXSGfxSize=3
+PXSGfx=particle_earth
+PXSGfxRt=0,0,64,64,-32,-32
