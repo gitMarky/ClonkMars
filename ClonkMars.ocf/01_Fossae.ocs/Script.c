@@ -3,6 +3,7 @@
 public func Initialize()
 {
     _inherited(...);
+    SetSky("Sky_Clouds");
     SetSkyParallax(0, 10, 0, 3, 0);
 
 	// some natural disasters
