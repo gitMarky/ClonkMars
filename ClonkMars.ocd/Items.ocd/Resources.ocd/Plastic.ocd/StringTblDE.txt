@@ -1,0 +1,2 @@
+Name=Plastik
+Description=Ein synthetisches Baumaterial. Wird aus Öl hergestellt.
