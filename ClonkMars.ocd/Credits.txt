@@ -2,3 +2,5 @@ Credits:
 * Markus Lütkemeyer, for the original Clonk Mars way back in before Clonk Rage
 * Luchs & Nachtfalter, for the Clonk Rage project http://clonkforge.net/pr.php?pr=1125
 * Nachtfalter, for the music
+* Mirosh (EKE Pack), for the welder sound
+* freesound.org, for some of the sounds
