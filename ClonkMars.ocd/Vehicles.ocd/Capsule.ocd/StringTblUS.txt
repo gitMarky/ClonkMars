@@ -1,0 +1,2 @@
+Name=Supply capsule
+Description=Transports crew and equipment to the surface. Handle with care!

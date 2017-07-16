@@ -1,0 +1,17 @@
+[DefCore]
+id=Capsule
+Version=8,0
+Category=C4D_Vehicle
+Width=60
+Height=45
+Offset=-30,-22
+Value=0
+Mass=600
+Picture=0,0,60,45
+Vertices=7
+VertexX=       -24, 0,24,20,  9, -7,-20
+VertexY=        14,14,14, 0,-19,-19,  0
+VertexFriction= 100,100,100,100, 100, 100, 100
+VertexCNAT=      9, 8,10, 2,  6,  5,  1
+Rotate=1
+ColorByOwner=1

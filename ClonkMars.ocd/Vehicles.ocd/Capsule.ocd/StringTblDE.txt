@@ -1,0 +1,2 @@
+Name=Nachschubsonde
+Description=Zum Transport von Lebewesen und Material auf die Oberfläche. Sollte aber vorsichtig behandelt werden!
