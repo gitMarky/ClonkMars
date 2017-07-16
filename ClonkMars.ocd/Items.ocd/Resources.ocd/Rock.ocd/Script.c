@@ -1,13 +1,13 @@
 /*--- Rock ---*/
 
-protected func Construction()
+public func Construction()
 {
 	var graphic = Random(10);
 	if(graphic)
 		SetGraphics(Format("%d",graphic));
 }
 
-protected func Hit(x, y)
+public func Hit(x, y)
 {
 	StonyObjectHit(x,y);
 	return true;
