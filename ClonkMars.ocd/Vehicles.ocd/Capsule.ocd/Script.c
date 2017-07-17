@@ -19,8 +19,16 @@ local capsule; // proplist
 private func Initialize() 
 {
 	capsule = {
+		port = nil,
 		port_vertex = -1,
 		origin_x = GetX(),
+		max_speed  = 2500, //iPrecision = 500
+		land_speed = 250,
+		acceleration = 6,
+		automatic = false,
+		thrust_vertical = 0,
+		thrust_horizontal = 0,
+		stacked_sounds = 0,
 	};
 
 	SetAction("FreeFall");
@@ -45,6 +53,296 @@ private func Hit(int xdir, int ydir)
 	}
 }
 
+/* -- Landing system -- */
+
+public func SetLandingDestination(object port, bool auto)
+{
+	if (GetGravity() < 1)
+	{
+		FatalError("Cannot land without gravity.");
+	}
+	capsule.port = port;
+	
+	// Determine distance to the landing position
+	var distance_y;
+	if (port)
+	{
+		distance_y = Abs(GetY() - port->GetY());
+		port->Occupy(this);
+		capsule.origin_x = port->GetX();
+	}
+	else
+	{
+		distance_y = Min(Abs(GetY() - GetHorizon(-24)), Abs(GetY() - GetHorizon(24))); // distance to ground
+		distance_y -= 150; // add a safety buffer
+		capsule.origin_x += RandomX(-400, 400);
+	}
+	if (distance_y < 1) distance_y = 1;
+	
+	Log("Capsule: Distance to landing zone %d", distance_y);
+	
+	
+	var time_interval = Max(1, distance_y / (5 * GetGravity()));
+	var time_freefall = 0;
+	var magic_number = 1;
+	var acceleration_capsule = capsule.acceleration / magic_number;
+	var acceleration_gravity = GetGravity() / magic_number;
+	var land_velocity = capsule.land_speed / magic_number;
+	
+	Log("Capsule: time_interval = %d", time_interval);
+	
+	while (true)
+	{
+		time_freefall += time_interval;
+		var i = time_freefall;
+		var distance = 0;
+		var velocity = 0;
+		while (i--)
+		{
+			velocity += acceleration_gravity;
+			distance += velocity;
+		}
+		while (velocity > land_velocity)
+		{
+			velocity -= acceleration_capsule;
+			distance += velocity;
+		}
+		if (distance / magic_number > distance_y)
+		{
+			if (time_interval == 1)
+			{
+				break;
+			}
+			else
+			{
+				time_freefall -= 2 * time_interval;
+				time_interval = Max(1, time_interval / 2);
+			}
+		}
+	}
+	
+	Log("Capsule: time_freefall = %d", time_freefall);
+	
+	/* TODO
+	if (AdvancedWindCalculations())
+	{
+		var dir,pos=0;
+		for (var i;i<t;++i)
+		{
+			//FIXME: Use forecast. And fix that whole thingy
+			dir += (dir - GetWind(0, 0, true))**2 * WindEffect() / 1000;
+			pos += dir;
+		}
+		if (GetWind(0, 0, true) < 0)
+		{
+			pos *= -1;
+		}
+		SetPosition(GetX() - pos / 100, GetY());
+		AddEffect("FxBlowout", this, 1, 1,this);
+	}
+	*/
+	ScheduleCall(this, this.StartLanding, time_freefall);
+	if (capsule.port)
+	{
+		ScheduleCall(capsule.port, capsule.port.PortActive, 50);
+	}
+	capsule.automatic = auto;
+}
+
+
+private func StartLanding()
+{
+	if (!capsule.thrust_vertical)
+	{
+		// activate the port a second time in case that the landing started too early
+		if (capsule.port)
+		{
+			capsule.port->PortActive();
+		}
+		SetVerticalThrust(1);
+	}
+}
+
+/* -- Thruster control -- */
+
+public func SetHorizontalThrust(int bo)
+{
+	if (capsule.thrust_horizontal != bo)
+	{
+		if (bo && !capsule.thrust_horizontal)
+		{
+			StackCapsuleSound(1);
+		}
+		else if (!bo)
+		{
+			StackCapsuleSound(-1);
+		}
+		capsule.thrust_horizontal = bo;
+		
+		if (bo == -1)    SetAction("LeftBoostTurnUp");
+		else if (bo == 1) SetAction("RightBoostTurnUp");
+		else if (WildcardMatch(GetAction(), "RightBoost*")) SetAction("RightBoostTurnDown");
+		else SetAction("LeftBoostTurnDown");
+	}
+	if (bo)
+	{
+		StartThruster();
+	}
+}
+
+
+public func SetVerticalThrust(int bo)
+{
+	if (capsule.thrust_vertical != bo)
+	{
+		StackCapsuleSound(bo - capsule.thrust_vertical);
+		capsule.thrust_vertical = bo;
+		if (bo)
+		{
+			StartThruster();
+		}
+	}
+}
+
+
+private func StartThruster()
+{
+	if (!GetEffect("FxBlowout", this))
+	{
+		CreateEffect(FxBlowout, 1, 1);
+	}
+}
+
+
+private func StopThruster()
+{
+	RemoveEffect("FxBlowout", this);
+}
+
+
+private func IsThrusterOn()
+{
+	return GetEffect("FxBlowout", this);
+}
+
+
+public func IsBlowingOut() // seems to be unused, but kept for compatibility reasons for now
+{
+	IsThrusterOn();
+}
+
+
+
+local FxBlowout = new Effect
+{
+	Timer = func (int time)
+	{
+		if (Target.capsule.thrust_vertical)
+		{
+			// Effects
+			/* TODO
+			var clr = RGBa(200,200,255);
+			for (var i = RandomX(5, 8); i; --i)
+			{
+				CreateParticle("Thrust", -Sin(GetR(),8)+Cos(GetR(),-10), Cos(GetR(),8)-Sin(GetR(),11),  -Sin(GetR(),15)+RandomX(-1,1)+GetXDir(), Cos(GetR(),15+Random(10))+GetYDir()/2, 45, clr, this);
+				CreateParticle("Thrust", -Sin(GetR(),11),                Cos(GetR(),11),                -Sin(GetR(),15)+RandomX(-1,1)+GetXDir(), Cos(GetR(),15+Random(10))+GetYDir()/2, 45, clr, this);
+				CreateParticle("Thrust", -Sin(GetR(),8)+Cos(GetR(),11),  Cos(GetR(),8)-Sin(GetR(),-11), -Sin(GetR(),15)+RandomX(-1,1)+GetXDir(), Cos(GetR(),15+Random(10))+GetYDir()/2, 45, clr, this);
+			}
+
+			EffectDust();
+			if (capsule.thrust_vertical == 2) EffectDust();
+			*/
+			
+			// Counter rotation
+			if (Target->GetR() < -1 && Target->GetRDir() < 1)
+			{
+				Target->SetRDir(Target->GetRDir(50)+1, 50);
+			}
+			else if (Target->GetR() > 1 && Target->GetRDir() > -1)
+			{
+				Target->SetRDir(Target->GetRDir(50)-1, 50);
+			}
+			
+			// Acceleration
+			var accspeed = Min(Target.capsule.max_speed - Cos(Target->GetR()-Angle(0,0,Target->GetXDir(500),Target->GetYDir(500)),Distance(Target->GetYDir(500), Target->GetXDir(500))), Target.capsule.acceleration+GetGravity());
+			if (Target.capsule.thrust_vertical != 1 || Target->GetYDir(500) > Target.capsule.land_speed)
+			{
+				Target->SetXDir(Target->GetXDir(500)+Sin(Target->GetR(),accspeed), 500);
+				Target->SetYDir(Target->GetYDir(500)-Cos(Target->GetR(),accspeed), 500);
+			}
+			
+			// Selling
+			if (Target.capsule.automatic && Target->GetY() <= -20 && Target->GetYDir() < 0)
+			{
+				for (var item in FindObjects(Find_Container(Target)))
+				{
+					if (item) item->Sell(Target->GetOwner());
+				}
+				if (Target.capsule.port)
+				{
+					Target.capsule.port->PortWait();
+				}
+				Target->RemoveObject();
+				return FX_Execute_Kill;
+			}
+			
+			// Capsule does not start correctly?
+			if (Target.capsule.automatic && (time > (LandscapeHeight()* 4 / 3 + 300)) && !Random(10))
+			{
+				Target->DoDamage(1); 
+			}
+		}
+		var acc = 1;
+		if (Target.capsule.automatic) acc = 5; // That's cheating
+		if (Target.capsule.thrust_horizontal == 1)
+		{
+			Target->SetXDir(Max(Target->GetXDir(70)-acc,-100), 70);		
+			Target->SetRDir(Target->GetRDir(100)-1, 100);
+		}
+		else if (Target.capsule.thrust_horizontal == -1)
+		{
+			Target->SetXDir(Min(Target->GetXDir(70)+acc,+100),70);
+			Target->SetRDir(Target->GetRDir(100)+1, 100);
+		}
+		else if (Target.capsule.thrust_vertical == 0 && !Target.capsule.automatic) // This means that both are 0 and the capsule is hand controlled
+		{ 
+			return FX_Execute_Kill;
+		}
+		
+		if (Target.capsule.automatic && Target->~AdvancedWindCalculations())
+		{
+			var nbo;
+
+			Message("%v %v %v", this, Target->GetXDir(), Target->GetX() - Target.capsule.origin_x, GetWind());
+			
+			if (     Target->GetXDir() >= -17 && Target->GetX() > Target.capsule.origin_x) nbo = 1;
+			else if (Target->GetXDir() <=  17 && Target->GetX() < Target.capsule.origin_x) nbo = -1;
+
+			if (Abs(Target->GetR()) > 8)
+			{
+				if (Target->GetRDir() > 0) Target->SetRDir(Target->GetRDir(100)-1, 100);
+				else Target->SetRDir(Target->GetRDir(100)+1, 100);
+				nbo = 0;
+			}
+
+			if (nbo != Target.capsule.thrust_horizontal) Target->SetHorizontalThrust(nbo);
+		}
+	},
+};
+
+
+/* -- Misc -- */
+
+// Proper Sound() stacking emulator
+private func StackCapsuleSound(int change)
+{
+	capsule.stacked_sounds = Max(0, capsule.stacked_sounds + change);
+	if (capsule.stacked_sounds < 1) Sound("Jetbelt", 0, 0, 0, -1);
+	if (capsule.stacked_sounds > 0) Sound("Jetbelt", 0, 0, 0, +1);
+}
+
+
+/* -- Actions -- */
 
 local ActMap = {
 
@@ -142,94 +440,19 @@ LeftBoostTurnDown = {
 /*
 public func GetTemp() { return 250; } // klimatisiert
 
-local port, portvertex, origx;
-local mode, horrblow, vertblow; //mode: 1 for automatic; 
+
 local sat;
 
-static const iCapsMaxSpeed  = 2500; //iPrecision = 500
-static const iCapsLandSpeed = 250;
-static const iCapsAcceleration = 30;
-
-public func SetHorrBlowout(int bo) {
-	if(horrblow != bo) {
-		if(bo && !horrblow) DoCpslSound(1);
-		else if(!bo) DoCpslSound(-1);
-		horrblow = bo;
-		if(bo == -1) SetAction("LeftBoostTurnUp");
-		else if(bo == 1) SetAction("RightBoostTurnUp");
-		else if(WildcardMatch(GetAction(), "RightBoost*")) SetAction("RightBoostTurnDown");
-		else SetAction("LeftBoostTurnDown");
-	}
-	if(bo && !GetEffect("Blowout", this)) {AddEffect("Blowout", this,1,1,this);}
-}
-
-public func SetVertBlowout(int bo) {
-	if(vertblow != bo) {
-		DoCpslSound(bo-vertblow);
-		vertblow = bo;
-		if(bo && !GetEffect("Blowout", this)) {AddEffect("Blowout", this,1,1,this);}
-	}
-}
 
 
-public func SetDstPort(object pPort, bool noauto) {
-	if(GetGravity() < 1) { Log("Can't land without gravity."); Explode(3000); return; }
-	port = pPort;
-	var dst;
-	if(pPort) {
-		dst = Abs(GetY()-GetY(pPort));
-		pPort->Occupy(this);
-		origx = GetX(pPort);
-	} else {
-		dst = Min(Abs(GetY()-GetHorizon(-24)) - 150, Abs(GetY()-GetHorizon(24)) - 150);
-		origx += RandomX(-400,400);
-	}
-	if(dst < 1) dst = 1;
-	var iter = dst / GetGravity(), t;
-	if(iter < 1) iter = 1;
-	var capsacc = iCapsAcceleration/20, gravacc = GetGravity()/20, landspd = iCapsLandSpeed/20;
-	while(true){
-		t+= iter;
-		var i=t,d=0,s=0;
-		while(i--) {
-			s += gravacc;
-			d += s;
-		}
-		while(s > landspd) {
-			s -= capsacc;
-			d += s;
-		}
-		if(d/20 > dst) {
-			if(iter == 1) break;
-			else {
-				t -= 2*iter;
-				iter /= 2;
-			}
-		}
-	}
-	if(AdvancedWindCalculations()) {
-		var dir,pos=0;
-		for(var i;i<t;++i) { //FIXME: Use forecast. And fix that whole thingy
-			dir += (dir-GetWind(0,0,true))**2*WindEffect()/1000;
-			pos += dir;
-		}
-		if(GetWind(0,0,true)<0) pos *= -1;
-		SetPosition(GetX()-pos/100, GetY());
-		AddEffect("Blowout", this,1,1,this);
-	}
-	ScheduleCall(this, "StartLanding", t);
-	if(port)
-		ScheduleCall(port, "PortActive", 50);
-	if(!noauto) mode = 1;
-	return 1;
-}
+
 
 public func SetSat(pSat) {
 	sat = pSat;
 }
 
 private func DestroyBlast() {
-	if(sat) sat -> CapsuleDestroyed();
+	if (sat) sat -> CapsuleDestroyed();
 	return _inherited(...);
 }
 
@@ -241,122 +464,64 @@ public func IsO2Producer() {
 
 
 protected func ContainedDigDouble() {
-	if(GetAction() == "FreeFall")
+	if (GetAction() == "FreeFall")
 		StartLanding();
 	return 1;
 }
 
-private func StartLanding() {
-	if(vertblow) return;
-	if(port) port->PortActive(); //Port wird beim laden zweimal aktiviert, falls die Landung fr�h anf�ngt...
-	SetVertBlowout(1);
-	return 1;
-}
-
-protected func FxBlowoutTimer(object pObj, int iEffectNumber, int iEffectTime) {
-	if(vertblow) {
-		var clr = RGBa(200,200,255);
-		for(var i = Random(3)+5; i; --i) {
-			CreateParticle("Thrust", -Sin(GetR(),8)+Cos(GetR(),-10), Cos(GetR(),8)-Sin(GetR(),11),  -Sin(GetR(),15)+RandomX(-1,1)+GetXDir(), Cos(GetR(),15+Random(10))+GetYDir()/2, 45, clr, this);
-			CreateParticle("Thrust", -Sin(GetR(),11),                Cos(GetR(),11),                -Sin(GetR(),15)+RandomX(-1,1)+GetXDir(), Cos(GetR(),15+Random(10))+GetYDir()/2, 45, clr, this);
-			CreateParticle("Thrust", -Sin(GetR(),8)+Cos(GetR(),11),  Cos(GetR(),8)-Sin(GetR(),-11), -Sin(GetR(),15)+RandomX(-1,1)+GetXDir(), Cos(GetR(),15+Random(10))+GetYDir()/2, 45, clr, this);
-		}
-		EffectDust(); //Staub
-		if(vertblow == 2) EffectDust();
-		//Gegenrotation
-		if(GetR() < -1 && GetRDir() < 1) SetRDir(GetRDir(0, 50)+1, 0, 50);
-		else if(GetR() > 1 && GetRDir() > -1) SetRDir(GetRDir(0, 50)-1, 0, 50);
-		//Beschleunigung
-		var accspeed = Min(iCapsMaxSpeed - Cos(GetR()-Angle(0,0,GetXDir(this, 500),GetYDir(this, 500)),Distance(GetYDir(this, 500), GetXDir(this, 500))), iCapsAcceleration+GetGravity());
-		if(vertblow != 1 || GetYDir(pObj,500) > iCapsLandSpeed) {
-			SetXDir(GetXDir(this, 500)+Sin(GetR(),accspeed), this, 500);
-			SetYDir(GetYDir(this, 500)-Cos(GetR(),accspeed), this, 500);
-		}
-		if(mode && GetY() <= -20 && GetYDir() < 0) {
-			for(var pObj in FindObjects(Find_Container(this)))
-				if(pObj) pObj -> Sell(GetOwner());
-			if(port) port->PortWait();
-			RemoveObject();
-		}
-		if(mode && (iEffectTime > (LandscapeHeight()*4/3 + 300)) && !Random(10)) DoDamage(1); //Falls die Kapsel nicht richtig startet
-		
-	}
-	var acc = 1;
-	if(mode) acc = 5; //That's cheating
-	if(horrblow == 1) {
-		SetXDir(Max(GetXDir(0,70)-acc,-100),0, 70);		
-		SetRDir(GetRDir(0, 100)-1, 0, 100);
-	} else if(horrblow == -1) {
-		SetXDir(Min(GetXDir(0,70)+acc,+100),0, 70);
-		SetRDir(GetRDir(0, 100)+1, 0, 100);
-	} else if(vertblow == 0 && !mode) { //This means that both are 0 and the capsule is handcontrolled
-		return -1;
-	}
-	if(mode && AdvancedWindCalculations()) {
-		var nbo;
-		Message("%v %v %v", this, GetXDir(), GetX() - origx, GetWind());
-		if(     GetXDir() >= -17 && GetX() > origx) nbo = 1;
-		else if(GetXDir() <=  17 && GetX() < origx) nbo = -1;
-		if(Abs(GetR()) > 8) {
-			if(GetRDir() > 0) SetRDir(GetRDir(0, 100)-1, 0, 100);
-			else SetRDir(GetRDir(0, 100)+1, 0, 100);
-			nbo = 0;
-		}
-		if(nbo != horrblow) SetHorrBlowout(nbo);
-	}
-}
 
 protected func ContactBottom() { 
-	if(vertblow == 1) {
-		if(mode) {
-			RemoveEffect("Blowout", this);
+	if (capsule.thrust_vertical == 1) {
+		if (capsule.automatic)
+		{
+			StopThruster();
 		}
-		SetHorrBlowout(0); SetVertBlowout(0); 
-		if(port && port==FindObject(Find_ID(PORT),Find_AtPoint())) {
-			portvertex = GetVertexNum();
+		SetHorizontalThrust(0); SetVerticalThrust(0); 
+		if (capsule.port && capsule.port==FindObject(Find_ID(PORT),Find_AtPoint())) {
+			capsule.port_vertex = GetVertexNum();
 			AddVertex();
-			SetVertex(portvertex, 2, CNAT_NoCollision, this, 1);
+			SetVertex(capsule.port_vertex, 2, CNAT_NoCollision, this, 1);
 			AddVertex();
-			SetVertex(portvertex, 0, GetVertex(0, 0, port)+GetX(port)-GetX(), this, 2);
-			SetVertex(portvertex, 1, GetVertex(0, 1, port)+GetY(port)-GetY(), this, 2);
-			SetAction("PortLand", port);
-			SetActionData(256*portvertex, this);
+			SetVertex(capsule.port_vertex, 0, GetVertex(0, 0, capsule.port)+GetX(capsule.port)-GetX(), this, 2);
+			SetVertex(capsule.port_vertex, 1, GetVertex(0, 1, capsule.port)+GetY(capsule.port)-GetY(), this, 2);
+			SetAction("PortLand", capsule.port);
+			SetActionData(256*capsule.port_vertex, this);
 			//FIXME: Do that less hacky...
 		} 
-		if(ObjectCount(Find_Container(this), Find_OCF(OCF_CrewMember)))
+		if (ObjectCount(Find_Container(this), Find_OCF(OCF_CrewMember)))
 			ScheduleCall(this, "Eject", 30, 0, GetX(), GetY());
-		if(port) ScheduleCall(port, "PortWait", 50);
+		if (capsule.port) ScheduleCall(capsule.port, "PortWait", 50);
 	}
 	return 1;
 }
 
 // Ejects the contained clonks if the given position matches.
 protected func Eject(int x, int y) {
-	if(vertblow == 2) return;
-	if(GetX() != x || GetY() != y) {
-		if(!GetXDir() && !GetYDir())
+	if (capsule.thrust_vertical == 2) return;
+	if (GetX() != x || GetY() != y) {
+		if (!GetXDir() && !GetYDir())
 			// Try again in a moment.
 			ScheduleCall(this, "Eject", 10, 0, GetX(), GetY());
 		return;
 	}
-	for(var pObj in FindObjects(Find_Container(this), Find_OCF(OCF_CrewMember)))
+	for (var pObj in FindObjects(Find_Container(this), Find_OCF(OCF_CrewMember)))
 		pObj -> Exit();
 }
 
 protected func ControlUpDouble() {
-	if(port) port->PortActive();
+	if (capsule.port) capsule.port->PortActive();
 	ScheduleCall(this, "Launch", 60);
 }
 
 private func Launch() {
 	// Remove all bottom vertices to prevent the capsule from stucking.
-	for (var vertex in [portvertex, 2, 1, 0])
+	for (var vertex in [capsule.port_vertex, 2, 1, 0])
 		RemoveVertex(vertex);
-	portvertex = -1;
+	capsule.port_vertex = -1;
 	SetAction("FreeFall");
 	SetActionData();
-	SetVertBlowout(2);
-	mode = 1;
+	SetVerticalThrust(2);
+	capsule.automatic = 1;
 }
 
 // geklaut von Hazard
@@ -369,18 +534,18 @@ protected func EffectDust() {
 	var maxdistance = 150;
 	
 	// search for ground (yomisei: please use your sensor-function for that as soon as you finished it)
-	for(i=10; i<maxdistance; i+=5) {
-		if(GBackSolid(0,i)) {
+	for (i=10; i<maxdistance; i+=5) {
+		if (GBackSolid(0,i)) {
 			mat = GetMaterial(0,i);
 			break;
 		}
 	}
 	
 	// ground in distance
-	if(i<maxdistance) {
+	if (i<maxdistance) {
 	
 		// check if digable
-		if(CheckDust(mat)) {
+		if (CheckDust(mat)) {
 		
 			// determine material color
 			var rand = Random(3);
@@ -396,27 +561,26 @@ protected func EffectDust() {
 			CreateParticle("BoostDust",-pos,i,(-50+pos)+GetXDir()/2,RandomX(-9,5),size,RGBa(r,g,b,alpha));
 			CreateParticle("BoostDust", pos,i,( 50-pos)+GetXDir()/2,RandomX(-9,5),size,RGBa(r,g,b,alpha));
 		}
-		if(i < 50) {
+		if (i < 50) {
 			var iX, iY, iM = 70 - i, iC = RGB(iM, iM, iM);
-			for(var j = 0; j < 5; ++j) {
+			for (var j = 0; j < 5; ++j) {
 				iX = RandomX(-20, 20);
-				if(!Random(2))
+				if (!Random(2))
 					iX *= 2;
 				iY = 0;
 				var max = LandscapeHeight() - GetY();
-				while(!GBackSolid(iX, ++iY)) {
-					if(iY > max)
+				while (!GBackSolid(iX, ++iY)) {
+					if (iY > max)
 						return;
 				}
 				iY += RandomX(-2, 2) + iM / 3;
-				if(GBackSolid(iX, iY))
+				if (GBackSolid(iX, iY))
 					SetLandscapePixel(iX, iY, iC);
 			}
 		}
 	}
 }
 
-public func IsBlowingOut() { return GetEffect("Blowout", this); }
 
 public func Flying() { return !GetContact(this, -1);}
 
@@ -424,57 +588,50 @@ public func WindEffect() { return 100;}
 
 //
 public func ContainedUp(pControl) {
-	if(GetPlrCoreJumpAndRunControl(GetOwner(pControl))) {
-		SetVertBlowout(1);
+	if (GetPlrCoreJumpAndRunControl(GetOwner(pControl))) {
+		SetVerticalThrust(1);
 	} else {
-		SetVertBlowout(BoundBy(vertblow-1,0,2));
-		SetHorrBlowout(0);
+		SetVerticalThrust(BoundBy(capsule.thrust_vertical-1,0,2));
+		SetHorizontalThrust(0);
 	}
 }
 
 public func ContainedDownDouble(pControl) {return ContainedDown(pControl);}
 public func ContainedDown(pControl) {
-	if(GetPlrCoreJumpAndRunControl(GetOwner(pControl))) {
-		SetVertBlowout(2);
+	if (GetPlrCoreJumpAndRunControl(GetOwner(pControl))) {
+		SetVerticalThrust(2);
 	} else {
-		SetVertBlowout(BoundBy(vertblow+1,0,2));
-		SetHorrBlowout(0);
+		SetVerticalThrust(BoundBy(capsule.thrust_vertical+1,0,2));
+		SetHorizontalThrust(0);
 	}
 	SetCommand(pControl, "None");
 }
 
 public func ContainedLeft(pControl) {
-	if(GetPlrCoreJumpAndRunControl(GetOwner(pControl))) {
-		SetHorrBlowout(-1);
+	if (GetPlrCoreJumpAndRunControl(GetOwner(pControl))) {
+		SetHorizontalThrust(-1);
 	} else {
-		if(horrblow == 1) SetHorrBlowout(0);
-		else SetHorrBlowout(-1);
+		if (capsule.thrust_horizontal == 1) SetHorizontalThrust(0);
+		else SetHorizontalThrust(-1);
 	}
 }
 
 public func ContainedRight(pControl) {
-	if(GetPlrCoreJumpAndRunControl(GetOwner(pControl))) {
-		SetHorrBlowout(1);
+	if (GetPlrCoreJumpAndRunControl(GetOwner(pControl))) {
+		SetHorizontalThrust(1);
 	} else {
-		if(horrblow == -1) SetHorrBlowout(0);
-		else SetHorrBlowout(1);
+		if (capsule.thrust_horizontal == -1) SetHorizontalThrust(0);
+		else SetHorizontalThrust(1);
 	}
 }
 
-public func ContainedUpReleased() { SetVertBlowout(0); }
-public func ContainedDownReleased() { SetVertBlowout(0); }
-public func ContainedLeftReleased() { SetHorrBlowout(0); }
-public func ContainedRightReleased() { SetHorrBlowout(0); }
-public func ContainedDig() { SetHorrBlowout(0); SetVertBlowout(0); }
+public func ContainedUpReleased() { SetVerticalThrust(0); }
+public func ContainedDownReleased() { SetVerticalThrust(0); }
+public func ContainedLeftReleased() { SetHorizontalThrust(0); }
+public func ContainedRightReleased() { SetHorizontalThrust(0); }
+public func ContainedDig() { SetHorizontalThrust(0); SetVerticalThrust(0); }
 
-//Proper Sound() stacking emulator
-local sndcount;
-private func DoCpslSound(int chng){
-	if(sndcount + chng < 1)       Sound("Jetbelt", 0, this, 0, 0, -1);
-	if(sndcount == 0 && chng > 0) Sound("Jetbelt", 0, this, 0, 0, 1);
-	sndcount += chng;
-	if(sndcount < 0) sndcount = 0;
-}
+
 
 protected func ControlDig(object pClonk)
 {
