@@ -84,7 +84,7 @@ public func SetLandingDestination(object port, bool auto)
 	
 	var time_interval = Max(1, distance_y / (5 * GetGravity()));
 	var time_freefall = 0;
-	var magic_number = 1;
+	var magic_number = 4;
 	var acceleration_capsule = capsule.acceleration / magic_number;
 	var acceleration_gravity = GetGravity() / magic_number;
 	var land_velocity = capsule.land_speed / magic_number;
@@ -264,13 +264,18 @@ local FxBlowout = new Effect
 			}
 			
 			var prec = 500;
+			var speed_angle = Angle(0, 0, Target->GetXDir(prec), Target->GetYDir(prec));
+			var speed_length = Distance(Target->GetXDir(prec), Target->GetYDir(prec));
 			
 			// Acceleration
-			var accspeed = Min(Target.capsule.max_speed - Cos(Target->GetR()-Angle(0,0,Target->GetXDir(prec),Target->GetYDir(prec)),Distance(Target->GetYDir(prec), Target->GetXDir(prec))), Target.capsule.acceleration+GetGravity());
+			var accspeed = Min(Target.capsule.max_speed - Cos(Target->GetR() - speed_angle, speed_length), GetGravity() + Target.capsule.acceleration);
+			accspeed *= 5; // because default gravity was measured as "100", but is now "20"
 			if (Target.capsule.thrust_vertical != 1 || Target->GetYDir(prec) > Target.capsule.land_speed)
 			{
-				Target->SetXDir(Target->GetXDir(prec)+Sin(Target->GetR(),accspeed), prec);
-				Target->SetYDir(Target->GetYDir(prec)-Cos(Target->GetR(),accspeed), prec);
+				var xdir = +Sin(Target->GetR(), accspeed);
+				var ydir = -Cos(Target->GetR(), accspeed);
+				Target->AddSpeed(xdir, ydir, prec);
+				Log("Capsule: Landing, angle %d, xdir %d, ydir %d", Target->GetR(), xdir, ydir);
 			}
 			
 			// Selling
