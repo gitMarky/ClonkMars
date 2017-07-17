@@ -263,12 +263,14 @@ local FxBlowout = new Effect
 				Target->SetRDir(Target->GetRDir(50)-1, 50);
 			}
 			
+			var prec = 500;
+			
 			// Acceleration
-			var accspeed = Min(Target.capsule.max_speed - Cos(Target->GetR()-Angle(0,0,Target->GetXDir(500),Target->GetYDir(500)),Distance(Target->GetYDir(500), Target->GetXDir(500))), Target.capsule.acceleration+GetGravity());
-			if (Target.capsule.thrust_vertical != 1 || Target->GetYDir(500) > Target.capsule.land_speed)
+			var accspeed = Min(Target.capsule.max_speed - Cos(Target->GetR()-Angle(0,0,Target->GetXDir(prec),Target->GetYDir(prec)),Distance(Target->GetYDir(prec), Target->GetXDir(prec))), Target.capsule.acceleration+GetGravity());
+			if (Target.capsule.thrust_vertical != 1 || Target->GetYDir(prec) > Target.capsule.land_speed)
 			{
-				Target->SetXDir(Target->GetXDir(500)+Sin(Target->GetR(),accspeed), 500);
-				Target->SetYDir(Target->GetYDir(500)-Cos(Target->GetR(),accspeed), 500);
+				Target->SetXDir(Target->GetXDir(prec)+Sin(Target->GetR(),accspeed), prec);
+				Target->SetYDir(Target->GetYDir(prec)-Cos(Target->GetR(),accspeed), prec);
 			}
 			
 			// Selling
