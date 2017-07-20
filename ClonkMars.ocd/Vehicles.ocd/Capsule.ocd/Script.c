@@ -21,15 +21,19 @@ static const CAPSULE_Precision = 100; // 1/100 px per tick
 private func Initialize() 
 {
 	capsule = {
+		// starting and landing settings
 		port = nil,
 		port_vertex = -1,
 		origin_x = GetX(),
+		automatic = false,
+		// properties
 		max_speed  = 2500, //iPrecision = 500
 		land_speed = 250,
 		acceleration = 30,
-		automatic = false,
+		// control
 		thrust_vertical = 0,
 		thrust_horizontal = 0,
+		// misc
 		stacked_sounds = 0,
 	};
 
@@ -276,17 +280,17 @@ local FxBlowout = new Effect
 				Target->SetRDir(Target->GetRDir(50)-1, 50);
 			}
 			
-			var prec = 100;
-			var speed_angle = Angle(0, 0, Target->GetXDir(prec), Target->GetYDir(prec));
-			var speed_length = Distance(Target->GetXDir(prec), Target->GetYDir(prec));
+			var precision = 100;
+			var speed_angle = Angle(0, 0, Target->GetXDir(precision), Target->GetYDir(precision));
+			var speed_length = Distance(Target->GetXDir(precision), Target->GetYDir(precision));
 			
 			// Acceleration
-			var accspeed = Min(Target.capsule.max_speed - Cos(Target->GetR() - speed_angle, speed_length), GetGravity() + Target.capsule.acceleration);
-			if (Target.capsule.thrust_vertical != 1 || Target->GetYDir(prec) > Target.capsule.land_speed)
+			var acceleration_speed = Min(Target.capsule.max_speed - Cos(Target->GetR() - speed_angle, speed_length), GetGravity() + Target.capsule.acceleration);
+			if (Target.capsule.thrust_vertical != 1 || Target->GetYDir(precision) > Target.capsule.land_speed)
 			{
-				var xdir = +Sin(Target->GetR(), accspeed);
-				var ydir = -Cos(Target->GetR(), accspeed);
-				Target->AddSpeed(xdir, ydir, prec);
+				var xdir = +Sin(Target->GetR(), acceleration_speed);
+				var ydir = -Cos(Target->GetR(), acceleration_speed);
+				Target->AddSpeed(xdir, ydir, precision);
 				Log("Capsule: Landing, angle %d, xdir %d, ydir %d", Target->GetR(), xdir, ydir);
 			}
 			
@@ -311,17 +315,19 @@ local FxBlowout = new Effect
 				Target->DoDamage(1); 
 			}
 		}
-		var acc = 1;
-		if (Target.capsule.automatic) acc = 5; // That's cheating
+		var velocity_min_x = 100;
+		var acceleration_x = 1;
+		var precision_xdir = 70;
+		var precision_rdir = 100;
 		if (Target.capsule.thrust_horizontal == 1)
 		{
-			Target->SetXDir(Max(Target->GetXDir(70)-acc,-100), 70);		
-			Target->SetRDir(Target->GetRDir(100)-1, 100);
+			Target->SetXDir(Max(Target->GetXDir(precision_xdir) - acceleration_x, -velocity_min_x), precision_xdir);		
+			Target->SetRDir(Target->GetRDir(precision_rdir) - 1, 100);
 		}
 		else if (Target.capsule.thrust_horizontal == -1)
 		{
-			Target->SetXDir(Min(Target->GetXDir(70)+acc,+100),70);
-			Target->SetRDir(Target->GetRDir(100)+1, 100);
+			Target->SetXDir(Min(Target->GetXDir(precision_xdir) + acceleration_x, +velocity_min_x), precision_xdir);
+			Target->SetRDir(Target->GetRDir(precision_rdir) + 1, precision_rdir);
 		}
 		else if (Target.capsule.thrust_vertical == 0 && !Target.capsule.automatic) // This means that both are 0 and the capsule is hand controlled
 		{ 
