@@ -30,9 +30,11 @@ private func Initialize()
 		max_velocity = 500,      // in CAPSULE_PRECISION: px / tick
 		max_velocity_land = 250, // in CAPSULE_PRECISION: px / tick
 		max_acceleration = 30,   // in CAPSULE_PRECISION: px / tick^2
+		max_rotation = 500,      // in CAPSULE_PRECISION: degrees
 		// control
-		thrust_vertical = 0,
+		thrust_vertical = 0,     // in per mille
 		thrust_horizontal = 0,
+		target_rotation = 0, 	 // in CAPSULE_PRECISION: degrees
 		// misc
 		stacked_sounds = 0,
 	};
@@ -176,7 +178,8 @@ private func StartLanding(int override_acceleration) // TODO: the override is no
 		{
 			capsule.port->PortActive();
 		}
-		SetVerticalThrust(1);
+		var per_mille = 1000;
+		SetVerticalThrust(BoundBy(override_acceleration * per_mille / capsule.max_acceleration, 0, per_mille));
 	}
 }
 
@@ -249,7 +252,6 @@ public func IsBlowingOut() // seems to be unused, but kept for compatibility rea
 }
 
 
-
 local FxBlowout = new Effect
 {
 	Timer = func (int time)
@@ -269,50 +271,14 @@ local FxBlowout = new Effect
 			EffectDust();
 			if (capsule.thrust_vertical == 2) EffectDust();
 			*/
-			
-			// Counter rotation
-			if (Target->GetR() < -1 && Target->GetRDir() < 1)
+
+			NormalizeRotation();
+			ApplyThrust();
+
+			if (AutomaticCapsuleControl(time))
 			{
-				Target->SetRDir(Target->GetRDir(50)+1, 50);
-			}
-			else if (Target->GetR() > 1 && Target->GetRDir() > -1)
-			{
-				Target->SetRDir(Target->GetRDir(50)-1, 50);
-			}
-			
-			var precision = 100;
-			var speed_angle = Angle(0, 0, Target->GetXDir(precision), Target->GetYDir(precision));
-			var speed_length = Distance(Target->GetXDir(precision), Target->GetYDir(precision));
-			
-			// Acceleration
-			var acceleration_speed = Min(Target.capsule.max_velocity - Cos(Target->GetR() - speed_angle, speed_length), GetGravity() + Target.capsule.max_acceleration);
-			if (Target.capsule.thrust_vertical != 1 || Target->GetYDir(precision) > Target.capsule.max_velocity_land)
-			{
-				var xdir = +Sin(Target->GetR(), acceleration_speed);
-				var ydir = -Cos(Target->GetR(), acceleration_speed);
-				Target->AddSpeed(xdir, ydir, precision);
-				Log("Capsule: Landing, angle %d, xdir %d, ydir %d", Target->GetR(), xdir, ydir);
-			}
-			
-			// Selling
-			if (Target.capsule.automatic && Target->GetY() <= -20 && Target->GetYDir() < 0)
-			{
-				for (var item in FindObjects(Find_Container(Target)))
-				{
-					if (item) item->Sell(Target->GetOwner());
-				}
-				if (Target.capsule.port)
-				{
-					Target.capsule.port->PortWait();
-				}
 				Target->RemoveObject();
 				return FX_Execute_Kill;
-			}
-			
-			// Capsule does not start correctly?
-			if (Target.capsule.automatic && (time > (LandscapeHeight()* 4 / 3 + 300)) && !Random(10))
-			{
-				Target->DoDamage(1); 
 			}
 		}
 		var velocity_min_x = 100;
@@ -353,7 +319,63 @@ local FxBlowout = new Effect
 			if (nbo != Target.capsule.thrust_horizontal) Target->SetHorizontalThrust(nbo);
 		}
 	},
+	
+	NormalizeRotation = func ()
+	{
+		if (nil == Target.capsule.target_rotation)
+		{
+			var precision = 50;
+			if (Target->GetR() < -1 && Target->GetRDir() < 1)
+			{
+				Target->SetRDir(Target->GetRDir(precision) + 1, precision);
+			}
+			else if (Target->GetR() > +1 && Target->GetRDir() > -1)
+			{
+				Target->SetRDir(Target->GetRDir(precision) - 1, precision);
+			}
+		}
+	},
+	
+	AutomaticCapsuleControl = func (int time)
+	{
+		if (!Target.capsule.automatic) return false;
+	
+		// Selling
+		if (Target->GetY() <= -20 && Target->GetYDir() < 0)
+		{
+			for (var item in FindObjects(Find_Container(Target)))
+			{
+				if (item) item->Sell(Target->GetOwner()); // TODO: needs a vendor object
+			}
+			if (Target.capsule.port)
+			{
+				Target.capsule.port->PortWait();
+			}
+			return true;
+		}
+		
+		// Stuck or something?
+		if (time > (LandscapeHeight() * 4 / 3 + 300) && !Random(10))
+		{
+			Target->DoDamage(1); 
+		}
+		return false;
+	},
+
+	ApplyThrust = func()
+	{
+		var per_mille = 1000;
+		var acceleration = Target.capsule.thrust_vertical * Target.capsule.max_acceleration / per_mille;
+		var angle = Target->GetR(CAPSULE_Precision);
+
+		var add_xdir = +Sin(angle, acceleration, CAPSULE_Precision);
+		var add_ydir = -Cos(angle, acceleration, CAPSULE_Precision);
+
+		Target->AddSpeed(add_xdir, add_ydir, CAPSULE_Precision);
+		Target->Message("Acc: %d", Target.capsule.thrust_vertical);
+	},
 };
+
 
 
 /* -- Misc -- */
@@ -408,7 +430,31 @@ public func ContainedUseStop(object clonk, int x, int y)
 
 private func SetThrust(int x, int y)
 {
-	// TODO
+	var per_mille = 1000;
+	var max = 300; // this many pixels will count as max acceleration
+	var max_thrust_angle = 60 * CAPSULE_Precision; 
+	var acceleration_per_mille = BoundBy(Distance(x, y) * per_mille / max, 1, per_mille);
+	var angle = Normalize(Angle(0, 0, x, y, CAPSULE_Precision), -180 * CAPSULE_Precision, CAPSULE_Precision);
+
+	// set the vertical thruster on, as long as you are in range +/- max_thrust_angle	
+	if (Abs(angle) < max_thrust_angle)
+	{	
+		SetVerticalThrust(acceleration_per_mille);
+	}
+	else
+	{
+		capsule.thrust_vertical = nil;
+	}
+	
+	// set the rotation, as long as you aim away far enough (10% of max distance)
+	if (acceleration_per_mille > 100)
+	{
+		capsule.target_rotation = BoundBy(angle, -capsule.max_rotation, +capsule.max_rotation);	
+	}
+	else
+	{
+		capsule.target_rotation = nil;
+	}
 }
 
 
