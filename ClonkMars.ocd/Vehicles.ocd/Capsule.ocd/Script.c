@@ -14,6 +14,8 @@ local Touchable = 1;
 local BorderBound = C4D_Border_Sides;
 local capsule; // proplist
 
+static const CAPSULE_Precision = 100; // 1/100 px per tick
+
 /* -- Engine callbacks -- */
 
 private func Initialize() 
@@ -24,7 +26,7 @@ private func Initialize()
 		origin_x = GetX(),
 		max_speed  = 2500, //iPrecision = 500
 		land_speed = 250,
-		acceleration = 6,
+		acceleration = 30,
 		automatic = false,
 		thrust_vertical = 0,
 		thrust_horizontal = 0,
@@ -67,70 +69,81 @@ public func SetLandingDestination(object port, bool auto)
 	var distance_y;
 	if (port)
 	{
-		distance_y = Abs(GetY() - port->GetY());
+		distance_y = Abs(GetY(CAPSULE_Precision) - port->GetY(CAPSULE_Precision));
 		port->Occupy(this);
 		capsule.origin_x = port->GetX();
 	}
 	else
 	{
 		distance_y = Min(Abs(GetY() - GetHorizon(-24)), Abs(GetY() - GetHorizon(24))); // distance to ground
-		distance_y -= 150; // add a safety buffer
+		distance_y -= 5; // add a small safety buffer
+		distance_y *= CAPSULE_Precision;
 		capsule.origin_x += RandomX(-400, 400);
 	}
 	if (distance_y < 1) distance_y = 1;
+
+	var acceleration_gravity = GetGravity(); // the usual gravity
+	var acceleration_capsule = -capsule.acceleration; // accelerate upwards
+	var velocity_capsule = this->GetYDir(CAPSULE_Precision);
 	
-	Log("Capsule: Distance to landing zone %d", distance_y);
+	// calculate the minimum time to fall down the entire distance, with the quadratic formula, for a = 0.5*acceleration_gravity, b = velocity_capsule, c = -distance_y;
+	// why? if cancelling the gravity with an upwards boost in the landing phase it will take longer
+	var time_forecast = (Sqrt(velocity_capsule**2 + 2 * distance_y * acceleration_gravity) -  velocity_capsule);
+	Log("Capsule landing parameters: velocity_capsule = %d, acceleration_capsule = %d, acceleration_gravity = %d, forecast %d", velocity_capsule, acceleration_capsule, acceleration_gravity, time_forecast);
+	time_forecast /= acceleration_gravity;
+
+	// brute force determine the landing time at first - could probably be solved with an equation system and some sensible boundary conditions, but I am too lazy for that
+	var time_freefall = time_forecast / 2;
+
+	Log("Capsule: Distance to landing zone %d, time forecast %d", distance_y, time_forecast);
 	
-	
-	var time_interval = Max(1, distance_y / (5 * GetGravity()));
-	var time_freefall = 0;
-	var magic_number = 4;
-	var acceleration_capsule = capsule.acceleration / magic_number;
-	var acceleration_gravity = GetGravity() / magic_number;
-	var land_velocity = capsule.land_speed / magic_number;
-	
-	Log("Capsule: time_interval = %d", time_interval);
-	
-	while (true)
+	// maximize time in freefall
+	// used the following equations / conditions
+	// E1) distance_y = distance_fall + distance_land
+	// E2) distance_fall = velocity_capsule * time_fall + 0.5 * acceleration_gravity * time_fall^2
+	// E3) distance_land = velocity_fall * time_land + 0.5 * (acceleration_gravity + acceleration) * time_land^2
+	// E4) velocity_fall = velocity_capsule + acceleration_gravity * time_fall
+	// E5) velocity_land = velocity_fall + (acceleration_gravity + acceleration) * time_land
+	// <=> (acceleration_gravity + acceleration) * time_land = velocity_fall - velocity_land
+	// E5 in E3 => E6) 2 * distance_land = time_land * (velocity_land + velocity_fall)
+	// C1) 0 <= velocity_land <= capsule.land_speed
+	// C2) distance_land >= 0
+	// C3) time_land >= 0
+	var optimize = true;
+	for (var time_fall = time_forecast; time_fall > 0 && optimize; --time_fall)
 	{
-		time_freefall += time_interval;
-		var i = time_freefall;
-		var distance = 0;
-		var velocity = 0;
-		while (i--)
-		{
-			velocity += acceleration_gravity;
-			distance += velocity;
-		}
-		while (velocity > land_velocity)
-		{
-			velocity -= acceleration_capsule;
-			distance += velocity;
-		}
-		if (distance / magic_number > distance_y)
-		{
-			if (time_interval == 1)
-			{
-				break;
-			}
-			else
-			{
-				time_freefall -= 2 * time_interval;
-				time_interval = Max(1, time_interval / 2);
-			}
+		for (var velocity_land = 0; velocity_land <= capsule.land_speed && optimize; velocity_land += 10) // minimize landing velocity
+		{			
+			var velocity_fall = velocity_capsule + acceleration_gravity * time_fall;
+			var distance_fall = time_fall * (velocity_capsule  + velocity_fall) / 2; // E2) transformed a little
+			
+			var distance_land = distance_y - distance_fall;
+			if (distance_land <= 0) continue;
+			
+			var time_land = (2 * distance_land) / (velocity_land + velocity_fall); // E6) transformed
+			if (time_land <= 0) continue;
+
+			var acceleration = 2 * (distance_land - velocity_fall * time_land) / (time_land ** 2); // E3) transformed
+			acceleration -= acceleration_gravity;
+
+			//Log("* time_freefall = %d, distance_fall = %d, velocity_fall = %d, distance_land = %d, velocity_land %d, acceleration = %d", time_freefall, distance_fall, velocity_fall, distance_land, velocity_land, acceleration);
+			if (acceleration >= 0 || acceleration < acceleration_capsule) continue;
+			optimize = false;
+			time_freefall = time_fall;
+			acceleration_capsule = acceleration;
+			//Log("==> Found optimum");
 		}
 	}
-	
+
 	Log("Capsule: time_freefall = %d", time_freefall);
-	
-	/* TODO
-	if (AdvancedWindCalculations())
+	/*
+	if (this->~AdvancedWindCalculations())
 	{
-		var dir,pos=0;
-		for (var i;i<t;++i)
+		var dir, pos=0;
+		for (var i; i < time_freefall; ++i)
 		{
 			//FIXME: Use forecast. And fix that whole thingy
-			dir += (dir - GetWind(0, 0, true))**2 * WindEffect() / 1000;
+			dir += (dir - GetWind(0, 0, true))**2 * this->WindEffect() / 1000;
 			pos += dir;
 		}
 		if (GetWind(0, 0, true) < 0)
@@ -138,10 +151,10 @@ public func SetLandingDestination(object port, bool auto)
 			pos *= -1;
 		}
 		SetPosition(GetX() - pos / 100, GetY());
-		AddEffect("FxBlowout", this, 1, 1,this);
+		//StartThruster(); no idea why it starts the thruster right now
 	}
-	*/
-	ScheduleCall(this, this.StartLanding, time_freefall);
+    */
+	ScheduleCall(this, this.StartLanding, time_freefall, nil, Abs(acceleration_capsule));
 	if (capsule.port)
 	{
 		ScheduleCall(capsule.port, capsule.port.PortActive, 50);
@@ -150,7 +163,7 @@ public func SetLandingDestination(object port, bool auto)
 }
 
 
-private func StartLanding()
+private func StartLanding(int override_acceleration) // TODO: the override is not used yet
 {
 	if (!capsule.thrust_vertical)
 	{
@@ -263,13 +276,12 @@ local FxBlowout = new Effect
 				Target->SetRDir(Target->GetRDir(50)-1, 50);
 			}
 			
-			var prec = 500;
+			var prec = 100;
 			var speed_angle = Angle(0, 0, Target->GetXDir(prec), Target->GetYDir(prec));
 			var speed_length = Distance(Target->GetXDir(prec), Target->GetYDir(prec));
 			
 			// Acceleration
 			var accspeed = Min(Target.capsule.max_speed - Cos(Target->GetR() - speed_angle, speed_length), GetGravity() + Target.capsule.acceleration);
-			accspeed *= 5; // because default gravity was measured as "100", but is now "20"
 			if (Target.capsule.thrust_vertical != 1 || Target->GetYDir(prec) > Target.capsule.land_speed)
 			{
 				var xdir = +Sin(Target->GetR(), accspeed);
@@ -346,6 +358,51 @@ private func StackCapsuleSound(int change)
 	capsule.stacked_sounds = Max(0, capsule.stacked_sounds + change);
 	if (capsule.stacked_sounds < 1) Sound("Jetbelt", 0, 0, 0, -1);
 	if (capsule.stacked_sounds > 0) Sound("Jetbelt", 0, 0, 0, +1);
+}
+
+/* -- User control -- */
+
+
+public func HoldingEnabled() { return true; }
+
+public func ControlUseStart(object clonk)
+{
+	return true;
+}
+
+public func ControlUseHolding(object clonk, int x, int y)
+{
+	SetThrust(x, y);
+	return true;
+}
+
+public func ControlUseStop(object clonk, int x, int y)
+{
+	SetThrust(x,y);
+	return true;
+}
+
+public func ContainedUseStart(object clonk, int x, int y)
+{
+	return true;
+}
+
+public func ContainedUseHolding(object clonk, int x, int y)
+{
+	SetThrust(x, y);
+	return true;
+}
+
+public func ContainedUseStop(object clonk, int x, int y)
+{
+	SetThrust(x, y);
+	return true;
+}
+
+
+private func SetThrust(int x, int y)
+{
+	// TODO
 }
 
 
