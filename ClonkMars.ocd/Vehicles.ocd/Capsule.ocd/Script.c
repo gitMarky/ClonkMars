@@ -27,9 +27,9 @@ private func Initialize()
 		origin_x = GetX(),
 		automatic = false,
 		// properties
-		max_speed  = 2500, //iPrecision = 500
-		land_speed = 250,
-		acceleration = 30,
+		max_velocity = 500,      // in CAPSULE_PRECISION: px / tick
+		max_velocity_land = 250, // in CAPSULE_PRECISION: px / tick
+		max_acceleration = 30,   // in CAPSULE_PRECISION: px / tick^2
 		// control
 		thrust_vertical = 0,
 		thrust_horizontal = 0,
@@ -87,7 +87,7 @@ public func SetLandingDestination(object port, bool auto)
 	if (distance_y < 1) distance_y = 1;
 
 	var acceleration_gravity = GetGravity(); // the usual gravity
-	var acceleration_capsule = -capsule.acceleration; // accelerate upwards
+	var acceleration_capsule = -capsule.max_acceleration; // accelerate upwards
 	var velocity_capsule = this->GetYDir(CAPSULE_Precision);
 	
 	// calculate the minimum time to fall down the entire distance, with the quadratic formula, for a = 0.5*acceleration_gravity, b = velocity_capsule, c = -distance_y;
@@ -110,13 +110,13 @@ public func SetLandingDestination(object port, bool auto)
 	// E5) velocity_land = velocity_fall + (acceleration_gravity + acceleration) * time_land
 	// <=> (acceleration_gravity + acceleration) * time_land = velocity_fall - velocity_land
 	// E5 in E3 => E6) 2 * distance_land = time_land * (velocity_land + velocity_fall)
-	// C1) 0 <= velocity_land <= capsule.land_speed
+	// C1) 0 <= velocity_land <= capsule.max_velocity_land
 	// C2) distance_land >= 0
 	// C3) time_land >= 0
 	var optimize = true;
 	for (var time_fall = time_forecast; time_fall > 0 && optimize; --time_fall)
 	{
-		for (var velocity_land = 0; velocity_land <= capsule.land_speed && optimize; velocity_land += 10) // minimize landing velocity
+		for (var velocity_land = 0; velocity_land <= capsule.max_velocity_land && optimize; velocity_land += 10) // minimize landing velocity
 		{			
 			var velocity_fall = velocity_capsule + acceleration_gravity * time_fall;
 			var distance_fall = time_fall * (velocity_capsule  + velocity_fall) / 2; // E2) transformed a little
@@ -285,8 +285,8 @@ local FxBlowout = new Effect
 			var speed_length = Distance(Target->GetXDir(precision), Target->GetYDir(precision));
 			
 			// Acceleration
-			var acceleration_speed = Min(Target.capsule.max_speed - Cos(Target->GetR() - speed_angle, speed_length), GetGravity() + Target.capsule.acceleration);
-			if (Target.capsule.thrust_vertical != 1 || Target->GetYDir(precision) > Target.capsule.land_speed)
+			var acceleration_speed = Min(Target.capsule.max_velocity - Cos(Target->GetR() - speed_angle, speed_length), GetGravity() + Target.capsule.max_acceleration);
+			if (Target.capsule.thrust_vertical != 1 || Target->GetYDir(precision) > Target.capsule.max_velocity_land)
 			{
 				var xdir = +Sin(Target->GetR(), acceleration_speed);
 				var ydir = -Cos(Target->GetR(), acceleration_speed);
