@@ -30,7 +30,7 @@ private func Initialize()
 		max_velocity = 500,      // in CAPSULE_PRECISION: px / tick
 		max_velocity_land = 250, // in CAPSULE_PRECISION: px / tick
 		max_acceleration = 30,   // in CAPSULE_PRECISION: px / tick^2
-		max_rotation = 500,      // in CAPSULE_PRECISION: degrees
+		max_rotation = 1000,     // in CAPSULE_PRECISION: degrees
 		// control
 		thrust_vertical = 0,     // in per mille
 		thrust_horizontal = 0,
@@ -256,6 +256,7 @@ local FxBlowout = new Effect
 {
 	Timer = func (int time)
 	{
+		NormalizeRotation();
 		if (Target.capsule.thrust_vertical)
 		{
 			// Effects
@@ -272,7 +273,6 @@ local FxBlowout = new Effect
 			if (capsule.thrust_vertical == 2) EffectDust();
 			*/
 
-			NormalizeRotation();
 			ApplyThrust();
 
 			if (AutomaticCapsuleControl(time))
@@ -322,18 +322,27 @@ local FxBlowout = new Effect
 	
 	NormalizeRotation = func ()
 	{
-		if (nil == Target.capsule.target_rotation)
+		var angle = BoundBy(Target.capsule.target_rotation ?? 0, -Target.capsule.max_rotation, +Target.capsule.max_rotation) - Target->GetR() * CAPSULE_Precision;
+		angle = Normalize(angle, -180 * CAPSULE_Precision, CAPSULE_Precision);
+
+		var precision = CAPSULE_Precision;
+		if (Target.capsule.thrust_vertical) precision /= 2; // rotate faster if thruster is on
+
+		var angular_acceleration = 1;
+
+		if (angle > 1 && Target->GetRDir() < 1)
 		{
-			var precision = 50;
-			if (Target->GetR() < -1 && Target->GetRDir() < 1)
-			{
-				Target->SetRDir(Target->GetRDir(precision) + 1, precision);
-			}
-			else if (Target->GetR() > +1 && Target->GetRDir() > -1)
-			{
-				Target->SetRDir(Target->GetRDir(precision) - 1, precision);
-			}
+			Target->SetRDir(Target->GetRDir(precision) + angular_acceleration, precision);
 		}
+		else if (angle < -1 && Target->GetRDir() > -1)
+		{
+			Target->SetRDir(Target->GetRDir(precision) - angular_acceleration, precision);
+		}
+		else if (angle == 0)
+		{
+			Target->SetRDir();
+		}
+		Log("%d", Target->GetR() * CAPSULE_Precision);
 	},
 	
 	AutomaticCapsuleControl = func (int time)
@@ -366,7 +375,7 @@ local FxBlowout = new Effect
 	{
 		var per_mille = 1000;
 		var acceleration = Target.capsule.thrust_vertical * Target.capsule.max_acceleration / per_mille;
-		var angle = Target->GetR(CAPSULE_Precision);
+		var angle = Target->GetR()*CAPSULE_Precision;
 
 		var add_xdir = +Sin(angle, acceleration, CAPSULE_Precision);
 		var add_ydir = -Cos(angle, acceleration, CAPSULE_Precision);
@@ -406,7 +415,7 @@ public func ControlUseHolding(object clonk, int x, int y)
 
 public func ControlUseStop(object clonk, int x, int y)
 {
-	SetThrust(x,y);
+	ResetThrust();
 	return true;
 }
 
@@ -423,7 +432,7 @@ public func ContainedUseHolding(object clonk, int x, int y)
 
 public func ContainedUseStop(object clonk, int x, int y)
 {
-	SetThrust(x, y);
+	ResetThrust();
 	return true;
 }
 
@@ -455,6 +464,13 @@ private func SetThrust(int x, int y)
 	{
 		capsule.target_rotation = nil;
 	}
+}
+
+
+private func ResetThrust()
+{
+	capsule.thrust_vertical = nil;
+	capsule.target_rotation = nil;
 }
 
 
