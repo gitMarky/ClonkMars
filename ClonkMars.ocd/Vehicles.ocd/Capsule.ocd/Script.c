@@ -259,20 +259,7 @@ local FxBlowout = new Effect
 		NormalizeRotation();
 		if (Target.capsule.thrust_vertical)
 		{
-			// Effects
-			/* TODO
-			var clr = RGBa(200,200,255);
-			for (var i = RandomX(5, 8); i; --i)
-			{
-				CreateParticle("Thrust", -Sin(GetR(),8)+Cos(GetR(),-10), Cos(GetR(),8)-Sin(GetR(),11),  -Sin(GetR(),15)+RandomX(-1,1)+GetXDir(), Cos(GetR(),15+Random(10))+GetYDir()/2, 45, clr, this);
-				CreateParticle("Thrust", -Sin(GetR(),11),                Cos(GetR(),11),                -Sin(GetR(),15)+RandomX(-1,1)+GetXDir(), Cos(GetR(),15+Random(10))+GetYDir()/2, 45, clr, this);
-				CreateParticle("Thrust", -Sin(GetR(),8)+Cos(GetR(),11),  Cos(GetR(),8)-Sin(GetR(),-11), -Sin(GetR(),15)+RandomX(-1,1)+GetXDir(), Cos(GetR(),15+Random(10))+GetYDir()/2, 45, clr, this);
-			}
-
-			EffectDust();
-			if (capsule.thrust_vertical == 2) EffectDust();
-			*/
-
+			ParticleFx();
 			ApplyThrust();
 
 			if (AutomaticCapsuleControl(time))
@@ -383,6 +370,32 @@ local FxBlowout = new Effect
 		Target->AddSpeed(add_xdir, add_ydir, CAPSULE_Precision);
 		Target->Message("Acc: %d", Target.capsule.thrust_vertical);
 	},
+	
+	ParticleFx = func()
+	{
+		var xdir = -Sin(Target->GetR(),15) +RandomX(-1,1) + Target->GetXDir();
+		var ydir = +Cos(Target->GetR(),15 + Random(5)) + Target->GetYDir()/2;
+		var size = 5 + Target.capsule.thrust_vertical / 100;
+		var lifetime = size;
+		var props =
+		{
+			Prototype = Particles_Thrust(size),
+			Alpha = PV_Linear(128, 0),
+			BlitMode = GFX_BLIT_Additive,
+			R = 200, G = 200, B = 255,
+			Size = PV_KeyFrames(0, 0, 0, 50, size, 1000, size / 2), // these ones shrink
+		};
+		for (var i = RandomX(5, 8); i; --i)
+		{
+			Target->CreateParticle("Thrust", -Sin(Target->GetR(), 8) + Cos(Target->GetR(), -10), Cos(Target->GetR(), 8) - Sin(Target->GetR(), +11), xdir, ydir, lifetime, props);
+			Target->CreateParticle("Thrust", -Sin(Target->GetR(), 11),                           Cos(Target->GetR(), 11),                           xdir, ydir, lifetime, props);
+			Target->CreateParticle("Thrust", -Sin(Target->GetR(), 8) + Cos(Target->GetR(), +11), Cos(Target->GetR(), 8) - Sin(Target->GetR(), -11), xdir, ydir, lifetime, props);
+		}
+
+		// TODO
+		//EffectDust();
+		//if (capsule.thrust_vertical == 2) EffectDust();
+	},
 };
 
 
@@ -419,6 +432,12 @@ public func ControlUseStop(object clonk, int x, int y)
 	return true;
 }
 
+public func ControlUseCancel(object clonk, int x, int y)
+{
+	ResetThrust();
+	return true;
+}
+
 public func ContainedUseStart(object clonk, int x, int y)
 {
 	return true;
@@ -431,6 +450,12 @@ public func ContainedUseHolding(object clonk, int x, int y)
 }
 
 public func ContainedUseStop(object clonk, int x, int y)
+{
+	ResetThrust();
+	return true;
+}
+
+public func ContainedUseCancel(object clonk, int x, int y)
 {
 	ResetThrust();
 	return true;
