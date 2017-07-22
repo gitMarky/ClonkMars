@@ -12,6 +12,7 @@ local HitPoints = 20;
 local ContactCalls = true;
 local Touchable = 1;
 local BorderBound = C4D_Border_Sides;
+local Components = { Metal = 2 };
 local capsule; // proplist
 
 static const CAPSULE_Precision = 100; // 1/100 px per tick
@@ -28,9 +29,10 @@ private func Initialize()
 		automatic = false,
 		// properties
 		max_velocity = 500,      // in CAPSULE_PRECISION: px / tick
-		max_velocity_land = 50, // in CAPSULE_PRECISION: px / tick
+		max_velocity_land = 200, // in CAPSULE_PRECISION: px / tick
 		max_acceleration = 30,   // in CAPSULE_PRECISION: px / tick^2
 		max_rotation = 1000,     // in CAPSULE_PRECISION: degrees
+		damage_velocity = 210,   // in precision 100:     px / tick
 		// control
 		thrust_vertical = 0,     // in per mille
 		thrust_horizontal = 0,
@@ -50,8 +52,11 @@ private func Initialize()
 
 private func Hit(int xdir, int ydir)
 {
-	var hit = Distance(xdir, ydir) - 210;
+	var velocity = Distance(xdir, ydir);
+	var hit = velocity - capsule.damage_velocity;
 	
+	Log("[%d] Capsule hit, velocity = %d", FrameCounter(), velocity);
+
 	if (hit >= 270)
 	{
 		DestroyBlast();
@@ -76,17 +81,18 @@ public func SetLandingDestination(object port, bool auto)
 	var distance_y;
 	if (port)
 	{
-		distance_y = Abs(GetY(CAPSULE_Precision) - port->GetY(CAPSULE_Precision));
+		distance_y = Abs(GetY() - port->GetY());
 		port->Occupy(this);
 		capsule.origin_x = port->GetX();
 	}
 	else
 	{
-		distance_y = Min(Abs(GetY() - GetHorizon(-24)), Abs(GetY() - GetHorizon(24))); // distance to ground
-		distance_y -= 5; // add a small safety buffer
-		distance_y *= CAPSULE_Precision;
+		distance_y = Min(Abs(GetY() - GetHorizon(-24)), Abs(GetY() - GetHorizon(+24))); // distance to ground
 		capsule.origin_x += RandomX(-400, 400);
 	}
+	distance_y -= GetBottom(); // subtract capsule height
+	distance_y -= 5; // add a small safety buffer
+	distance_y *= CAPSULE_Precision;
 	if (distance_y < 1) distance_y = 1;
 
 	var acceleration_gravity = GetGravity(); // the usual gravity
@@ -96,7 +102,7 @@ public func SetLandingDestination(object port, bool auto)
 	// calculate the minimum time to fall down the entire distance, with the quadratic formula, for a = 0.5*acceleration_gravity, b = velocity_capsule, c = -distance_y;
 	// why? if cancelling the gravity with an upwards boost in the landing phase it will take longer
 	var time_forecast = (Sqrt(velocity_capsule**2 + 2 * distance_y * acceleration_gravity) -  velocity_capsule);
-	Log("Capsule landing parameters: velocity_capsule = %d, acceleration_capsule = %d, acceleration_gravity = %d, forecast %d", velocity_capsule, acceleration_capsule, acceleration_gravity, time_forecast);
+	Log("Capsule landing parameters: distance_y = %d, velocity_capsule = %d, acceleration_capsule = %d, acceleration_gravity = %d, forecast %d", distance_y, velocity_capsule, acceleration_capsule, acceleration_gravity, time_forecast);
 	time_forecast /= acceleration_gravity;
 
 	// brute force determine the landing time at first - could probably be solved with an equation system and some sensible boundary conditions, but I am too lazy for that
@@ -131,10 +137,10 @@ public func SetLandingDestination(object port, bool auto)
 			var acceleration = 2 * (distance_land - velocity_fall * time_land) / (time_land ** 2); // E3) transformed
 			acceleration -= acceleration_gravity;
 
-			//Log("* time_freefall = %d, distance_fall = %d, velocity_fall = %d, distance_land = %d, velocity_land %d, acceleration = %d", time_freefall, distance_fall, velocity_fall, distance_land, velocity_land, acceleration);
 			if (acceleration >= 0 || acceleration < acceleration_capsule) continue;
+			Log("[%d] Capsule landing parameters: time_freefall = %d, distance_fall = %d, velocity_fall = %d, time_land = %d, distance_land = %d, velocity_land %d, acceleration = %d", FrameCounter(), time_fall, distance_fall, velocity_fall, time_land, distance_land, velocity_land, acceleration);
 			optimize = false;
-			time_freefall = time_fall;
+			time_freefall = time_fall - 1; // deduct one frame, because the thrusters react only one frame later
 			acceleration_capsule = acceleration;
 			//Log("==> Found optimum");
 		}
@@ -177,7 +183,9 @@ private func StartLanding(int override_acceleration)
 			capsule.port->PortActive();
 		}
 		var per_mille = 1000;
-		SetVerticalThrust(BoundBy(override_acceleration * per_mille / capsule.max_acceleration, 0, per_mille));
+		var thrust = BoundBy(override_acceleration * per_mille / capsule.max_acceleration, 0, per_mille);
+		Log("[%d] Capsule is landing: Set thrust to %d (%d); velocity_fall = %d", FrameCounter(), thrust, override_acceleration, Distance(GetXDir(CAPSULE_Precision), GetYDir(CAPSULE_Precision)));
+		SetVerticalThrust(thrust);
 		capsule.is_landing = true;
 	}
 }
@@ -374,6 +382,8 @@ local FxBlowout = new Effect
 
 		var add_xdir = +Sin(angle, acceleration, CAPSULE_Precision);
 		var add_ydir = -Cos(angle, acceleration, CAPSULE_Precision);
+		
+		Log("[%d] Thrust: acceleration = %d, add_ydir = %d, velocity = %d", FrameCounter(), acceleration, add_ydir, Distance(Target->GetXDir(CAPSULE_Precision), Target->GetYDir(CAPSULE_Precision)));
 
 		Target->AddSpeed(add_xdir, add_ydir, CAPSULE_Precision);
 		Target->Message("Acc: %d", Target.capsule.thrust_vertical);
@@ -500,6 +510,7 @@ private func ContactBottom()
 { 
 	if (capsule.is_landing)
 	{
+		Log("[%d] Capsule has landed", FrameCounter());
 		capsule.is_landing = false;
 		if (capsule.thrust_vertical)
 		{
