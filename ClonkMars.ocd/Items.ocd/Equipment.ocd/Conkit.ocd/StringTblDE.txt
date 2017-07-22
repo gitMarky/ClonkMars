@@ -1,0 +1,5 @@
+﻿TxtNoconstructionplansa=Keine Baupläne verfügbar
+TxtConstructions=Konstruktion: %s
+TxtCantConstruct=%s kann nicht bauen.
+Name=Bausatz
+Description=Mit dem Hammer können neue Gebäude errichtet werden. Drücke [Benutzen], um ein Gebäude zu errichten. Wird durch das Errichten einer Baustelle verbraucht.

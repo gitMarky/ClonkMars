@@ -1,0 +1,5 @@
+TxtNoconstructionplansa=No construction plans available
+TxtConstructions=Construction: %s
+TxtCantConstruct=%s can't build.
+Name=Construction kit
+Description=Basic tool for constructing new buildings. Press [Use] to construct a building. Will be depleted upon creating a construction site.

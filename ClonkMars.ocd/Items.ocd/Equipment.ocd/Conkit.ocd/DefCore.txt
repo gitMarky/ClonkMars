@@ -1,0 +1,13 @@
+[DefCore]
+id=ConKit
+Version=8,0
+Category=C4D_Object
+Width=8
+Height=6
+Offset=-4,-3
+Vertices=1
+VertexY=1
+VertexFriction=50
+Value=10
+Mass=15
+Picture=8,0,64,64
