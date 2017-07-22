@@ -205,11 +205,6 @@ public func SetHorizontalThrust(int bo)
 			StackCapsuleSound(-1);
 		}
 		capsule.thrust_horizontal = bo;
-		
-		if (bo == -1)    SetAction("LeftBoostTurnUp");
-		else if (bo == 1) SetAction("RightBoostTurnUp");
-		else if (WildcardMatch(GetAction(), "RightBoost*")) SetAction("RightBoostTurnDown");
-		else SetAction("LeftBoostTurnDown");
 	}
 	if (bo)
 	{
@@ -671,7 +666,7 @@ FreeFall = {
 	FacetBase = 1,
 	NextAction = "FreeFall",
 },
- 
+
 PortLand = {
 	Prototype = Action,
 	Name = "PortLand",
@@ -679,73 +674,6 @@ PortLand = {
 	Delay = 10,
 	FacetBase = 1,
 	NextAction = "PortLand",
-},
- 
-RightBoostTurnUp = {
-	Prototype = Action,
-	Name = "RightBoostTurnUp",
-	NextAction = "RightBoostMax",
-	Prodedure = DFA_NONE,
-	Delay = 2 ,
-	Length = 4,
-	FacetBase = 0,
-	X = 0, Y = 45, Wdt = 60, Hgt = 45,
-},
- 
-RightBoostMax = {
-	Prototype = Action,
-	Name = "RightBoostMax",
-	NextAction = "RightBoostMax",
-	Prodedure = DFA_NONE,
-	Delay = 3,
-	Length = 1,
-	FacetBase = 0,
-	X = 0, Y = 90, Wdt = 60, Hgt = 45,
-},
- 
-RightBoostTurnDown = {
-	Prototype = Action,
-	Name = "RightBoostTurnDown",
-	NextAction = "FreeFall",
-	Prodedure = DFA_NONE,
-	Delay = 2,
-	Length = 4,
-	FacetBase = 0,
-	X = 0, Y = 45, Wdt = 60, Hgt = 45,
-	Reverse=1,
-},
- 
-LeftBoostTurnUp = {
-	Prototype = Action,
-	Name = "LeftBoostTurnUp",
-	NextAction = "LeftBoostMax",
-	Prodedure = DFA_NONE,
-	Delay = 2,
-	Length = 4,
-	FacetBase = 0,
-	X = 0, Y = 135, Wdt = 60, Hgt = 45,
-},
- 
-LeftBoostMax = {
-	Prototype = Action,
-	Name = "LeftBoostMax",
-	NextAction = "LeftBoostMax",
-	Prodedure = DFA_NONE,
-	Delay = 3,
-	Length = 1,
-	FacetBase = 0,
-	X = 0, Y = 180, Wdt = 60, Hgt = 45,
-},
- 
-LeftBoostTurnDown = {
-	Prototype = Action,
-	Name = "LeftBoostTurnDown",
-	NextAction = "FreeFall",
-	Prodedure = DFA_NONE,
-	Delay = 2,
-	Length = 4,
-	X = 0, Y = 135, Wdt = 60, Hgt = 45,
-	Reverse=1,
 },
 };
 
