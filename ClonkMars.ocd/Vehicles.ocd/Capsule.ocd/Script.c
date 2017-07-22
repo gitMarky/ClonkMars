@@ -487,6 +487,62 @@ private func StackCapsuleSound(int change)
 	if (capsule.stacked_sounds > 0) Sound("Jetbelt", 0, 0, 0, +1);
 }
 
+
+private func ContactBottom()
+{ 
+	if (capsule.thrust_vertical)
+	{
+		if (capsule.automatic)
+		{
+			StopThruster();
+		}
+
+		ResetThrust();
+
+		if (capsule.port && GetIndexOf(FindObjects(Find_AtPoint()), capsule.port) >= 0) // TODO: test port landing
+		{
+			capsule.port_vertex = GetVertexNum();
+			AddVertex();
+			SetVertex(capsule.port_vertex, 2, CNAT_NoCollision, 1);
+			AddVertex();
+			SetVertex(capsule.port_vertex, 0, capsule.port->GetVertex(0, 0) + capsule.port->GetX() - GetX(), 2);
+			SetVertex(capsule.port_vertex, 1, capsule.port->GetVertex(0, 1) + capsule.port->GetY( )- GetY(), 2);
+			SetAction("PortLand", capsule.port);
+			SetActionData(256 * capsule.port_vertexd);
+			//FIXME: Do that less hacky...
+		} 
+		if (ObjectCount(Find_Container(this), Find_OCF(OCF_CrewMember)))
+		{
+			ScheduleCall(this, this.EjectCrew, 30, nil, GetX(), GetY());
+		}
+		if (capsule.port) ScheduleCall(capsule.port, capsule.port.PortWait, 50);
+	}
+	return true;
+}
+
+
+// Ejects the contained clonks if the given position matches.
+private func EjectCrew(int x, int y)
+{
+	if (capsule.thrust_vertical) return;
+
+	if (GetX() == x && GetY() == y)
+	{
+		for (var crew in FindObjects(Find_Container(this), Find_OCF(OCF_CrewMember)))
+		{
+			crew->Exit();
+		}
+	}
+	else
+	{
+		if (!GetXDir() && !GetYDir())
+		{
+			ScheduleCall(this, this.EjectCrew, 10, nil, GetX(), GetY());
+		}
+	}
+}
+
+
 /* -- User control -- */
 
 
@@ -703,44 +759,6 @@ protected func ContainedDigDouble() {
 	return 1;
 }
 
-
-protected func ContactBottom() { 
-	if (capsule.thrust_vertical == 1) {
-		if (capsule.automatic)
-		{
-			StopThruster();
-		}
-		SetHorizontalThrust(0); SetVerticalThrust(0); 
-		if (capsule.port && capsule.port==FindObject(Find_ID(PORT),Find_AtPoint())) {
-			capsule.port_vertex = GetVertexNum();
-			AddVertex();
-			SetVertex(capsule.port_vertex, 2, CNAT_NoCollision, this, 1);
-			AddVertex();
-			SetVertex(capsule.port_vertex, 0, GetVertex(0, 0, capsule.port)+GetX(capsule.port)-GetX(), this, 2);
-			SetVertex(capsule.port_vertex, 1, GetVertex(0, 1, capsule.port)+GetY(capsule.port)-GetY(), this, 2);
-			SetAction("PortLand", capsule.port);
-			SetActionData(256*capsule.port_vertex, this);
-			//FIXME: Do that less hacky...
-		} 
-		if (ObjectCount(Find_Container(this), Find_OCF(OCF_CrewMember)))
-			ScheduleCall(this, "Eject", 30, 0, GetX(), GetY());
-		if (capsule.port) ScheduleCall(capsule.port, "PortWait", 50);
-	}
-	return 1;
-}
-
-// Ejects the contained clonks if the given position matches.
-protected func Eject(int x, int y) {
-	if (capsule.thrust_vertical == 2) return;
-	if (GetX() != x || GetY() != y) {
-		if (!GetXDir() && !GetYDir())
-			// Try again in a moment.
-			ScheduleCall(this, "Eject", 10, 0, GetX(), GetY());
-		return;
-	}
-	for (var pObj in FindObjects(Find_Container(this), Find_OCF(OCF_CrewMember)))
-		pObj -> Exit();
-}
 
 protected func ControlUpDouble() {
 	if (capsule.port) capsule.port->PortActive();
