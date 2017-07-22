@@ -392,9 +392,86 @@ local FxBlowout = new Effect
 			Target->CreateParticle("Thrust", -Sin(Target->GetR(), 8) + Cos(Target->GetR(), +11), Cos(Target->GetR(), 8) - Sin(Target->GetR(), -11), xdir, ydir, lifetime, props);
 		}
 
-		// TODO
-		//EffectDust();
-		//if (capsule.thrust_vertical == 2) EffectDust();
+		ParticleFxDust();
+	},
+	
+	ParticleFxDust = func ()
+	{
+		// distance from the ground when dust starts appearing
+		var dust_distance = 50;
+		var burn_distance = 50;
+		var max_y = Target->GetY() + dust_distance;
+		var x = Target->GetX();
+		var y;
+		var ground_material = -1; // sky material
+		
+		// find out if there is ground at all
+		for (y = Target->GetY() + 10; y < max_y; y += 5)
+		{
+			if (GBackSolid(x, y))
+			{
+				ground_material = GetMaterial(x, y);
+				break;
+			}
+		}
+	
+		var distance = y - Target->GetY();
+
+		// create dust?
+		if (GetMaterialVal("DigFree", "Material", ground_material) != 0)
+		{
+			// some values depend on distance
+			var size = RandomX(4, Max(6, (600 - distance) / 10));
+			var alpha = Max(0, (225 - distance) * 100 / 225);
+			var texture = GetTexture(x, y);
+			if (texture)
+			{
+				var particles = Particles_DustAdvanced(texture, size, alpha);
+				particles.Rotation = PV_Direction();
+				
+				// calculate values
+				var x_offset = 30;
+				var y_offset = -7;
+				var x_dir_base = 50;
+				var x_pos = RandomX(0, x_offset);
+				var x_dir = Target->GetXDir() / 2;
+				var y_dir = PV_Random(-9, 5);
+				var lifetime = PV_Random(15, 36);
+				
+				var x_dir_neg = (-x_dir_base + x_pos);
+				var x_dir_pos = (+x_dir_base - x_pos);
+				
+				// the nearer the dust to the center, the faster it is blown aside 
+				CreateParticle("BoostDust", x - x_pos, y + y_offset, PV_Random(x_dir + x_dir_neg / 2, x_dir + x_dir_neg), y_dir,lifetime, particles);
+				CreateParticle("BoostDust", x + x_pos, y + y_offset, PV_Random(x_dir + x_dir_pos / 2, x_dir + x_dir_pos), y_dir,lifetime, particles);
+			}
+		}
+		
+		// burn the landscape?
+		/*
+		if (distance < burn_distance)
+		{
+			var landscape_x, landscape_y;
+			var burn = 70 - distance;
+			var color = RGB(burn, burn, burn);
+
+			for (var amount = 0; amount < 5; ++amount)
+			{
+				landscape_x = RandomX(-20, 20);
+				if (Random(2)) landscape_x *= 2;
+				landscape_x += Target->GetX();
+				
+				landscape_y = 0;
+				for (landscape_y = 0; !GBackSolid(landscape_x, Target->GetY() + landscape_y); ++landscape_y);
+				landscape_y += RandomX(-2, 2) + burn / 3;
+				landscape_y += Target->GetY();
+				if (GBackSolid(landscape_x, landscape_y))
+				{
+					SetLandscapePixel(landscape_x, landscape_y, color);
+				}
+			}
+		}
+		*/
 	},
 };
 
@@ -682,61 +759,7 @@ private func Launch() {
 }
 
 // geklaut von Hazard
-protected func EffectDust() {
 
-	// Dust effect
-	var mat,i;
-	
-	// maximum distance in which the shuttle appears
-	var maxdistance = 150;
-	
-	// search for ground (yomisei: please use your sensor-function for that as soon as you finished it)
-	for (i=10; i<maxdistance; i+=5) {
-		if (GBackSolid(0,i)) {
-			mat = GetMaterial(0,i);
-			break;
-		}
-	}
-	
-	// ground in distance
-	if (i<maxdistance) {
-	
-		// check if digable
-		if (CheckDust(mat)) {
-		
-			// determine material color
-			var rand = Random(3);
-			var r = GetMaterialColor(mat,rand,0);
-			var g = GetMaterialColor(mat,rand,1);
-			var b = GetMaterialColor(mat,rand,2);
-			
-			// all values dependend on distance
-			var size = RandomX(20,300-i/2);
-			var alpha = Min(255,30+i);
-			var pos = RandomX(0,30);
-			// the nearer the dust to the center, the faster it is blown aside 
-			CreateParticle("BoostDust",-pos,i,(-50+pos)+GetXDir()/2,RandomX(-9,5),size,RGBa(r,g,b,alpha));
-			CreateParticle("BoostDust", pos,i,( 50-pos)+GetXDir()/2,RandomX(-9,5),size,RGBa(r,g,b,alpha));
-		}
-		if (i < 50) {
-			var iX, iY, iM = 70 - i, iC = RGB(iM, iM, iM);
-			for (var j = 0; j < 5; ++j) {
-				iX = RandomX(-20, 20);
-				if (!Random(2))
-					iX *= 2;
-				iY = 0;
-				var max = LandscapeHeight() - GetY();
-				while (!GBackSolid(iX, ++iY)) {
-					if (iY > max)
-						return;
-				}
-				iY += RandomX(-2, 2) + iM / 3;
-				if (GBackSolid(iX, iY))
-					SetLandscapePixel(iX, iY, iC);
-			}
-		}
-	}
-}
 
 
 public func Flying() { return !GetContact(this, -1);}
