@@ -28,7 +28,7 @@ private func Initialize()
 		automatic = false,
 		// properties
 		max_velocity = 500,      // in CAPSULE_PRECISION: px / tick
-		max_velocity_land = 250, // in CAPSULE_PRECISION: px / tick
+		max_velocity_land = 50, // in CAPSULE_PRECISION: px / tick
 		max_acceleration = 30,   // in CAPSULE_PRECISION: px / tick^2
 		max_rotation = 1000,     // in CAPSULE_PRECISION: degrees
 		// control
@@ -167,7 +167,7 @@ public func SetLandingDestination(object port, bool auto)
 }
 
 
-private func StartLanding(int override_acceleration) // TODO: the override is not used yet
+private func StartLanding(int override_acceleration)
 {
 	if (!capsule.thrust_vertical)
 	{
