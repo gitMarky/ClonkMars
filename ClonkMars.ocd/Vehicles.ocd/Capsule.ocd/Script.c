@@ -792,64 +792,9 @@ private func Launch() {
 	capsule.automatic = 1;
 }
 
-// geklaut von Hazard
-
 
 
 public func Flying() { return !GetContact(this, -1);}
 
 public func WindEffect() { return 100;}
-
-//
-public func ContainedUp(pControl) {
-	if (GetPlrCoreJumpAndRunControl(GetOwner(pControl))) {
-		SetVerticalThrust(1);
-	} else {
-		SetVerticalThrust(BoundBy(capsule.thrust_vertical-1,0,2));
-		SetHorizontalThrust(0);
-	}
-}
-
-public func ContainedDownDouble(pControl) {return ContainedDown(pControl);}
-public func ContainedDown(pControl) {
-	if (GetPlrCoreJumpAndRunControl(GetOwner(pControl))) {
-		SetVerticalThrust(2);
-	} else {
-		SetVerticalThrust(BoundBy(capsule.thrust_vertical+1,0,2));
-		SetHorizontalThrust(0);
-	}
-	SetCommand(pControl, "None");
-}
-
-public func ContainedLeft(pControl) {
-	if (GetPlrCoreJumpAndRunControl(GetOwner(pControl))) {
-		SetHorizontalThrust(-1);
-	} else {
-		if (capsule.thrust_horizontal == 1) SetHorizontalThrust(0);
-		else SetHorizontalThrust(-1);
-	}
-}
-
-public func ContainedRight(pControl) {
-	if (GetPlrCoreJumpAndRunControl(GetOwner(pControl))) {
-		SetHorizontalThrust(1);
-	} else {
-		if (capsule.thrust_horizontal == -1) SetHorizontalThrust(0);
-		else SetHorizontalThrust(1);
-	}
-}
-
-public func ContainedUpReleased() { SetVerticalThrust(0); }
-public func ContainedDownReleased() { SetVerticalThrust(0); }
-public func ContainedLeftReleased() { SetHorizontalThrust(0); }
-public func ContainedRightReleased() { SetHorizontalThrust(0); }
-public func ContainedDig() { SetHorizontalThrust(0); SetVerticalThrust(0); }
-
-
-
-protected func ControlDig(object pClonk)
-{
-  // Herausnehmen per Graben: Holen-Menü öffnen
-  pClonk->SetCommand(0, "Get", this, 0,0, 0, 1);
-}
 */
