@@ -37,6 +37,7 @@ private func Initialize()
 		target_rotation = 0, 	 // in CAPSULE_PRECISION: degrees
 		// misc
 		stacked_sounds = 0,
+		is_landing = false,
 	};
 
 	SetAction("FreeFall");
@@ -100,8 +101,6 @@ public func SetLandingDestination(object port, bool auto)
 
 	// brute force determine the landing time at first - could probably be solved with an equation system and some sensible boundary conditions, but I am too lazy for that
 	var time_freefall = time_forecast / 2;
-
-	Log("Capsule: Distance to landing zone %d, time forecast %d", distance_y, time_forecast);
 	
 	// maximize time in freefall
 	// used the following equations / conditions
@@ -141,7 +140,6 @@ public func SetLandingDestination(object port, bool auto)
 		}
 	}
 
-	Log("Capsule: time_freefall = %d", time_freefall);
 	/*
 	if (this->~AdvancedWindCalculations())
 	{
@@ -180,6 +178,7 @@ private func StartLanding(int override_acceleration) // TODO: the override is no
 		}
 		var per_mille = 1000;
 		SetVerticalThrust(BoundBy(override_acceleration * per_mille / capsule.max_acceleration, 0, per_mille));
+		capsule.is_landing = true;
 	}
 }
 
@@ -329,14 +328,23 @@ local FxBlowout = new Effect
 		{
 			Target->SetRDir();
 		}
-		Log("%d", Target->GetR() * CAPSULE_Precision);
 	},
 	
 	AutomaticCapsuleControl = func (int time)
 	{
-		if (!Target.capsule.automatic) return false;
+		// landing control: do not skyrocket
+		if (Target.capsule.is_landing)
+		{
+			if (Target->GetYDir() < 0)
+			{
+				Target->ResetThrust();
+			}
+		}
 	
-		// Selling
+		// everything else is available in automatic mode only:
+		if (!Target.capsule.automatic) return false;
+			
+		// selling
 		if (Target->GetY() <= -20 && Target->GetYDir() < 0)
 		{
 			for (var item in FindObjects(Find_Container(Target)))
@@ -350,7 +358,7 @@ local FxBlowout = new Effect
 			return true;
 		}
 		
-		// Stuck or something?
+		// stuck or something?
 		if (time > (LandscapeHeight() * 4 / 3 + 300) && !Random(10))
 		{
 			Target->DoDamage(1); 
@@ -483,39 +491,43 @@ local FxBlowout = new Effect
 private func StackCapsuleSound(int change)
 {
 	capsule.stacked_sounds = Max(0, capsule.stacked_sounds + change);
-	if (capsule.stacked_sounds < 1) Sound("Jetbelt", 0, 0, 0, -1);
-	if (capsule.stacked_sounds > 0) Sound("Jetbelt", 0, 0, 0, +1);
+	if (capsule.stacked_sounds < 1) Sound("Jetbelt", {loop_count = -1});
+	if (capsule.stacked_sounds > 0) Sound("Jetbelt", {loop_count = +1});
 }
 
 
 private func ContactBottom()
 { 
-	if (capsule.thrust_vertical)
+	if (capsule.is_landing)
 	{
-		if (capsule.automatic)
+		capsule.is_landing = false;
+		if (capsule.thrust_vertical)
 		{
-			StopThruster();
+			if (capsule.automatic)
+			{
+				StopThruster();
+			}
+	
+			ResetThrust();
+	
+			if (capsule.port && GetIndexOf(FindObjects(Find_AtPoint()), capsule.port) >= 0) // TODO: test port landing
+			{
+				capsule.port_vertex = GetVertexNum();
+				AddVertex();
+				SetVertex(capsule.port_vertex, 2, CNAT_NoCollision, 1);
+				AddVertex();
+				SetVertex(capsule.port_vertex, 0, capsule.port->GetVertex(0, 0) + capsule.port->GetX() - GetX(), 2);
+				SetVertex(capsule.port_vertex, 1, capsule.port->GetVertex(0, 1) + capsule.port->GetY( )- GetY(), 2);
+				SetAction("PortLand", capsule.port);
+				SetActionData(256 * capsule.port_vertexd);
+				//FIXME: Do that less hacky...
+			} 
+			if (ObjectCount(Find_Container(this), Find_OCF(OCF_CrewMember)))
+			{
+				ScheduleCall(this, this.EjectCrew, 30, nil, GetX(), GetY());
+			}
+			if (capsule.port) ScheduleCall(capsule.port, capsule.port.PortWait, 50);
 		}
-
-		ResetThrust();
-
-		if (capsule.port && GetIndexOf(FindObjects(Find_AtPoint()), capsule.port) >= 0) // TODO: test port landing
-		{
-			capsule.port_vertex = GetVertexNum();
-			AddVertex();
-			SetVertex(capsule.port_vertex, 2, CNAT_NoCollision, 1);
-			AddVertex();
-			SetVertex(capsule.port_vertex, 0, capsule.port->GetVertex(0, 0) + capsule.port->GetX() - GetX(), 2);
-			SetVertex(capsule.port_vertex, 1, capsule.port->GetVertex(0, 1) + capsule.port->GetY( )- GetY(), 2);
-			SetAction("PortLand", capsule.port);
-			SetActionData(256 * capsule.port_vertexd);
-			//FIXME: Do that less hacky...
-		} 
-		if (ObjectCount(Find_Container(this), Find_OCF(OCF_CrewMember)))
-		{
-			ScheduleCall(this, this.EjectCrew, 30, nil, GetX(), GetY());
-		}
-		if (capsule.port) ScheduleCall(capsule.port, capsule.port.PortWait, 50);
 	}
 	return true;
 }
@@ -597,11 +609,15 @@ public func ContainedUseCancel(object clonk, int x, int y)
 
 private func SetThrust(int x, int y)
 {
+	capsule.is_landing = false; // user control removes autopilot
+
 	var per_mille = 1000;
 	var max = 300; // this many pixels will count as max acceleration
 	var max_thrust_angle = 60 * CAPSULE_Precision; 
 	var acceleration_per_mille = BoundBy(Distance(x, y) * per_mille / max, 1, per_mille);
-	var angle = Normalize(Angle(0, 0, x, y, CAPSULE_Precision), -180 * CAPSULE_Precision, CAPSULE_Precision);
+	var angle = Angle(0, 0, x, y, CAPSULE_Precision); //Normalize(Angle(0, 0, x, y, CAPSULE_Precision), -180 * CAPSULE_Precision, CAPSULE_Precision);
+	var rotation = GetR() * CAPSULE_Precision;
+	angle = Normalize(angle - rotation, -180 * CAPSULE_Precision, CAPSULE_Precision);
 
 	// set the vertical thruster on, as long as you are in range +/- max_thrust_angle	
 	if (Abs(angle) < max_thrust_angle)
