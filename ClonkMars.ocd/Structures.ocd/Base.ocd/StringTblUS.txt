@@ -1,0 +1,23 @@
+Name=Base
+Description=A save base with trading unit.|With jumping you open the menu where you can get supply capsules. These land somewhere near or you build a capsule port. You must wait for five minutes, if you accidently destry your capsule.|Clonks can regenerate their health here.|You also can produce Clonks. While the breeding process is running, there must be always at least one Clonk, enough room, a green base and power. If one of these requirements is not redeemed, the process will fail and start from the beginning. The process always can be started and canceled from within the menu.
+
+TxtSell=Only Sell
+TxtBuy=Buy
+TxtOrder=Order
+TxtAlreadyCapsule=Only one capsule for|each player allowed!
+TxtResearchs=Research: %s
+Txtsdeveloped=%s developed!
+TxtNothingelsetoresearc=Nothing else to research in this category.
+TxtResearch=Research
+TxtContinuedevelopement=Continue developement of %s
+TxtCancelresearch=Cancel research
+TxtAlreadyDeveloped=%s already developed!
+TxtTooStormy=Capsules can't land while it's stormy.
+TxtCapsuleDestroyed=Waiting for a new capsule...
+TxtCallCapsule=Call Capsule...
+TxtTranscribe=Transcribe gold
+TxtTranscribeAmmount=Amount: %d    
+TxtTranscribeTo=Choose recipient    
+TxtConfirm=Confirm    
+TxtConfirmTransfer=Confirm: %d to %s
+TxtStop=Break

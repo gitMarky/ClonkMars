@@ -22,10 +22,26 @@ public func CreateConstructionSite(object clonk, id structure_id, int x, int y, 
 	var return_value = _inherited(clonk, structure_id, x, y, blocked, dir, stick_to);
 	if (return_value) // remove if used!
 	{
-		ScheduleCall(this, this.RemoveObject, 1);
+		//ScheduleCall(this, this.RemoveObject, 1);
+		
+		var fx = GetEffect("ControlConstructionPreview", clonk);
+		fx.placed_construction = true;
 	}
 	return return_value;
 }
+
+
+
+public func FxControlConstructionPreviewStop(object clonk, proplist fx, int reason, bool temp)
+{
+	if (temp) return;
+	_inherited(clonk, fx, reason, temp);
+	if (fx.placed_construction)
+	{
+		this->RemoveObject();
+	}
+}
+
 
 
 /* -- Production & research -- */

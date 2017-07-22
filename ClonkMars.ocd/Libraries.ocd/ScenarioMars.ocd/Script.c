@@ -13,6 +13,7 @@ public func InitializePlayer(int player)
 {
 	CreateStartingEquipment(player);
 	CreateStartingCapsule(player);
+	GivePlayerBasicKnowledge(player);
 }
 
 
