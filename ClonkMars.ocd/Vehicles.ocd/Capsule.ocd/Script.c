@@ -170,6 +170,7 @@ public func SetLandingDestination(object port, bool auto)
 		ScheduleCall(capsule.port, capsule.port.PortActive, 50);
 	}
 	capsule.automatic = auto;
+	return time_freefall;
 }
 
 
@@ -489,7 +490,6 @@ local FxBlowout = new Effect
 };
 
 
-
 /* -- Misc -- */
 
 // Proper Sound() stacking emulator
@@ -654,6 +654,79 @@ private func ResetThrust()
 }
 
 
+
+/* -- Interaction -- */
+/* TODO - this does not work, because the interaction menu allows interactions only if you are outside of an object 
+public func IsFlying() { return !GetContact(-1);}
+
+
+public func IsInteractable(object clonk)
+{
+	if (Hostile(clonk->GetOwner(), GetOwner()))
+		return false;
+
+	return true;
+}
+
+
+public func GetInteractionMetaInfo(object clonk)
+{
+	if (IsFlying() && this == clonk->Contained())
+	{
+		return { Description = "$StartLanding$", IconName = nil, IconID = Icon_Exit, Selected = false };
+	}
+}
+
+
+public func Interact(object clonk)
+{
+	if (IsFlying() && this == clonk->Contained())
+	{
+		var time_to_land = SetLandingDestination();
+		var fx = GetEffect("FxLandingCountdown", this);
+		if (fx)
+		{
+			fx->UpdateTimer(time_to_land);
+		}
+		else
+		{
+			CreateEffect(FxLandingCountdown, 1, 1, time_to_land);
+		}
+		return true;
+	}
+	return false;
+}
+
+
+local FxLandingCountdown = new Effect
+{
+	Construction = func (int time_freefall)
+	{
+		UpdateTimer(time_freefall);
+	},
+	
+	UpdateTimer = func (int time_freefall)
+	{
+		this.time_freefall = time_freefall;
+	},
+	
+	Timer = func (int time)
+	{
+		if (!Target.capsule.is_landing || Target.capsule.thrust_vertical) return FX_Execute_Kill;
+
+		var time_remaining = this.time_freefall - time;
+
+		var frames = 36;
+		var remainder = time_remaining % frames;
+		var seconds = (time_remaining - remainder) / frames;
+
+		var millis = BoundBy(remainder * 1000 / frames, 0, 999);
+		Target->PlayerMessage(Target->GetOwner(), "$CountdownLanding$", seconds, remainder);
+		return FX_OK;
+	},
+};
+*/
+
 /* -- Actions -- */
 
 local ActMap = {
@@ -732,8 +805,6 @@ private func Launch() {
 }
 
 
-
-public func Flying() { return !GetContact(this, -1);}
 
 public func WindEffect() { return 100;}
 */
