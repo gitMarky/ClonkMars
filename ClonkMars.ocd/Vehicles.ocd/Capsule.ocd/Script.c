@@ -197,15 +197,8 @@ public func SetHorizontalThrust(int bo)
 {
 	if (capsule.thrust_horizontal != bo)
 	{
-		if (bo && !capsule.thrust_horizontal)
-		{
-			StackCapsuleSound(1);
-		}
-		else if (!bo)
-		{
-			StackCapsuleSound(-1);
-		}
 		capsule.thrust_horizontal = bo;
+		PlaySoundJetUpdate();
 	}
 	if (bo)
 	{
@@ -218,8 +211,8 @@ public func SetVerticalThrust(int bo)
 {
 	if (capsule.thrust_vertical != bo)
 	{
-		StackCapsuleSound(bo - capsule.thrust_vertical);
 		capsule.thrust_vertical = bo;
+		PlaySoundJetUpdate();
 		if (bo)
 		{
 			StartThruster();
@@ -492,12 +485,21 @@ local FxBlowout = new Effect
 
 /* -- Misc -- */
 
-// Proper Sound() stacking emulator
-private func StackCapsuleSound(int change)
+private func PlaySoundJetUpdate()
 {
-	capsule.stacked_sounds = Max(0, capsule.stacked_sounds + change);
-	if (capsule.stacked_sounds < 1) Sound("Jetbelt", {loop_count = -1});
-	if (capsule.stacked_sounds > 0) Sound("Jetbelt", {loop_count = +1});
+	var play;
+	
+	if (capsule.thrust_vertical || capsule.thrust_horizontal)
+	{
+		play = +1;
+	}
+	else
+	{
+		play = -1;
+	}
+	
+	Sound("Jetbelt", {loop_count = play});
+	
 }
 
 
@@ -651,6 +653,7 @@ private func ResetThrust()
 {
 	capsule.thrust_vertical = nil;
 	capsule.target_rotation = nil;
+	PlaySoundJetUpdate();
 }
 
 
