@@ -533,12 +533,15 @@ private func ContactBottom()
 				SetAction("PortLand", capsule.port);
 				SetActionData(256 * capsule.port_vertexd);
 				//FIXME: Do that less hacky...
-			} 
-			if (ObjectCount(Find_Container(this), Find_OCF(OCF_CrewMember)))
-			{
-				ScheduleCall(this, this.EjectCrew, 30, nil, GetX(), GetY());
 			}
-			if (capsule.port) ScheduleCall(capsule.port, capsule.port.PortWait, 50);
+			if (capsule.port)
+			{ 
+				if (ObjectCount(Find_Container(this), Find_OCF(OCF_CrewMember))) // do this only if there is a port - crew members dying because you fail to construct a base is not cool
+				{
+					ScheduleCall(this, this.EjectCrew, 30, nil, GetX(), GetY());
+				}
+				ScheduleCall(capsule.port, capsule.port.PortWait, 50);
+			}
 		}
 	}
 	return true;
