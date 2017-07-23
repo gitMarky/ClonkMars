@@ -14,8 +14,12 @@ local Touchable = 1;
 local BorderBound = C4D_Border_Sides;
 local Components = { Metal = 2 };
 local capsule; // proplist
+local MaxContentsCount = 20; // for loading?
 
 static const CAPSULE_Precision = 100; // 1/100 px per tick
+
+public func IsContainer() { return true; } // can carry items
+public func IsVehicle() { return true; }	// not sure where this is used, but the lorry has it
 
 /* -- Engine callbacks -- */
 
