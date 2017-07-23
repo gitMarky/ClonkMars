@@ -544,21 +544,22 @@ private func ContactBottom()
 // Ejects the contained clonks if the given position matches.
 private func EjectCrew(int x, int y)
 {
-	if (capsule.thrust_vertical) return;
+	if (capsule.thrust_vertical) return false;
 
-	if (GetX() == x && GetY() == y)
+	var position_matches = GetX() == x && GetY() == y;
+	var no_movement = GetXDir() == 0 && GetYDir() == 0;
+	if (!IsFlying() && position_matches && no_movement)
 	{
 		for (var crew in FindObjects(Find_Container(this), Find_OCF(OCF_CrewMember)))
 		{
 			crew->Exit();
 		}
+		return true;
 	}
 	else
 	{
-		if (!GetXDir() && !GetYDir())
-		{
-			ScheduleCall(this, this.EjectCrew, 10, nil, GetX(), GetY());
-		}
+		ScheduleCall(this, this.EjectCrew, 10, nil, GetX(), GetY());
+		return false;
 	}
 }
 
@@ -659,8 +660,8 @@ private func ResetThrust()
 
 
 /* -- Interaction -- */
-/* TODO - this does not work, because the interaction menu allows interactions only if you are outside of an object 
-public func IsFlying() { return !GetContact(-1);}
+// TODO - this does not work, because the interaction menu allows interactions only if you are outside of an object 
+public func IsFlying() { return !GetContact(-1) || capsule.thrust_vertical || capsule.thrust_horizontal;}
 
 
 public func IsInteractable(object clonk)
@@ -668,34 +669,48 @@ public func IsInteractable(object clonk)
 	if (Hostile(clonk->GetOwner(), GetOwner()))
 		return false;
 
-	return true;
+	return HasLandingInteraction(clonk) || HasLeaveInteraction(clonk);
+}
+
+
+public func HasLandingInteraction(object clonk)
+{
+	return this == clonk->Contained() && IsFlying() && !GetEffect("FxLandingCountdown", this);
+}
+
+
+public func HasLeaveInteraction(object clonk)
+{
+	return this == clonk->Contained() && !IsFlying();
 }
 
 
 public func GetInteractionMetaInfo(object clonk)
 {
-	if (IsFlying() && this == clonk->Contained())
+	if (HasLandingInteraction(clonk))
 	{
 		return { Description = "$StartLanding$", IconName = nil, IconID = Icon_Exit, Selected = false };
+	}
+	else if (HasLeaveInteraction(clonk))
+	{
+		return { Description = "$Exit$", IconName = nil, IconID = Icon_Exit, Selected = false };
 	}
 }
 
 
 public func Interact(object clonk)
 {
-	if (IsFlying() && this == clonk->Contained())
+	if (HasLandingInteraction(clonk))
 	{
+		ResetThrust();
 		var time_to_land = SetLandingDestination();
-		var fx = GetEffect("FxLandingCountdown", this);
-		if (fx)
-		{
-			fx->UpdateTimer(time_to_land);
-		}
-		else
-		{
-			CreateEffect(FxLandingCountdown, 1, 1, time_to_land);
-		}
+		RemoveEffect("FxLandingCountdown", this);
+		CreateEffect(FxLandingCountdown, 1, 1, time_to_land);
 		return true;
+	}
+	else if (HasLeaveInteraction(clonk))
+	{
+		EjectCrew(GetX(), GetY());
 	}
 	return false;
 }
@@ -705,30 +720,25 @@ local FxLandingCountdown = new Effect
 {
 	Construction = func (int time_freefall)
 	{
-		UpdateTimer(time_freefall);
-	},
-	
-	UpdateTimer = func (int time_freefall)
-	{
 		this.time_freefall = time_freefall;
 	},
-	
+
 	Timer = func (int time)
 	{
-		if (!Target.capsule.is_landing || Target.capsule.thrust_vertical) return FX_Execute_Kill;
-
 		var time_remaining = this.time_freefall - time;
+		if (Target.capsule.thrust_vertical || Target.capsule.thrust_horizontal || !Target->IsFlying() || time_remaining < 0) return FX_Execute_Kill;
+
 
 		var frames = 36;
 		var remainder = time_remaining % frames;
 		var seconds = (time_remaining - remainder) / frames;
 
 		var millis = BoundBy(remainder * 1000 / frames, 0, 999);
-		Target->PlayerMessage(Target->GetOwner(), "$CountdownLanding$", seconds, remainder);
+		Target->PlayerMessage(Target->GetOwner() + 1, "$CountdownLanding$", seconds, remainder);
 		return FX_OK;
 	},
 };
-*/
+
 
 /* -- Actions -- */
 
