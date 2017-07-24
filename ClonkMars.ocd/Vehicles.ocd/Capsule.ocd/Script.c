@@ -2,7 +2,7 @@
 // #include storm thingy
 #include Library_Structure // sort of - inherits the repair stuff
 #include Library_DamageControl
-#include Library_Ownable
+//#include Library_Ownable // do not use this yet!
 
 /* -- Properties --*/
 
@@ -741,7 +741,7 @@ local FxLandingCountdown = new Effect
 		var seconds = (time_remaining - remainder) / frames;
 
 		var millis = BoundBy(remainder * 1000 / frames, 0, 999);
-		Target->PlayerMessage(Target->GetOwner() + 1, "$CountdownLanding$", seconds, remainder);
+		Target->PlayerMessage(Target->GetOwner(), "$CountdownLanding$", seconds, remainder);
 		return FX_OK;
 	},
 };
