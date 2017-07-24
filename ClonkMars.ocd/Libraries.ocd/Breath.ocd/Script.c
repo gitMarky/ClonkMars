@@ -76,6 +76,8 @@ local FxBreathe = new Effect
 					Target->~DeepBreath();
 					this.do_deep_breath = false;
 				}
+				// force GUI update, just in case
+				Target->GetBreath();
 			}
 		}
 		else

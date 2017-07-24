@@ -41,7 +41,7 @@ public func CanBreathe()
 public func TakeBreath(int max_supply)
 {
 	// take as much as you can from the atmosphere first, because it is free for you
-	var refresh_rate = Max(1, this->GetMaxBreath() / this.library_breath.BreathRefreshTime);
+	var refresh_rate = Max(1, this->GetID()->GetMaxBreath() / this.library_breath.BreathRefreshTime);
 	var take_breath = GetOxygenInAtmosphere() * refresh_rate / 1000;
 	
 	// try to aim for the maximum that you can take in, by supplementing the atmosphere value

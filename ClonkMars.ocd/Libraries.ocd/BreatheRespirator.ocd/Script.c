@@ -48,10 +48,13 @@ public func GetBreath()
 public func GetMaxBreath()
 {
 	var breath = _inherited(...);
-	var respirator = this->~GetRespirator();
-	if (respirator)
+	if (this && GetType(this) == C4V_C4Object) // look for respirators only in object context
 	{
-		breath += respirator->GetMaxOxygen();
+		var respirator = this->~GetRespirator();
+		if (respirator)
+		{
+			breath += respirator->GetMaxOxygen();
+		}
 	}
 	return breath;
 }
