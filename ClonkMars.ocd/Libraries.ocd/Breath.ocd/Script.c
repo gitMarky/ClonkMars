@@ -38,8 +38,8 @@ public func DoBreath(int change)
 	library_breath.Breath = BoundBy(current + change, 0, this.MaxBreath);
 	// cause the engine callback, etc.
 	_inherited(change, ...);
-	// return if there was a change
-	return GetBreath() != current;
+	// return the change
+	return GetBreath() - current;
 }
 
 

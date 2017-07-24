@@ -1,0 +1,3 @@
+Name=Raumanzug
+Description=Ermöglicht Weltraumspaziergänge, da er vor Kälte und Atemnot schützt. [Benutzen] drücken zum Aufsetzen.
+NoAtmosphere=Das wäre Selbstmord...

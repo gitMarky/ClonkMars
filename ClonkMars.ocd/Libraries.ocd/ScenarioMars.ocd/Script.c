@@ -33,6 +33,11 @@ private func CreateStartingCapsule(int player)
 	{
 		material->Enter(capsule);
 	}
+	for (var crew in FindObjects(Find_Owner(player), Find_OCF(OCF_CrewMember)))
+	{
+		var suit = crew->CreateContents(SpaceSuit);
+		suit->PutOn(crew);
+	}
 }
 
 

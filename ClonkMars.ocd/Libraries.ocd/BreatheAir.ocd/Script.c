@@ -4,6 +4,8 @@
 	
 */
 
+static const BREATHE_MinOxygenInAtmosphere = 100;
+
 public func Construction()
 {
 	_inherited(...);
@@ -24,7 +26,7 @@ public func CanBreathe()
 	{
 		return true;
 	}
-	else if (GetOxygenInAtmosphere() > 100) // atmosphere needs 10% oxygen
+	else if (GetOxygenInAtmosphere() > BREATHE_MinOxygenInAtmosphere) // atmosphere needs 10% oxygen
 	{
 		var breathe_at = this->BreatheAt();
 		return !GBackSemiSolid(breathe_at.X, breathe_at.Y);

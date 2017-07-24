@@ -1,0 +1,3 @@
+Name=Space suit
+Description=Allows for walking space, by protecting from temperature and providing a respirator. Press [use] to put on.
+NoAtmosphere=That would be suicide...
