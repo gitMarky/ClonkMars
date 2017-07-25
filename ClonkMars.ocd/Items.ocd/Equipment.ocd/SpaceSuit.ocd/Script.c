@@ -38,7 +38,7 @@ public func ControlUse(object clonk)
 	{
 		PutOn(clonk);
 	}
-	clonk->GetBreath(); // force breath update
+	clonk->DoBreath(); // force breath update
 	return true;
 }
 

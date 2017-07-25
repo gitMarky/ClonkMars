@@ -70,7 +70,7 @@ public func DoBreath(int change)
 	// get the rest from the respirator
 	var rest = change - do_breath;
 	var respirator = this->~GetRespirator();
-	if (respirator)
+	if (respirator && rest < 0) // you can only take oxygen via breathing, or otherwise you get some sort of perpetuum mobile
 	{
 		respirator->DoOxygen(rest);
 	}
