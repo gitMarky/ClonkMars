@@ -19,6 +19,22 @@ public func BreatheAt()
 }
 
 
+public func OnBreathe()
+{
+	// refill respirators
+	var supplier = GetOxygenSupplier();
+	for (var respirator in FindObjects(Find_Container(this), Find_Func("IsRespirator")))
+	{
+		var refill = Min(respirator->GetMaxOxygen() - respirator->GetOxygen(), supplier->GetOxygenRefillRate());
+		
+		var taken = supplier->DoOxygen(-refill);
+		var given = respirator->DoOxygen(-taken);
+		
+		supplier->DoOxygen(given - taken); // just in case, should yield 0 most of the time
+	}
+}
+
+
 public func GetRespirator()
 {
 	return FindObject(Find_Container(this), Find_Func("IsRespiratorFor", this));

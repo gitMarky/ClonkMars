@@ -22,6 +22,7 @@ private func Construction()
 	_inherited(...);
 	library_supply_oxygen = {
 		Oxygen = GetMaxOxygen(),
+		RefillRate = 1, // give back 1 per frame
 	};
 }
 
@@ -73,4 +74,16 @@ public func DoOxygen(int change)
 		SetOxygen(previous + change);
 		return GetOxygen() - previous;
 	}
+}
+
+
+public func GetOxygenRefillRate()
+{
+	return library_supply_oxygen.RefillRate;
+}
+
+
+public func SetOxygenRefillRate(int amount)
+{
+	library_supply_oxygen.RefillRate = amount;
 }

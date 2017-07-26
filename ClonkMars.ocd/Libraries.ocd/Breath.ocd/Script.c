@@ -79,6 +79,8 @@ local FxBreathe = new Effect
 				// force GUI update, just in case
 				Target->GetBreath();
 			}
+
+			Target->~OnBreathe();
 		}
 		else
 		{
