@@ -2,6 +2,7 @@
 // #include storm thingy
 #include Library_Structure // sort of - inherits the repair stuff
 #include Library_DamageControl
+#include Library_OxygenSupplier
 //#include Library_Ownable // do not use this yet!
 
 /* -- Properties --*/

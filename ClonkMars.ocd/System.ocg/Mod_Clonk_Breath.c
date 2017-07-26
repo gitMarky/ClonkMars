@@ -1,5 +1,6 @@
 #include Library_Breath
 #include Library_BreatheAir
+#include Library_BreatheOxygenSupplier
 #include Library_BreatheRespirator
 #appendto Clonk
 
@@ -21,4 +22,15 @@ public func BreatheAt()
 public func GetRespirator()
 {
 	return FindObject(Find_Container(this), Find_Func("IsRespiratorFor", this));
+}
+
+
+public func GetOxygenSupplier()
+{
+	var container = Contained();
+	if (container && container->~IsOxygenSupplier())
+	{
+		return container;
+	}
+	return nil;
 }

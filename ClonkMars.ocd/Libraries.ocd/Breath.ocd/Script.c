@@ -69,7 +69,7 @@ local FxBreathe = new Effect
 			if (take_breath > 0)
 			{
 				Target->DoBreath(take_breath);
-				
+
 				// sound effect?
 				if (this.do_deep_breath)
 				{
