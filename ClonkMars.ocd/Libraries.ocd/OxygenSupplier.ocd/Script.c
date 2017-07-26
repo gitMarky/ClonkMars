@@ -48,7 +48,7 @@ public func SetOxygen(int amount)
 }
 
 
-public func HasOxygen(int amount)
+public func HasOxygen(int amount) // unused now
 {
 	if (this.MaxOxygen == SUPPLY_OXYGEN_Infinite)
 	{
