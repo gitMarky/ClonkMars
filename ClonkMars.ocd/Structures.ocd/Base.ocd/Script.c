@@ -1,21 +1,7 @@
 #include Library_Structure
 #include Library_DamageControl
 #include Library_OxygenSupplier
-//#include Basement95
 
-/* -- Engine callbacks -- */
-
-public func Initialize()
-{
-	_inherited(...);
-	
-	// perfect positioning!
-	if (GetBasement())
-	{
-		var y = GetBasement()->GetY() + GetBasement()->GetTop() - this->GetBottom();
-		SetPosition(GetX(), y);
-	}
-}
 
 /* -- Production & research */
 
@@ -26,9 +12,8 @@ public func GetBasementWidth(){ return 95; }
 
 private func ClonkCapacity() {	return 3; } // TODO: this was probably used for reproduction stuff - not used yet
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// properties
+
+/* -- Properties -- */
 
 local Name = "$Name$";
 local Description = "$Description$";
@@ -36,9 +21,8 @@ local ContainBlast = true;
 local HitPoints = 50;
 local Components = { Metal = 2, Plastic = 2};
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// actions
+
+/* -- Actions -- */
 
 local ActMap = {
 
