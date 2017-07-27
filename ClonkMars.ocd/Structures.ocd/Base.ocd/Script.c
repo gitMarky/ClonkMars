@@ -5,10 +5,16 @@
 
 /* -- Engine callbacks -- */
 
-public func Construction()
+public func Initialize()
 {
 	_inherited(...);
-	AddBasement();
+	
+	// perfect positioning!
+	if (GetBasement())
+	{
+		var y = GetBasement()->GetY() + GetBasement()->GetTop() - this->GetBottom();
+		SetPosition(GetX(), y);
+	}
 }
 
 /* -- Production & research */
