@@ -1,4 +1,5 @@
 #include Library_Structure
+#include Library_OxygenSupplier
 //#include Basement95
 
 /* -- Engine callbacks -- */
