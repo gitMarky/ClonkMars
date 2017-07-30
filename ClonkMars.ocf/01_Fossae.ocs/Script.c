@@ -9,5 +9,6 @@ public func Initialize()
 	// some natural disasters
 	Earthquake->SetChance(3);
 	Meteor->SetChance(31);
+	Meteor->SetInterval(30 * 35);
 	SetOxygenInAtmosphere(0);
 }

@@ -16,3 +16,20 @@ public func OnAfterLaunch()
 		fx.frontburn.Size = PV_Linear(1, 3);
 	}
 }
+
+
+// modifies the meteor spawn interval. Default value is 20 frames
+public func SetInterval(int interval, id spawn_id)
+{
+	var fx = FindMeteoriteEffectFor(spawn_id);
+	if (fx)
+	{
+	 	fx.Interval = interval ?? 20;
+	}
+	else
+	{
+		FatalError("Meteor effect has to exist before calling this function");
+	}
+
+	return true;
+}
