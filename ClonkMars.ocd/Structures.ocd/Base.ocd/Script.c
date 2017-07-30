@@ -1,4 +1,5 @@
 #include Library_Structure
+#include Library_DoorControlFx
 #include Library_DamageControl
 #include Library_OxygenSupplier
 
