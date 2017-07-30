@@ -22,6 +22,19 @@ local ContainBlast = true;
 local HitPoints = 50;
 local Components = { Metal = 2, Plastic = 2};
 
+/* -- Door control -- */
+
+private func SoundOpenDoor()
+{
+	Sound("Door_Metal");
+}
+
+
+private func SoundCloseDoor()
+{
+	Sound("Door_Metal");
+}
+
 
 /* -- Actions -- */
 
