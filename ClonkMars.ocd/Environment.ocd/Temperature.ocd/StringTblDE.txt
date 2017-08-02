@@ -1,0 +1,3 @@
+Name=Temperatur
+Description=Temperatur in der Landschaft.
+
