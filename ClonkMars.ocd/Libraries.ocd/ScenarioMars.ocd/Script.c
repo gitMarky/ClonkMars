@@ -6,6 +6,7 @@ public func Initialize()
 	_inherited(...);
     Sky_Mars();
     Scenario_Gravity();
+    Scenario_Temperature();
 }
 
 
@@ -23,6 +24,12 @@ public func InitializePlayer(int player)
 private func Scenario_Gravity()
 {
     SetGravity(8); // 37% of default value 20, rounded up
+}
+
+
+private func Scenario_Temperature()
+{
+	Temperature->CreateGrid(10);
 }
 
 

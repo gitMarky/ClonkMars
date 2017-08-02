@@ -27,6 +27,20 @@ global func GetTemperatureAt(int x, int y, int prec)
 	return control->Point(x, y)->GetTemp(prec);
 }
 
+global func SetTemperatureAt(int x, int y, int amount)
+{
+	if (GetType(this) == C4V_C4Object)
+	{
+		x += GetX();
+		y += GetY();
+	}
+	
+	var control = Temperature->GetTemperatureControl();
+	AssertNotNil(control);
+	
+	control->Point(x, y)->SetTemp(amount);
+}
+
 /* -- Public interface -- */
 
 public func CreateGrid(int sample_distance)
@@ -168,11 +182,22 @@ local FxTemperatureControl = new Effect
 	{
 		this.grid_distance = 10;
 		this.grid = [];
+		this.debug = true;
 	},
 	
 	Timer = func ()
 	{
 		Log("Update temperature");
+		for (var column in this.grid)
+		for (var point in column)
+		{
+			var temp = BoundBy(point->GetTemp(), -60, 128);
+			if (this.debug)
+			{
+				var hue = 128 - temp;
+				CreateParticle("Magic", point.X, point.Y, 0, 0, this.Interval, { Prototype = Particles_Colored(Particles_Trajectory(), HSL2RGB(RGB(hue, 255, 128))), Size = this.grid_distance * 2, Alpha = 50});
+			}
+		}
 	},
 	
 	CreateGrid = func(int sample_distance)
