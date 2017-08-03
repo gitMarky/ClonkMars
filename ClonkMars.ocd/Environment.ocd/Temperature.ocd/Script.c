@@ -192,11 +192,15 @@ local FxTemperatureControl = new Effect
 		this.grid_distance = 10;
 		this.grid = [];
 		this.debug = true;
+		this.temperature = GetTemperature();
 	},
 	
 	Timer = func ()
 	{
 		Log("Update temperature");
+		// difference
+		this.temperature = GetTemperature();
+		
 		// iterate over all points
 		for (var column in this.grid)
 		for (var point in column)
@@ -204,11 +208,13 @@ local FxTemperatureControl = new Effect
 			// calculate the change
 			var change = 0;
 			change = Temperature->CalcTempChange_Planet(point, change);
+			change = Temperature->CalcTempChange_Season(point, change, this.temperature);
 			change = Temperature->CalcTempChange_Sun(point, change);
 			change = Temperature->CalcTempChange_LowerBorder(point, change);
 			change = Temperature->CalcTempChange_UpperBorder(point, change);
 			point->ChangeTemp(change);
 		}
+		
 		
 		var prec = 100;
 		// influence neighbors, update graphics
@@ -355,6 +361,22 @@ private func CalcTempChange_Sun(proplist point, int change)
 	{
 		return change;
 	}
+}
+
+
+private func CalcTempChange_Season(proplist point, int change, int temperature)
+{
+	if (GBackSky(point.X, point.Y))
+	{
+		// sky temperature should be approximately the atmospheric temperature
+		// this could also be solved by light intensity stuff, but it is not done
+		// like that yet
+		var prec = 100;
+		var diff = temperature * prec - point->GetTemp(prec);
+		return BoundBy(change + diff, PlanetMinTemperature, PlanetMaxTemperature);
+	}
+
+	return change;
 }
 
 
