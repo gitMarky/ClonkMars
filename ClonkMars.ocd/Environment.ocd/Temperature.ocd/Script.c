@@ -14,11 +14,18 @@ local MaxTemperature = 100000;	// global maximum temperature, in 1e-2 degrees Ce
 local PlanetMinTemperature = -8000;	// local minimum temperature, in 1e-2 degrees Celsius;
 local PlanetMaxTemperature = +8000;	// local maximum temperature, in 1e-2 degrees Celsius; 
 
-local SunlightDistance = 100;
+local DistanceSunlight = 100;	// ground heats up to this many pixels below the surface
+local DistanceGround = 100;		// ground heats / cools in multiples of these many pixels
 
 local PlanetTempChangeSolid = nil;		// planet intrinsical warming, in 1e-2 degrees Celsius; will be warmed by sunlight only if set to 0
 local PlanetTempChangeLiquid = nil;		// planet intrinsical warming, in 1e-2 degrees Celsius; will be warmed by sunlight only if set to 0
 local PlanetTempChangeSky = nil;		// planet intrinsical warming, in 1e-2 degrees Celsius; will be warmed by sunlight only if set to 0
+
+local LowerBorderDistance = 100;		// temperature changes this many pixels from the lower landscape border
+local LowerBorderTempChange = -150;		// temperature at the lower border changes by this amount, in 1e-2 degrees Celsius
+
+local UpperBorderDistance = 1;			// temperature changes this many pixels from the lower landscape border
+local UpperBorderTempChange = 0;		// temperature at the upper border changes by this amount, in 1e-2 degrees Celsius
 
 /* -- Globals -- */
 
@@ -352,7 +359,7 @@ private func CalcTempChange_Planet(proplist point, int change)
 
 private func CalcTempChange_Sun(proplist point, int change)
 {
-	if(GBackSolid(point.X, point.Y) && GBackSky(point.X, point.Y - SunlightDistance))
+	if(GBackSolid(point.X, point.Y) && GBackSky(point.X, point.Y - DistanceSunlight))
 	{
 		var sunlight = 1000; // TODO GetLightIntensity() * 7 / 4;
 		return BoundBy(change + sunlight, PlanetMinTemperature, PlanetMaxTemperature);
@@ -382,12 +389,26 @@ private func CalcTempChange_Season(proplist point, int change, int temperature)
 
 private func CalcTempChange_LowerBorder(proplist point, int change)
 {
+	if (LowerBorderDistance > 0)
+	{
+		var relative =  BoundBy(point.Y - LandscapeHeight() + LowerBorderDistance, 0, LowerBorderDistance);
+		var diff = relative * LowerBorderTempChange / LowerBorderDistance;
+		return BoundBy(change + diff, PlanetMinTemperature, PlanetMaxTemperature);
+	}
+
 	return change;
 }
 
 
 private func CalcTempChange_UpperBorder(proplist point, int change)
 {
+	if (UpperBorderDistance > 0)
+	{
+		var relative =  BoundBy(UpperBorderDistance - point.Y, 0, UpperBorderDistance);
+		var diff = relative * CalcTempChange(UpperBorderTempChange) / UpperBorderDistance;
+		return BoundBy(change + diff, PlanetMinTemperature, PlanetMaxTemperature);
+	}
+
 	return change;
 }
 
@@ -408,4 +429,9 @@ private func CalcTempChange(value)
 	}
 }
 
+
+private func UpperBorderTempChangeByLight()
+{
+	return -110; // TODO + (GetLightIntensity() / 3);
+}
 
