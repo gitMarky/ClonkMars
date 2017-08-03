@@ -8,8 +8,15 @@
 
 /* -- Properties -- */
 
-local MinTemperature = -27315;
-local MaxTemperature = 100000;
+local MinTemperature = -27315;	// global minimum temperature, in 1e-2 degrees Celsius
+local MaxTemperature = 100000;	// global maximum temperature, in 1e-2 degrees Celsius
+
+local PlanetMinTemperature = -8000;	// local minimum temperature, in 1e-2 degrees Celsius;
+local PlanetMaxTemperature = +8000;	// local maximum temperature, in 1e-2 degrees Celsius; 
+
+local SunlightDistance = 100;
+
+//local WarmingPlanet = nil;		// planet intrinsical warming, in 1e-2 degrees Celsius; will be warmed by sunlight only if set to 0
 
 /* -- Globals -- */
 
@@ -188,14 +195,38 @@ local FxTemperatureControl = new Effect
 	Timer = func ()
 	{
 		Log("Update temperature");
+		// iterate over all points
 		for (var column in this.grid)
 		for (var point in column)
 		{
-			var temp = BoundBy(point->GetTemp(), -60, 128);
-			if (this.debug)
+			// calculate the change
+			var change = 0;
+			change = Temperature->CalcTempChange_Planet(point, change);
+			change = Temperature->CalcTempChange_Sun(point, change);
+			change = Temperature->CalcTempChange_LowerBorder(point, change);
+			change = Temperature->CalcTempChange_UpperBorder(point, change);
+			point->ChangeTemp(change);
+		}
+		
+		var prec = 100;
+		// influence neighbors, update graphics
+		var width = GetLength(this.grid);
+		for (var x = 0; x < width; ++x)
+		{
+			var height = GetLength(this.grid[x]);
+			for (var y = 0; y < height; ++y)
 			{
-				var hue = 128 - temp;
-				CreateParticle("Magic", point.X, point.Y, 0, 0, this.Interval, { Prototype = Particles_Colored(Particles_Trajectory(), HSL2RGB(RGB(hue, 255, 128))), Size = this.grid_distance * 2, Alpha = 50});
+				var point = this.grid[x][y];
+				var temperature = CalcAverageTemperature(x, y, prec);
+				point->ChangeTemp(temperature - point->GetTemp(prec));
+				
+				// display the temperature in debug mode
+				var temp = BoundBy(point->GetTemp(), -60, 128);
+				if (this.debug)
+				{
+					var hue = 128 - temp;
+					CreateParticle("Magic", point.X, point.Y, 0, 0, this.Interval, { Prototype = Particles_Colored(Particles_Trajectory(), HSL2RGB(RGB(hue, 255, 128))), Size = this.grid_distance * 2, Alpha = 50});
+				}
 			}
 		}
 	},
@@ -232,5 +263,95 @@ local FxTemperatureControl = new Effect
 		var index_y = 1 + y / this.grid_distance;
 		
 		return this.grid[index_x][index_y];
-	}
+	},
+	
+	CalcAverageTemperature = func(int index_x, int index_y, int prec)
+	{
+		var center = this.grid[index_x][index_y];
+		var samples = [center, center]; // center has double weight
+		
+		// left side
+		if (index_x > 0)
+		{
+			PushBack(samples, this.grid[index_x-1][index_y]);
+		}
+		else
+		{
+			PushBack(samples, center);
+		}
+		
+		// right side
+		if (index_x == GetLength(this.grid) - 1)
+		{
+			PushBack(samples, center);
+		}
+		else
+		{
+			PushBack(samples, this.grid[index_x + 1][index_y]);
+		}
+		
+		// top side
+		if (index_y > 0)
+		{
+			PushBack(samples, this.grid[index_x][index_y-1]);
+		}
+		else
+		{
+			PushBack(samples, center);
+		}
+		
+		// bottom side
+		if (index_y == GetLength(this.grid[0]) - 1)
+		{
+			PushBack(samples, center);
+		}
+		else
+		{
+			PushBack(samples, this.grid[index_x][index_y+1]);
+		}
+		
+		// calculation
+		var average = 0;
+		for (var sample in samples)
+		{
+			average += sample->GetTemp(prec);
+		}
+		average /= GetLength(samples);
+		return average;
+	},
 };
+
+/* -- Calculations -- */
+
+private func CalcTempChange_Planet(proplist point, int change)
+{
+	return change;
+}
+
+
+private func CalcTempChange_Sun(proplist point, int change)
+{
+	if(point.Y < 0 || (GBackSolid(point.X, point.Y) && GBackSky(point.X, point.Y - SunlightDistance)))
+	{
+		var sunlight = 1000; // TODO GetLightIntensity() * 7 / 4;
+		return BoundBy(change + sunlight, PlanetMinTemperature, PlanetMaxTemperature);
+	}
+	else
+	{
+		return change;
+	}
+}
+
+
+private func CalcTempChange_LowerBorder(proplist point, int change)
+{
+	return change;
+}
+
+
+private func CalcTempChange_UpperBorder(proplist point, int change)
+{
+	return change;
+}
+
+
