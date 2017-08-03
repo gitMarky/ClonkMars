@@ -16,7 +16,9 @@ local PlanetMaxTemperature = +8000;	// local maximum temperature, in 1e-2 degree
 
 local SunlightDistance = 100;
 
-//local WarmingPlanet = nil;		// planet intrinsical warming, in 1e-2 degrees Celsius; will be warmed by sunlight only if set to 0
+local PlanetTempChangeSolid = nil;		// planet intrinsical warming, in 1e-2 degrees Celsius; will be warmed by sunlight only if set to 0
+local PlanetTempChangeLiquid = nil;		// planet intrinsical warming, in 1e-2 degrees Celsius; will be warmed by sunlight only if set to 0
+local PlanetTempChangeSky = nil;		// planet intrinsical warming, in 1e-2 degrees Celsius; will be warmed by sunlight only if set to 0
 
 /* -- Globals -- */
 
@@ -325,6 +327,19 @@ local FxTemperatureControl = new Effect
 
 private func CalcTempChange_Planet(proplist point, int change)
 {
+	if (GBackSolid(point.X, point.Y))
+	{
+		if (PlanetTempChangeSolid) return CalcTempChange(PlanetTempChangeSolid);
+	}
+	else if (GBackLiquid(point.X, point.Y))
+	{
+		if (PlanetTempChangeLiquid) return CalcTempChange(PlanetTempChangeLiquid);
+	}
+	else if (GBackSky(point.X, point.Y))
+	{
+		if (PlanetTempChangeSky) return CalcTempChange(PlanetTempChangeSky);
+	}
+
 	return change;
 }
 
@@ -352,6 +367,23 @@ private func CalcTempChange_LowerBorder(proplist point, int change)
 private func CalcTempChange_UpperBorder(proplist point, int change)
 {
 	return change;
+}
+
+
+private func CalcTempChange(value)
+{
+	if (GetType(value) == C4V_Int)
+	{
+		return value;
+	}
+	else if (GetType(value) == C4V_Function)
+	{
+		return Call(value);
+	}
+	else
+	{
+		FatalError(Format("Can calculate a function or integer, got %v", GetType(value)));
+	}
 }
 
 
