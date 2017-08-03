@@ -15,6 +15,10 @@ public func GetMaterialTemperature(int material)
 	{
 		return Min(GetTemperature(), 0);
 	}
+	else if (material == Material("Sky"))
+	{
+		return GetTemperature();
+	}
 	else
 	{
 		var temperature = GetTemperature();
