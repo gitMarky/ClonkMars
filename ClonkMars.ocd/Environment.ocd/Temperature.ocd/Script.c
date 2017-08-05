@@ -359,15 +359,25 @@ private func CalcTempChange_Planet(proplist point, int change)
 
 private func CalcTempChange_Sun(proplist point, int change)
 {
-	if(GBackSolid(point.X, point.Y) && GBackSky(point.X, point.Y - DistanceSunlight))
+	if (GBackSolid(point.X, point.Y))
 	{
-		var sunlight = 1000; // TODO GetLightIntensity() * 7 / 4;
+		var distance_sky = 0;
+		var sunlight = 0;
+		for (; distance_sky < DistanceSunlight; ++distance_sky)
+		{
+			if (GBackSky(point.X, point.Y - distance_sky))
+			{
+				var relative = DistanceSunlight - distance_sky;
+				var intensity = 1000; // TODO GetLightIntensity() * 7 / 4;
+				sunlight = relative * intensity / DistanceSunlight;
+				break;
+			}
+		}
+		
 		return BoundBy(change + sunlight, PlanetMinTemperature, PlanetMaxTemperature);
 	}
-	else
-	{
-		return change;
-	}
+
+	return change;
 }
 
 
