@@ -368,7 +368,7 @@ private func CalcTempChange_Sun(proplist point, int change)
 			if (GBackSky(point.X, point.Y - distance_sky))
 			{
 				var relative = DistanceSunlight - distance_sky;
-				var intensity = 1000; // TODO GetLightIntensity() * 7 / 4;
+				var intensity = GetAmbientBrightness() * 7 / 4;
 				sunlight = relative * intensity / DistanceSunlight;
 				break;
 			}
@@ -442,6 +442,6 @@ private func CalcTempChange(value)
 
 private func UpperBorderTempChangeByLight()
 {
-	return -110; // TODO + (GetLightIntensity() / 3);
+	return -110 + GetAmbientBrightness() / 3;
 }
 
