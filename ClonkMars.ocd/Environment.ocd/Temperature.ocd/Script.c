@@ -196,15 +196,21 @@ local FxTemperatureControl = new Effect
 {
 	Construction = func ()
 	{
+		// set values
 		this.grid_distance = 10;
 		this.grid = [];
 		this.debug = true;
 		this.temperature = GetTemperature();
+
+		// do some ticks beforehand, for a better result
+		for (var i = 0; i < 100; ++i)
+		{
+			Timer();
+		}	
 	},
-	
+
 	Timer = func ()
 	{
-		Log("Update temperature");
 		// difference
 		this.temperature = GetTemperature();
 		
