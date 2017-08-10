@@ -6,6 +6,8 @@
 	
 */
 
+static const ANIM_SLOT_Door = 1;
+
 
 /* -- Engine callbacks -- */
 
@@ -94,6 +96,9 @@ local FxDoorControl = new Effect
 		this.is_open = false;
 		this.sound_open = true;
 		this.sound_close = true;
+		this.anim_open = true;
+		this.anim_opened = true;
+		this.anim_close = true;
 	},
 
 	Timer = func()
@@ -104,7 +109,12 @@ local FxDoorControl = new Effect
 			if (this.sound_open)
 			{
 				this.sound_open = false;
-				Target->SoundOpenDoor();
+				Target->SoundOpenDoor();	
+			}
+			if (this.anim_open)
+			{
+				DoorAnimation("DoorOpen", this.time_opening);
+				this.anim_open = false;
 			}
 		}
 		else if (this.time_open > 0)
@@ -114,8 +124,14 @@ local FxDoorControl = new Effect
 				Target->OpenEntrance();
 				this.is_open = true;
 			}
-			
+
 			this.time_open -= 1;
+
+			if (this.anim_opened)
+			{
+				DoorAnimation("DoorOpened", this.time_open);
+				this.anim_opened = false;
+			};
 		}
 		else if (this.time_closing > 0)
 		{
@@ -129,6 +145,11 @@ local FxDoorControl = new Effect
 			{
 				this.sound_close = false;
 				Target->SoundCloseDoor();
+			}
+			if (this.anim_close)
+			{
+				DoorAnimation("DoorClose", this.time_closing);
+				this.anim_close = false;
 			}
 		}
 		else
@@ -160,6 +181,11 @@ local FxDoorControl = new Effect
 		{
 			this.time_open = this.time_opened;
 		}
+	},
+	
+	DoorAnimation = func(string animation, int duration)
+	{
+		Target->PlayAnimation(animation, ANIM_SLOT_Door, Anim_Linear(0, 0, Target->GetAnimationLength(animation), duration, ANIM_Remove), Anim_Linear(0, 0, 1000, 5, ANIM_Remove));
 	},
 };
 
