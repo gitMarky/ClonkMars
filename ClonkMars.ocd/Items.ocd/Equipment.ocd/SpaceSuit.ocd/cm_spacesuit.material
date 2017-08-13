@@ -1,0 +1,32 @@
+material cm_spacesuit_body
+{
+	receive_shadows on 
+
+	technique
+	{
+		pass 
+		{
+			ambient 1.0 1.0 1.0 1.0
+			diffuse 0.8 0.72 0.64 1.0
+			specular 1.0 1.0 1.0 1.0 25
+			emissive 0.0 0.0 0.0 1.0
+		}
+	}
+}
+
+material cm_spacesuit_helmet
+{
+	receive_shadows on 
+
+	technique
+	{
+		pass 
+		{
+			ambient 1.0 1.0 1.0 1.0
+			diffuse 0.32 0.28 0.26 1.0
+			specular 1.0 1.0 1.0 1.0 25
+			emissive 0.0 0.0 0.0 1.0
+		}
+	}
+}
+

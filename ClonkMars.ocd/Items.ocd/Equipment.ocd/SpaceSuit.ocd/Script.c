@@ -60,9 +60,20 @@ public func GetWearPlace()
 	return WEARABLE_Head;
 }
 
+public func GetWearBone()
+{
+	return WEARABLE_Head;
+}
+
+public func GetWearFlags()
+{
+	return AM_MatchSkeleton;
+}
+
+
 public func GetWearTransform()
 {
-	return Trans_Mul(Trans_Rotate(90, 0, 0, 1), Trans_Translate(0, -1000));
+	return Trans_Identity();
 }
 
 public func GetCarryMode(object clonk, bool secondary)
