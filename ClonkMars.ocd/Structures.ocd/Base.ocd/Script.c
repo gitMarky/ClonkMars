@@ -26,18 +26,18 @@ local Components = { Metal = 2, Plastic = 2};
 
 private func SoundOpenDoor()
 {
-	Sound("Door_Metal");
+	SetAction("OpenDoor");
 }
 
 
 private func SoundCloseDoor()
 {
-	Sound("Door_Metal");
+	SetAction("CloseDoor");
 }
 
 
 /* -- Actions -- */
-
+/*
 local ActMap = {
 
 Door = {
@@ -88,3 +88,5 @@ Green = {
 },
 
 };
+*/
+
