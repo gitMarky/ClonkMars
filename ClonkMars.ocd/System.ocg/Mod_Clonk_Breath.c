@@ -23,17 +23,19 @@ public func OnBreathe()
 {
 	// refill respirators
 	var supplier = GetOxygenSupplier();
-	var supplier_refill = 0;
-	if (supplier) supplier_refill = supplier->GetOxygenRefillRate();
-	
-	for (var respirator in FindObjects(Find_Container(this), Find_Func("IsRespirator")))
+	if (supplier)
 	{
-		var refill = Min(respirator->GetMaxOxygen() - respirator->GetOxygen(), supplier_refill);
+		var supplier_refill = supplier->GetOxygenRefillRate();
 
-		var taken = supplier->DoOxygen(-refill);
-		var given = respirator->DoOxygen(-taken);
-
-		supplier->DoOxygen(given - taken); // just in case, should yield 0 most of the time
+		for (var respirator in FindObjects(Find_Container(this), Find_Func("IsRespirator")))
+		{
+			var refill = Min(respirator->GetMaxOxygen() - respirator->GetOxygen(), supplier_refill);
+	
+			var taken = supplier->DoOxygen(-refill);
+			var given = respirator->DoOxygen(-taken);
+	
+			supplier->DoOxygen(given - taken); // just in case, should yield 0 most of the time
+		}
 	}
 }
 
