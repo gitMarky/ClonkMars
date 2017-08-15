@@ -7,9 +7,16 @@ material cm_spacesuit_body
 		pass 
 		{
 			ambient 1.0 1.0 1.0 1.0
-			diffuse 0.8 0.72 0.64 1.0
+			diffuse 0.8 0.8 0.8 1.0
 			specular 1.0 1.0 1.0 1.0 25
 			emissive 0.0 0.0 0.0 1.0
+
+			texture_unit
+			{
+				texture Suit.png
+				tex_address_mode wrap
+				filtering trilinear
+			}
 		}
 	}
 }
@@ -23,9 +30,19 @@ material cm_spacesuit_helmet
 		pass 
 		{
 			ambient 1.0 1.0 1.0 1.0
-			diffuse 0.32 0.28 0.26 1.0
+			diffuse 0.8 0.8 0.8 1.0
 			specular 1.0 1.0 1.0 1.0 25
 			emissive 0.0 0.0 0.0 1.0
+			
+			depth_check on
+			scene_blend alpha_blend
+
+			texture_unit
+			{
+				texture Helmet.png
+				tex_address_mode wrap
+				filtering trilinear
+			}
 		}
 	}
 }
