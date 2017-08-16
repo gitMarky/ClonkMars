@@ -36,6 +36,7 @@ public func ControlUse(object clonk)
 	}
 	else
 	{
+		SetColor(clonk->GetColor());
 		PutOn(clonk);
 	}
 	clonk->DoBreath(); // force breath update
