@@ -24,6 +24,13 @@ public func IsVehicle() { return true; }	// not sure where this is used, but the
 
 /* -- Engine callbacks -- */
 
+private func Construction()
+{
+	this.MeshTransformation = Trans_Translate(0, -7000, 0);
+	_inherited(...);
+}
+
+
 private func Initialize() 
 {
 	capsule = {
