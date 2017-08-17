@@ -1,0 +1,32 @@
+material cm_conkit_dark
+{
+	receive_shadows on 
+
+	technique
+	{
+		pass 
+		{
+			ambient 1.0 1.0 1.0 1.0
+			diffuse 0.31 0.28 0.26 1.0
+			specular 1.0 1.0 1.0 1.0 12.5
+			emissive 0.0 0.0 0.0 1.0
+		}
+	}
+}
+
+material cm_conkit_light
+{
+	receive_shadows on 
+
+	technique
+	{
+		pass 
+		{
+			ambient 1.0 1.0 1.0 1.0
+			diffuse 0.68 0.63 0.6 1.0
+			specular 1.0 1.0 1.0 1.0 25
+			emissive 0.0 0.0 0.0 1.0
+		}
+	}
+}
+

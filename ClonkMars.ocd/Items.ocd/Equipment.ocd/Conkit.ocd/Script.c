@@ -3,6 +3,13 @@
 
 /* -- Engine callbacks -- */
 
+private func Definition(def type)
+{
+	type.PictureTransformation = Trans_Mul(Trans_Rotate(45, 0, 1, 0), Trans_Rotate(-20, 0, 0, 1), Trans_Rotate(-15, 1, 0, 0), Trans_Translate(250, -500, 0));
+	return _inherited(type, ...);
+}
+
+
 private func Hit()
 {
 	StonyObjectHit();
