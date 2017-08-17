@@ -62,22 +62,6 @@ material cm_capsule_hull
 	}
 }
 
-material cm_capsule_overlay
-{
-	receive_shadows on 
-
-	technique
-	{
-		pass 
-		{
-			ambient 1.0 1.0 1.0 1.0
-			diffuse 0.0 0.0 0.8 1.0
-			specular 1.0 1.0 1.0 1.0 12.5
-			emissive 0.0 0.0 0.0 1.0
-		}
-	}
-}
-
 material cm_capsule_solarpanel
 {
 	receive_shadows on 
@@ -87,11 +71,48 @@ material cm_capsule_solarpanel
 		pass 
 		{
 			ambient 1.0 1.0 1.0 1.0
-			diffuse 0.58 0.54 0.50 1.0
+			diffuse 1.0 1.0 1.0 1.0
 			specular 1.0 1.0 1.0 1.0 12.5
 			emissive 0.0 0.0 0.0 1.0
+
+			texture_unit
+			{
+				texture solarpanel.jpg
+				tex_address_mode wrap
+				colour_op modulate
+				filtering trilinear
+			}
 		}
 	}
 }
 
+material cm_capsule_overlay
+{
+	receive_shadows on 
+
+	technique
+	{
+		pass 
+		{
+			ambient 1.0 1.0 1.0 1.0
+			diffuse 1.0 1.0 1.0 1.0
+			specular 1.0 1.0 1.0 1.0 12.5
+			emissive 0.0 0.0 0.0 1.0
+
+			texture_unit overlay
+			{
+				texture overlay.jpg
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op_ex modulate src_texture src_player_colour
+				alpha_op_ex source1 src_texture src_player_colour
+			}
+			texture_unit light
+			{
+				colour_op_ex modulate src_current src_diffuse
+				alpha_op_ex modulate src_current src_diffuse
+			}
+		}
+	}
+}
 
