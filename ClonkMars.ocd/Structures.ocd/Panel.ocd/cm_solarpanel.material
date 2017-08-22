@@ -1,0 +1,72 @@
+material cm_solarpanel_antenna
+{
+	receive_shadows on 
+
+	technique
+	{
+		pass 
+		{
+			ambient 1.0 1.0 1.0 1.0
+			diffuse 0.052 0.036 0.038 1.0
+			specular 1.0 1.0 1.0 1.0 12.5
+			emissive 0.0 0.0 0.0 1.0
+		}
+	}
+}
+
+material cm_solarpanel_grid
+{
+	receive_shadows on 
+
+	technique
+	{
+		pass 
+		{
+			ambient 1.0 1.0 1.0 1.0
+			diffuse 0.30 0.24 0.22 1.0
+			specular 1.0 1.0 1.0 1.0 12.5
+			emissive 0.0 0.0 0.0 1.0
+		}
+	}
+}
+
+material cm_solarpanel_panel
+{
+	receive_shadows on 
+
+	technique
+	{
+		pass
+		{
+			ambient 1.0 1.0 1.0 1.0
+			diffuse 1.0 1.0 1.0 1.0
+			specular 1.0 1.0 1.0 1.0 12.5
+			emissive 0.0 0.0 0.0 1.0
+
+			texture_unit 
+			{
+				texture solarpanel.jpg
+				tex_address_mode wrap
+				colour_op modulate
+				filtering trilinear
+			}
+		}
+	}
+}
+
+material cm_solarpanel_pivot
+{
+	receive_shadows on 
+
+	technique
+	{
+		pass 
+		{
+			ambient 1.0 1.0 1.0 1.0
+			diffuse 0.32 0.26 0.22 1.0
+			specular 1.0 1.0 1.0 1.0 12.5
+			emissive 0.0 0.0 0.0 1.0
+		}
+	}
+}
+

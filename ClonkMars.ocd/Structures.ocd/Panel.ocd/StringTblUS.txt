@@ -1,0 +1,5 @@
+Name=Solar panel
+Description=Produces clean energy without waste products. With updates even a bit more.|Produces energy only with direct solar radiation. Hills can be a serious problem, so panels should only be built on the highest mountain top to work 100% effective.
+
+TxtShowEnergy=Show current energy production
+TxtShowEnergyMsg=Current energy production:|%d kW
