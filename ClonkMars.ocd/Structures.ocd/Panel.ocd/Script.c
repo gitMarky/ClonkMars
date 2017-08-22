@@ -1,3 +1,16 @@
+/* -- Engine callbacks -- */
+
+private func Construction()
+{
+	_inherited(...);
+	
+	if (GetOwner() == NO_OWNER)
+	{
+		SetColor(RGB(150, 111, 139));
+	}
+}
+
+
 /* -- Properties -- */
 
 local Name = "$Name$";

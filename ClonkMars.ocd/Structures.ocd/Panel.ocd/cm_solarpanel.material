@@ -43,12 +43,19 @@ material cm_solarpanel_panel
 			specular 1.0 1.0 1.0 1.0 12.5
 			emissive 0.0 0.0 0.0 1.0
 
-			texture_unit 
+			texture_unit overlay
 			{
 				texture solarpanel.jpg
 				tex_address_mode wrap
-				colour_op modulate
 				filtering trilinear
+				colour_op_ex modulate src_texture src_player_colour
+				alpha_op_ex source1 src_texture src_player_colour
+			}
+
+			texture_unit light
+			{
+				colour_op_ex modulate src_current src_diffuse
+				alpha_op_ex modulate src_current src_diffuse
 			}
 		}
 	}
