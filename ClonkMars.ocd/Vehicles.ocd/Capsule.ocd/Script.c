@@ -91,16 +91,25 @@ public func SetLandingDestination(object port, bool auto)
 	
 	// Determine distance to the landing position
 	var distance_y;
+	var time_precaution;
 	if (port)
 	{
 		distance_y = Abs(GetY() - port->GetY());
 		port->Occupy(this);
 		capsule.origin_x = port->GetX();
+		time_precaution = 0;
 	}
 	else
 	{
-		distance_y = Min(Abs(GetY() - GetHorizon(-24)), Abs(GetY() - GetHorizon(+24))); // distance to ground
+		var dist_left = Abs(GetY() - GetHorizon(-24));
+		var dist_right = Abs(GetY() - GetHorizon(+24));
+		distance_y = Min(dist_left, dist_right); // distance to ground
 		capsule.origin_x += RandomX(-400, 400);
+		
+		// start engine earlier if the ground is steep, up to 18 frames earlier
+		var angle_ground = Normalize(Angle(dist_left, 48, dist_right, 0), -180);
+		time_precaution = Abs(angle_ground / 10);
+		Log("Capsule will start engine %d frames earlier due to steep ground", time_precaution);
 	}
 	distance_y -= GetBottom(); // subtract capsule height
 	distance_y -= 5; // add a small safety buffer
@@ -176,6 +185,11 @@ public func SetLandingDestination(object port, bool auto)
 		//StartThruster(); no idea why it starts the thruster right now
 	}
     */
+    
+    // remove frames of freefall as a precaution
+    time_freefall = Max(1, time_freefall - time_precaution);
+    
+    // schedule landing
 	ScheduleCall(this, this.StartLanding, time_freefall, nil, Abs(acceleration_capsule));
 	if (capsule.port)
 	{
@@ -344,9 +358,30 @@ local FxBlowout = new Effect
 		// landing control: do not skyrocket
 		if (Target.capsule.is_landing)
 		{
+			var reduce_thrust = false;
 			if (Target->GetYDir() < 0)
 			{
-				Target->ResetThrust();
+				Target->SetYDir();
+				reduce_thrust = true;
+			}
+			
+			if (Target->GetYDir(CAPSULE_Precision) < Target.capsule.max_velocity_land / 2)
+			{
+				reduce_thrust = true;
+			}
+			
+			if (reduce_thrust)
+			{
+				var thrust_new = 9 * Target.capsule.thrust_vertical / 10;
+				
+				if (thrust_new > 0)
+				{
+					Target->SetVerticalThrust(thrust_new);
+				}
+				else
+				{
+					Target->ResetThrust();
+				}
 			}
 		}
 	
