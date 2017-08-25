@@ -16,10 +16,12 @@ public func Construction()
 	progressive_building = {
 		progress_con = 0,	// how far have we built? 0 - 1000
 		progress_max = 0,	// how far can we build? 0 - 1000
+		component_count = 0,
 		components = CreateObject(Dummy, 0, 0, NO_OWNER),
 		con_site = nil,		// the actual construction site
 	};
-
+	
+	// determine max component count
 	return _inherited(...);
 }
 
@@ -62,10 +64,23 @@ public func Collection2(object item)
 
 /* -- Internals -- */
 
+
+public func Set(id structure, int dir, object stick)
+{
+	_inherited(structure, dir, stick);
+	
+	// Update max component amount
+	var component;
+	for (var i = 0; component = definition->GetComponent(nil, i); ++i)
+	{
+		progressive_building.component_count += definition->GetComponent(component);
+	}
+}
+
 // Gets the number of available components of a type.
 private func GetAvailableComponentCount(id component)
 {
-	return ContentsCount(component) + progressive_building.components->ContentsCount(component);
+	return progressive_building.components->ContentsCount(component);
 }
 
 
@@ -99,7 +114,7 @@ private func GetAvailableComponents()
 }
 
 
-public func GetAvailableMaterialMenuEntries(object clonk)
+private func GetAvailableMaterialMenuEntries(object clonk)
 {
 	var material = GetAvailableComponents();
 	if (!material) return [];
@@ -116,7 +131,10 @@ public func GetAvailableMaterialMenuEntries(object clonk)
 
 
 private func UpdateStatus(object item)
-{	
+{
+	// Update possible progress
+	UpdateMaximumProgress();
+
 	// Update message
 	ShowMissingComponents();
 	
@@ -137,4 +155,15 @@ private func UpdateStatus(object item)
 		// Create the thing
 		StartConstructing(controller);
 	}
+}
+
+
+private func UpdateMaximumProgress()
+{
+	var amount = GetAvailableComponentCount();
+	var max = progressive_building.component_count;
+	
+	progressive_building.progress_max = amount * 1000 / Max(1, max);
+
+	Log("Building progress %d/%d", progressive_building.progress_con, progressive_building.progress_max);
 }
