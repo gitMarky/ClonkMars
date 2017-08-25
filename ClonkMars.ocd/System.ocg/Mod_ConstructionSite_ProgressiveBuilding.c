@@ -118,14 +118,16 @@ private func GetAvailableMaterialMenuEntries(object clonk)
 {
 	var material = GetAvailableComponents();
 	if (!material) return [];
-	
+
 	var entries = [];
+	PushBack(entries, GetProgressMenuEntry());
 	for (var mat in material)
 	{
 		var text = nil;
 		if (mat.count > 1) text = Format("x%d", mat.count);
 		PushBack(entries, {symbol = mat.id, text = text});
 	}
+	
 	return entries;
 }
 
@@ -137,10 +139,10 @@ private func UpdateStatus(object item)
 
 	// Update message
 	ShowMissingComponents();
-	
+
 	// Update possibly open menus.
 	UpdateInteractionMenus([this.GetAvailableMaterialMenuEntries, this.GetMissingMaterialMenuEntries]);
-	
+
 	// Update preview image
 	if (definition) definition->~SetConstructionSiteOverlay(this, direction, stick_to, item);
 	
@@ -155,6 +157,30 @@ private func UpdateStatus(object item)
 		// Create the thing
 		StartConstructing(controller);
 	}
+}
+
+
+private func GetProgressMenuEntry()
+{
+	var menu = 
+	{
+		Bottom = "1em", Priority = 1, 
+		BackgroundColor = RGBa(0, 0, 0, 100),
+		max =
+		{
+			Right = ToPercentString(progressive_building.progress_max, 10),
+			BackgroundColor = RGBa(0, 255, 255, 50),
+			Priority = 1,
+		},
+		con =
+		{
+			Right = ToPercentString(progressive_building.progress_con, 10),
+			BackgroundColor = RGBa(0, 255, 255, 50),
+			Priority = 2,
+		},
+	};
+
+	return {custom = menu};
 }
 
 
