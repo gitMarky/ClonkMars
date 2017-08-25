@@ -35,6 +35,17 @@ public func Set(id type, int dir, object stick)
 }
 
 
+public func Destruction()
+{
+	var basement = GetBasement();
+	if (basement)
+	{
+		basement->RemoveObject();
+	}
+	_inherited(...);
+}
+
+
 private func GetBasement()
 {
 	if (this.lib_structure)

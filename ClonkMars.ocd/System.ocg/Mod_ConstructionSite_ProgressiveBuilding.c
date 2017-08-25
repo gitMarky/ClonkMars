@@ -162,7 +162,7 @@ private func UpdateMaximumProgress()
 {
 	var amount = GetAvailableComponentCount();
 	var max = progressive_building.component_count;
-	
+
 	progressive_building.progress_max = amount * 1000 / Max(1, max);
 
 	Log("Building progress %d/%d", progressive_building.progress_con, progressive_building.progress_max);
