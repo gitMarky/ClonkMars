@@ -163,7 +163,7 @@ private func ContinueConstructing(object clonk)
 }
 
 
-private func SetConstructionSiteOverlay(id type, int dir, object stick, int w, int h)
+private func SetConstructionSiteOverlayDefault(id type, int dir, object stick, int w, int h)
 {
 	// Basic layer: invisibile
 	SetClrModulation(RGBa(255, 255, 255, 0));
