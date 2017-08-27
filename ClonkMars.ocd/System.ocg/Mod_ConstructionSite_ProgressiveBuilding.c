@@ -102,9 +102,13 @@ public func GetInteractionMetaInfo(object clonk)
 // Called on player interaction.
 public func Interact(object clonk)
 {
-	if (IsInteractable(clonk))
+	if (clonk && IsInteractable(clonk))
 	{
-		if (clonk)
+		if (clonk->GetAction() == "Build")
+		{
+			clonk->~StopBuilding();
+		}
+		else
 		{
 			TakeConstructionMaterials(clonk);
 			Sound("Structures::Build?");

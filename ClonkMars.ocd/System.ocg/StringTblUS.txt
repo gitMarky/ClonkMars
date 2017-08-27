@@ -1,2 +1,3 @@
 TxtMissingMaterial=Missing Material
 TxtConstruct=Continue construction
+TxtConstructStop=Pause construction

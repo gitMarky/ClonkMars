@@ -1,2 +1,3 @@
 TxtMissingMaterial=Fehlendes Material
 TxtConstruct=Bauvorgang fortsetzen
+TxtConstructStop=Bauvorgang pausieren
