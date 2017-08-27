@@ -130,7 +130,7 @@ private func StartConstructing(int by_player)
 
 	// Create the site?
 	progressive_building.con_site = CreateConstructionSite();
-	ConSiteInit();
+	InitializeConstructionSite(progressive_building.con_site);
 	
 	// Clean up stuck objects
 	EnsureObjectsLyingAround(lying_around);
@@ -179,12 +179,18 @@ private func DoConstructionProgress(int change, object builder)
 {
 	// Change the progress
 	progressive_building.progress_con = BoundBy(progressive_building.progress_con + change, 0, progressive_building.progress_max);
-	UpdateCurrentProgress();
+	UpdateConstructionProgress();
 	
 	// Cancel building
 	if (!CanContinueConstructing(builder))
 	{
 		builder->~StopBuilding();
+	}
+	
+	// Finish site?
+	if (progressive_building.progress_con >= 1000)
+	{
+		FinishConstructing(progressive_building.con_site);
 	}
 }
 
@@ -194,11 +200,11 @@ private func UpdateMaximumProgress()
 	var amount = GetAvailableComponentCount();
 	var max = progressive_building.component_count;
 
-	progressive_building.progress_max = amount * 1000 / Max(1, max);
+	progressive_building.progress_max = BoundBy(amount * 1000 / Max(1, max), 0, 1000);
 }
 
 
-private func UpdateCurrentProgress()
+private func UpdateConstructionProgress()
 {
 	// Update construction site display
 	if (progressive_building.con_site)
@@ -223,24 +229,28 @@ private func UpdateCurrentProgress()
 }
 
 
-private func ConSiteInit()
+private func InitializeConstructionSite(object construction)
 {
-	progressive_building.con_site->SetObjectLayer(progressive_building.con_site);
-	progressive_building.con_site->SetCon(100);
-	progressive_building.con_site->MovePosition(0, -1);
-	this.Plane = progressive_building.con_site.Plane + 1;
+	construction->SetObjectLayer(progressive_building.con_site);
+	construction->SetCon(100);
+	construction->MovePosition(0, -1);
+	this.Plane = construction.Plane + 1;
 	
-	if (progressive_building.con_site->~GetBasementID())
+	if (construction->~GetBasementID())
 	{
-		progressive_building.con_site.lib_structure = progressive_building.con_site.lib_structure ?? {};
-		progressive_building.con_site.EditorActions = progressive_building.con_site.EditorActions ?? {};
-		progressive_building.con_site->AddBasement();
+		construction.lib_structure = construction.lib_structure ?? {};
+		construction.EditorActions = construction.EditorActions ?? {};
+		construction->AddBasement();
+		construction->GetBasement().Plane = this.Plane + 1;
 	}
+
+	construction->~OnStartConstructing();
 }
 
-private func ConSiteFinish()
+private func FinishConstructing(object construction)
 {
-	progressive_building.con_site->SetObjectLayer(nil);
+	construction->SetObjectLayer(nil);
+	construction->~OnFinishConstructing();
 }
 
 
@@ -263,14 +273,21 @@ public func Set(id structure, int dir, object stick)
 	
 	// Update the appearance
 	UpdateMaximumProgress();
-	UpdateCurrentProgress();
+	UpdateConstructionProgress();
 }
 
 
 // Gets the number of available components of a type.
 private func GetAvailableComponentCount(id component)
 {
-	return progressive_building.components->ContentsCount(component);
+	if (full_material)
+	{
+		return progressive_building.component_count;
+	}
+	else
+	{
+		return progressive_building.components->ContentsCount(component);
+	}
 }
 
 
