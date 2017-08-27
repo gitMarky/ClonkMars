@@ -1,15 +1,11 @@
-#include Library_Structure
+#include Library_MarsStructure
+#include Library_MarsResearch
 #include Library_DoorControlFx
 #include Library_DamageControl
 #include Library_OxygenSupplier
 
 
-/* -- Production & research */
-
-public func IsMarsResearch() { return true; }
-public func IsBuildableByConKit() { return true; }
-public func GetBasementID(){ return Structure_Basement; }
-public func GetBasementWidth(){ return 95; }
+/* -- Structure properties -- */
 
 private func ClonkCapacity() {	return 3; } // TODO: this was probably used for reproduction stuff - not used yet
 

@@ -1,13 +1,5 @@
-#include Library_Structure
-#include Library_DamageControl
-
-
-/* -- Production & research */
-
-public func IsMarsResearch() { return true; }
-public func IsBuildableByConKit() { return true; }
-public func GetBasementID(){ return Structure_Basement; }
-public func GetBasementWidth(){ return 40; }
+#include Library_MarsStructure
+#include Library_MarsResearch
 
 
 /* -- Properties -- */

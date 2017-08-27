@@ -19,6 +19,7 @@ public func Construction()
 		component_count = 0,
 		components = CreateObject(Dummy, 0, 0, NO_OWNER),
 		con_site = nil,		// the actual construction site
+		finished = false,	// if done
 	};
 	
 	// determine max component count
@@ -28,15 +29,24 @@ public func Construction()
 
 public func Destruction()
 {
+	// Remove saved components
 	if (progressive_building.components)
 	{
 		progressive_building.components->SetPosition(GetX(), GetY());
 		progressive_building.components->RemoveObject(!full_material);
 	}
-	var basement = GetBasement();
-	if (basement)
+	// Delete basement and con site if unfinished
+	if (!progressive_building.finished)
 	{
-		basement->RemoveObject();
+		if (progressive_building.con_site)
+		{
+			progressive_building.con_site->RemoveObject();
+		}
+		var basement = GetBasement();
+		if (basement)
+		{
+			basement->RemoveObject();
+		}
 	}
 	_inherited(...);
 }
@@ -251,6 +261,8 @@ private func FinishConstructing(object construction)
 {
 	construction->SetObjectLayer(nil);
 	construction->~OnFinishConstructing();
+	progressive_building.finished = true;
+	RemoveObject();
 }
 
 
