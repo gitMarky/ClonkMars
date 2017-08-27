@@ -33,6 +33,11 @@ public func Destruction()
 		progressive_building.components->SetPosition(GetX(), GetY());
 		progressive_building.components->RemoveObject(!full_material);
 	}
+	var basement = GetBasement();
+	if (basement)
+	{
+		basement->RemoveObject();
+	}
 	_inherited(...);
 }
 
@@ -183,7 +188,8 @@ private func UpdateCurrentProgress()
 		}
 		else
 		{
-			progressive_building.con_site->SetObjDrawTransform(1000, 0, 0, 0, progressive_building.progress_con);
+			var yoff = progressive_building.con_site->GetBottom() * (1000 - progressive_building.progress_con);
+			progressive_building.con_site->SetObjDrawTransform(1000, 0, 0, 0, progressive_building.progress_con, yoff);
 		}
 	}
 }
@@ -193,7 +199,15 @@ private func ConSiteInit()
 {
 	progressive_building.con_site->SetObjectLayer(progressive_building.con_site);
 	progressive_building.con_site->SetCon(100);
+	progressive_building.con_site->MovePosition(0, -1);
 	this.Plane = progressive_building.con_site.Plane + 1;
+	
+	if (progressive_building.con_site->~GetBasementID())
+	{
+		progressive_building.con_site.lib_structure = progressive_building.con_site.lib_structure ?? {};
+		progressive_building.con_site.EditorActions = progressive_building.con_site.EditorActions ?? {};
+		progressive_building.con_site->AddBasement();
+	}
 }
 
 private func ConSiteFinish()
@@ -317,5 +331,14 @@ private func GetProgressMenuEntry()
 	};
 
 	return {custom = menu};
+}
+
+
+private func GetBasement()
+{
+	if (progressive_building && progressive_building.con_site)
+	{
+		return progressive_building.con_site->~GetBasement();
+	}
 }
 
