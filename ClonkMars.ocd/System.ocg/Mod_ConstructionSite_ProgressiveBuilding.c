@@ -104,10 +104,6 @@ public func Interact(object clonk)
 		{
 			TakeConstructionMaterials(clonk);
 			Sound("Structures::Build?");
-			if (CanContinueConstructing())
-			{
-				ContinueConstructing(clonk);
-			}
 		}
 	}
 	return true;
@@ -139,6 +135,18 @@ private func StartConstructing(int by_player)
 }
 
 
+// Override is necessary so that clonk starts constructing immediately after adding materials
+private func TakeConstructionMaterials(object from_clonk)
+{
+	_inherited(from_clonk, ...);
+	
+	if (CanContinueConstructing())
+	{
+		ContinueConstructing(from_clonk);
+	}
+}
+
+
 private func CanContinueConstructing()
 {
 	return progressive_building.progress_con < progressive_building.progress_max;
@@ -148,6 +156,8 @@ private func CanContinueConstructing()
 private func ContinueConstructing(object clonk)
 {
 	if (!definition) return;
+	
+	clonk->SetAction("Build", this);
 }
 
 
@@ -160,6 +170,13 @@ private func SetConstructionSiteOverlay(id type, int dir, object stick, int w, i
 	// Construction site sign on top
 	SetGraphics(nil, Icon_ConstructionSite, 2, GFXOV_MODE_ExtraGraphics);
 	SetObjDrawTransform(1000, 0, (-1 + dir * 2) * 500 * w + (1 - dir * 3) * 1000 * GetID()->GetDefWidth(), 0, 1000, 0, 2);
+}
+
+
+private func DoConstructionProgress(int change, object builder)
+{
+	progressive_building.progress_con = BoundBy(progressive_building.progress_con + change, 0, progressive_building.progress_max);
+	UpdateCurrentProgress();
 }
 
 
@@ -176,6 +193,7 @@ private func UpdateMaximumProgress()
 
 private func UpdateCurrentProgress()
 {
+	// Update construction site display
 	if (progressive_building.con_site)
 	{
 		if (progressive_building.con_site->GetAnimationLength("construction_progress"))
@@ -192,6 +210,9 @@ private func UpdateCurrentProgress()
 			progressive_building.con_site->SetObjDrawTransform(1000, 0, 0, 0, progressive_building.progress_con, yoff);
 		}
 	}
+	
+	// Update possibly open menus.
+	UpdateInteractionMenus([this.GetAvailableMaterialMenuEntries]);
 }
 
 
