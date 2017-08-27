@@ -1,6 +1,6 @@
 #include Library_MarsStructure
 #include Library_MarsResearch
-
+#include Library_ConstructionAnimation
 
 /* -- Properties -- */
 
@@ -8,17 +8,6 @@ local Name = "$Name$";
 local Description = "$Description$";
 local ContainBlast = 1;
 local Components = { Metal=1, Plastic=1 };
-
-local ActMap = {
-construction_progress = {
-	Prototype = Action,
-	Procedure = DFA_NONE,
-	Name = "construction_progress",
-	Animation = "construction_progress",
-	Length = 1001,
-	Delay = 0,
-},
-};
 
 
 /* -- Engine callbacks -- */
