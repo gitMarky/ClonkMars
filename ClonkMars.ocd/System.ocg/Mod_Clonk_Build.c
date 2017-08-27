@@ -37,7 +37,7 @@ local FxBuilding = new Effect{
 			// Custom call, instead of DoCon
 			Target->GetActionTarget()->~DoConstructionProgress(1, Target);
 			// Action
-			Target->PlayAnimation("KneelDown", CLONK_ANIM_SLOT_Movement, Anim_Linear(0, 0, Target->GetAnimationLength("KneelDown"), this.KneelDuration, ANIM_Remove), Anim_Linear(0, 0, 1000, 30, ANIM_Remove));
+			Target->PlayAnimation("KneelDown", CLONK_ANIM_SLOT_Arms, Anim_Linear(0, 0, Target->GetAnimationLength("KneelDown"), this.KneelDuration, ANIM_Remove), Anim_Linear(0, 0, 1000, 30, ANIM_Remove));
 			// Particle effects
 			// TODO
 			// Sound effects

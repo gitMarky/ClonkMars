@@ -123,12 +123,6 @@ private func StartConstructing(int by_player)
 	// Create the site?
 	progressive_building.con_site = CreateConstructionSite();
 	ConSiteInit();
-
-	// TODO
-	//if (progressive_building.con_site)
-	//{
-	//	StartConstructionEffect(progressive_building.con_site, by_player);
-	//}
 	
 	// Clean up stuck objects
 	EnsureObjectsLyingAround(lying_around);
@@ -175,8 +169,15 @@ private func SetConstructionSiteOverlay(id type, int dir, object stick, int w, i
 
 private func DoConstructionProgress(int change, object builder)
 {
+	// Change the progress
 	progressive_building.progress_con = BoundBy(progressive_building.progress_con + change, 0, progressive_building.progress_max);
 	UpdateCurrentProgress();
+	
+	// Cancel building
+	if (!CanContinueConstructing())
+	{
+		builder->~StopBuilding();
+	}
 }
 
 
@@ -186,8 +187,6 @@ private func UpdateMaximumProgress()
 	var max = progressive_building.component_count;
 
 	progressive_building.progress_max = amount * 1000 / Max(1, max);
-
-	Log("Building progress %d/%d", progressive_building.progress_con, progressive_building.progress_max);
 }
 
 
