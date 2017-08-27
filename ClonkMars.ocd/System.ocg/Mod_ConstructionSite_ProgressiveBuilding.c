@@ -82,7 +82,11 @@ public func GetInteractionMetaInfo(object clonk)
 {
 	var text;
 	
-	if (CanContinueConstructing())
+	if (clonk->GetAction() == "Build")
+	{
+		text = "$TxtConstructStop$";
+	}
+	else if (CanContinueConstructing(clonk))
 	{
 		text = "$TxtConstruct$";
 	}
@@ -134,14 +138,14 @@ private func TakeConstructionMaterials(object from_clonk)
 {
 	_inherited(from_clonk, ...);
 	
-	if (CanContinueConstructing())
+	if (CanContinueConstructing(from_clonk))
 	{
 		ContinueConstructing(from_clonk);
 	}
 }
 
 
-private func CanContinueConstructing()
+private func CanContinueConstructing(object clonk)
 {
 	return progressive_building.progress_con < progressive_building.progress_max;
 }
@@ -174,7 +178,7 @@ private func DoConstructionProgress(int change, object builder)
 	UpdateCurrentProgress();
 	
 	// Cancel building
-	if (!CanContinueConstructing())
+	if (!CanContinueConstructing(builder))
 	{
 		builder->~StopBuilding();
 	}

@@ -30,7 +30,7 @@ public func StopBuilding()
 
 
 local FxBuilding = new Effect{
-	Timer = func ()
+	Timer = func (int time)
 	{
 		if (Target->GetActionTarget())
 		{
@@ -39,9 +39,12 @@ local FxBuilding = new Effect{
 			// Action
 			Target->PlayAnimation("KneelDown", CLONK_ANIM_SLOT_Arms, Anim_Linear(0, 0, Target->GetAnimationLength("KneelDown"), this.KneelDuration, ANIM_Remove), Anim_Linear(0, 0, 1000, 30, ANIM_Remove));
 			// Particle effects
-			// TODO
+			Target->WeldingFX(Target->GetCalcDir() * 6, 8);
 			// Sound effects
-			// TODO
+			if (time > KneelDuration)
+			{
+				Target->Sound("Clonk_Build", {loop_count = 1});
+			}
 		}
 		else
 		{
@@ -49,5 +52,29 @@ local FxBuilding = new Effect{
 		}
 	},
 	
+	Destruction = func()
+	{
+		if (Target) Target->Sound("Clonk_Build", {loop_count = -1});
+	},
+	
 	KneelDuration = 30,
 };
+
+
+private func WeldingFX(int x, int y)
+{
+	WeldingSpark(x, y,  5, RGB(0, 100, 255));
+	WeldingSpark(x, y, 7, RGB(0, 80, 225));
+	WeldingSpark(x, y, 10, RGB(0, 60, 200));
+}
+
+
+private func WeldingSpark(int x, int y, int radius, int rgb)
+{
+	CreateParticle("MagicSpark", PV_Random(x-2, x+2), PV_Random(y-2, y+2), PV_Random(-radius, +radius), PV_Random(-radius, 0), PV_Random(30, 45), Particles_Colored(Particles_Glimmer(), rgb), 3);
+	
+	if (!Random(30))
+	{
+		CreateParticle("Magic", x, y, 0, 0, PV_Random(10, 20), { Prototype = Particles_Colored(Particles_MuzzleFlash(), rgb), Size = PV_Random(15, 25), Alpha = PV_Linear(PV_Random(120, 60), 0)}, 1);
+	}
+}
