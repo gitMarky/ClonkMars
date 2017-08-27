@@ -108,16 +108,9 @@ public func Interact(object clonk)
 	return true;
 }
 
+/* -- Construction logic -- */
 
-private func CanContinueConstructing()
-{
-	return progressive_building.progress_con < progressive_building.progress_max;
-}
-
-
-
-
-private func ContinueConstructing(object clonk)
+private func StartConstructing(int by_player)
 {
 	if (!definition) return;
 
@@ -125,67 +118,87 @@ private func ContinueConstructing(object clonk)
 
 	// Find all objects on the bottom of the area that are not stuck
 	var lying_around = GetObjectsLyingAround();
+
+	// Create the site?
+	progressive_building.con_site = CreateConstructionSite();
+	ConSiteInit();
+
+	// TODO
+	//if (progressive_building.con_site)
+	//{
+	//	StartConstructionEffect(progressive_building.con_site, by_player);
+	//}
 	
 	// Clean up stuck objects
 	EnsureObjectsLyingAround(lying_around);
 }
 
 
+private func CanContinueConstructing()
+{
+	return progressive_building.progress_con < progressive_building.progress_max;
+}
+
+
+private func ContinueConstructing(object clonk)
+{
+	if (!definition) return;
+}
+
+
 private func SetConstructionSiteOverlay(id type, int dir, object stick, int w, int h)
 {
-	// Basic layer, invisible
-	SetGraphics(nil, nil, 0);
+	// Basic layer: invisibile
 	SetClrModulation(RGBa(255, 255, 255, 0));
-	
-	// Second layer, the structure
-	// Create the site display?
-	if (!progressive_building.con_site)
-	{
-		progressive_building.con_site = CreateObject(Dummy, 0, 0, NO_OWNER);
-		progressive_building.con_site->SetGraphics(nil, definition);
-		progressive_building.con_site.Visibility = VIS_Owner | VIS_Allies;
-		progressive_building.con_site->MovePosition(0, -GetY() - 100);
-	}
+	// Picture preview for interaction and menu signs
+	SetGraphics(nil, definition, 1, GFXOV_MODE_Picture);
+	// Construction site sign on top
+	SetGraphics(nil, Icon_ConstructionSite, 2, GFXOV_MODE_ExtraGraphics);
+	SetObjDrawTransform(1000, 0, (-1 + dir * 2) * 500 * w + (1 - dir * 3) * 1000 * GetID()->GetDefWidth(), 0, 1000, 0, 2);
+}
 
+
+private func UpdateMaximumProgress()
+{
+	var amount = GetAvailableComponentCount();
+	var max = progressive_building.component_count;
+
+	progressive_building.progress_max = amount * 1000 / Max(1, max);
+
+	Log("Building progress %d/%d", progressive_building.progress_con, progressive_building.progress_max);
+}
+
+
+private func UpdateCurrentProgress()
+{
 	if (progressive_building.con_site)
 	{
-		Log("Con site has custom preview");
-		SetGraphics(nil, nil, 1, GFXOV_MODE_Object, nil, nil, progressive_building.con_site);
-		SetObjDrawTransform((1 - dir * 2) * 1000, 0, 0, 0, 1000, 0, 1);
-		SetObjDrawTransform((1 - dir * 2) * 1000, 0, 0, 0, 1000, 0, 2);
-		// Adjust dummy shape to our own shape
-		var site_h = Max(12, h);
-		if (definition->~IsBelowSurfaceConstruction())
+		if (progressive_building.con_site->GetAnimationLength("construction_progress"))
 		{
-			progressive_building.con_site->SetShape(-w/2, -2 * site_h, w, 2 * site_h);
+			if (progressive_building.con_site->GetAction() != "construction_progress")
+			{
+				progressive_building.con_site->SetAction("construction_progress");
+			}
+			progressive_building.con_site->SetPhase(progressive_building.progress_con);
 		}
 		else
 		{
-			progressive_building.con_site->SetShape(-w/2, -site_h, w, site_h);
+			progressive_building.con_site->SetObjDrawTransform(1000, 0, 0, 0, progressive_building.progress_con);
 		}
 	}
-	else
-	{
-		SetGraphics(nil, type, 1, GFXOV_MODE_Base);
-		SetClrModulation(RGBa(255, 255, 255, 128), 1);
-		// If the structure is a mesh, use wire frame mode to show the site.
-		// TODO: use def->IsMesh() once this becomes available.
-		if (type->GetMeshMaterial())
-		{
-			SetClrModulation(RGBa(255, 255, 255, 50), 1);
-			SetGraphics(nil, type, 2, GFXOV_MODE_Base, nil, GFX_BLIT_Wireframe);
-		}
-		SetObjDrawTransform((1 - dir * 2) * 1000, 0, 0, 0, 1000, -h * 500, 1);
-		SetObjDrawTransform((1 - dir * 2) * 1000, 0, 0, 0, 1000, -h * 500, 2);
-	}
-	
-	// Third layer, construction site sign on top
-	SetGraphics(nil, Icon_ConstructionSite, 3, GFXOV_MODE_ExtraGraphics);
-	SetObjDrawTransform(1000, 0, (-1 + dir * 2) * 500 * w + (1 - dir * 3) * 1000 * GetID()->GetDefWidth(), 0, 1000, 0, 3);
-	
-	// Set the appearance
-	UpdateMaximumProgress();
-	UpdateCurrentProgress();
+}
+
+
+private func ConSiteInit()
+{
+	progressive_building.con_site->SetObjectLayer(progressive_building.con_site);
+	progressive_building.con_site->SetCon(100);
+	this.Plane = progressive_building.con_site.Plane + 1;
+}
+
+private func ConSiteFinish()
+{
+	progressive_building.con_site->SetObjectLayer(nil);
 }
 
 
@@ -202,7 +215,15 @@ public func Set(id structure, int dir, object stick)
 	{
 		progressive_building.component_count += definition->GetComponent(component);
 	}
+
+	// Create construction site
+	StartConstructing(GetOwner());
+	
+	// Update the appearance
+	UpdateMaximumProgress();
+	UpdateCurrentProgress();
 }
+
 
 // Gets the number of available components of a type.
 private func GetAvailableComponentCount(id component)
@@ -308,21 +329,5 @@ private func GetProgressMenuEntry()
 	};
 
 	return {custom = menu};
-}
-
-
-private func UpdateMaximumProgress()
-{
-	var amount = GetAvailableComponentCount();
-	var max = progressive_building.component_count;
-
-	progressive_building.progress_max = amount * 1000 / Max(1, max);
-
-	Log("Building progress %d/%d", progressive_building.progress_con, progressive_building.progress_max);
-}
-
-
-private func UpdateCurrentProgress()
-{
 }
 

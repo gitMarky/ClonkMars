@@ -20,6 +20,7 @@ public func Set(id type, int dir, object stick)
 		this.GetBasementID = type.GetBasementID;
 		this.GetBasementWidth = type.GetBasementWidth;
 		this->AddBasement();
+		this->GetBasement()->SetObjectLayer(this);
 	}
 }
 
