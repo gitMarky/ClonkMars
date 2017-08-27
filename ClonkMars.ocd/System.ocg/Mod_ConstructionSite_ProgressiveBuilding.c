@@ -31,7 +31,7 @@ public func Destruction()
 	if (progressive_building.components)
 	{
 		progressive_building.components->SetPosition(GetX(), GetY());
-		progressive_building.components->RemoveObject(true);
+		progressive_building.components->RemoveObject(!full_material);
 	}
 	_inherited(...);
 }
@@ -293,18 +293,6 @@ private func UpdateStatus(object item)
 
 	// Update preview image
 	if (definition) definition->~SetConstructionSiteOverlay(this, direction, stick_to, item);
-	
-	// Check if we're done?
-	if (full_material)
-	{
-		// Check who built it
-		var controller = GetOwner();
-		if (item) controller = item->GetController();
-		// Remove contents for good
-		if (progressive_building.components) progressive_building.components->RemoveObject();
-		// Create the thing
-		StartConstructing(controller);
-	}
 }
 
 
