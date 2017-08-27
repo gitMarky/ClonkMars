@@ -311,18 +311,23 @@ private func GetComponentName(id component)
 
 private func GetAvailableComponents()
 {
+	var available_material = [];
 	if (definition == nil)
-		return;
-
-	if (full_material == true)
-		return nil;
+		return available_material;
 
 	// Check for material
-	var available_material = CreateArray();
 	for (var entry in GetProperties(definition.Components))
 	{
 		var component = GetDefinition(entry);
-		var amount = progressive_building.components->ContentsCount(component);
+		var amount;
+		if (full_material)
+		{
+			amount = definition.Components[entry];
+		}
+		else
+		{
+			amount = progressive_building.components->ContentsCount(component);
+		}
 		if (component && amount)
 		{
 			PushBack(available_material, {id = component, count = amount});
@@ -335,18 +340,20 @@ private func GetAvailableComponents()
 
 private func GetAvailableMaterialMenuEntries(object clonk)
 {
-	var material = GetAvailableComponents();
-	if (!material) return [];
-
 	var entries = [];
 	PushBack(entries, GetProgressMenuEntry());
-	for (var mat in material)
+
+	var material = GetAvailableComponents();
+	if (material)
 	{
-		var text = nil;
-		if (mat.count > 1) text = Format("x%d", mat.count);
-		PushBack(entries, {symbol = mat.id, text = text});
+		for (var mat in material)
+		{
+			var text = nil;
+			if (mat.count > 1) text = Format("x%d", mat.count);
+			PushBack(entries, {symbol = mat.id, text = text});
+		}
 	}
-	
+
 	return entries;
 }
 
