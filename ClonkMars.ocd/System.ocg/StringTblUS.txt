@@ -1,1 +1,2 @@
 TxtMissingMaterial=Missing Material
+TxtConstruct=Continue construction

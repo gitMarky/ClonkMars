@@ -61,6 +61,133 @@ public func Collection2(object item)
 	UpdateStatus(item);
 }
 
+/* -- Interaction -- */
+
+
+// Players can put materials into the construction site
+func IsInteractable(object clonk)
+{
+	if (clonk) return !Hostile(GetOwner(), clonk->GetOwner());
+	return true;
+}
+
+
+// Adapt appearance in the interaction bar.
+public func GetInteractionMetaInfo(object clonk)
+{
+	var text;
+	
+	if (CanContinueConstructing())
+	{
+		text = "$TxtConstruct$";
+	}
+	else
+	{
+		text = "$TxtMissingMaterial$";
+	}
+
+	return { Description = text, IconName = nil, IconID = Hammer };
+}
+
+
+// Called on player interaction.
+public func Interact(object clonk)
+{
+	if (IsInteractable(clonk))
+	{
+		if (clonk)
+		{
+			TakeConstructionMaterials(clonk);
+			Sound("Structures::Build?");
+			if (CanContinueConstructing())
+			{
+				ContinueConstructing(clonk);
+			}
+		}
+	}
+	return true;
+}
+
+
+private func CanContinueConstructing()
+{
+	return progressive_building.progress_con < progressive_building.progress_max;
+}
+
+
+
+
+private func ContinueConstructing(object clonk)
+{
+	if (!definition) return;
+
+	is_constructing = true;
+
+	// Find all objects on the bottom of the area that are not stuck
+	var lying_around = GetObjectsLyingAround();
+	
+	// Clean up stuck objects
+	EnsureObjectsLyingAround(lying_around);
+}
+
+
+private func SetConstructionSiteOverlay(id type, int dir, object stick, int w, int h)
+{
+	// Basic layer, invisible
+	SetGraphics(nil, nil, 0);
+	SetClrModulation(RGBa(255, 255, 255, 0));
+	
+	// Second layer, the structure
+	// Create the site display?
+	if (!progressive_building.con_site)
+	{
+		progressive_building.con_site = CreateObject(Dummy, 0, 0, NO_OWNER);
+		progressive_building.con_site->SetGraphics(nil, definition);
+		progressive_building.con_site.Visibility = VIS_Owner | VIS_Allies;
+		progressive_building.con_site->MovePosition(0, -GetY() - 100);
+	}
+
+	if (progressive_building.con_site)
+	{
+		Log("Con site has custom preview");
+		SetGraphics(nil, nil, 1, GFXOV_MODE_Object, nil, nil, progressive_building.con_site);
+		SetObjDrawTransform((1 - dir * 2) * 1000, 0, 0, 0, 1000, 0, 1);
+		SetObjDrawTransform((1 - dir * 2) * 1000, 0, 0, 0, 1000, 0, 2);
+		// Adjust dummy shape to our own shape
+		var site_h = Max(12, h);
+		if (definition->~IsBelowSurfaceConstruction())
+		{
+			progressive_building.con_site->SetShape(-w/2, -2 * site_h, w, 2 * site_h);
+		}
+		else
+		{
+			progressive_building.con_site->SetShape(-w/2, -site_h, w, site_h);
+		}
+	}
+	else
+	{
+		SetGraphics(nil, type, 1, GFXOV_MODE_Base);
+		SetClrModulation(RGBa(255, 255, 255, 128), 1);
+		// If the structure is a mesh, use wire frame mode to show the site.
+		// TODO: use def->IsMesh() once this becomes available.
+		if (type->GetMeshMaterial())
+		{
+			SetClrModulation(RGBa(255, 255, 255, 50), 1);
+			SetGraphics(nil, type, 2, GFXOV_MODE_Base, nil, GFX_BLIT_Wireframe);
+		}
+		SetObjDrawTransform((1 - dir * 2) * 1000, 0, 0, 0, 1000, -h * 500, 1);
+		SetObjDrawTransform((1 - dir * 2) * 1000, 0, 0, 0, 1000, -h * 500, 2);
+	}
+	
+	// Third layer, construction site sign on top
+	SetGraphics(nil, Icon_ConstructionSite, 3, GFXOV_MODE_ExtraGraphics);
+	SetObjDrawTransform(1000, 0, (-1 + dir * 2) * 500 * w + (1 - dir * 3) * 1000 * GetID()->GetDefWidth(), 0, 1000, 0, 3);
+	
+	// Set the appearance
+	UpdateMaximumProgress();
+	UpdateCurrentProgress();
+}
+
 
 /* -- Internals -- */
 
@@ -193,3 +320,9 @@ private func UpdateMaximumProgress()
 
 	Log("Building progress %d/%d", progressive_building.progress_con, progressive_building.progress_max);
 }
+
+
+private func UpdateCurrentProgress()
+{
+}
+

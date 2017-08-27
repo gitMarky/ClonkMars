@@ -1,1 +1,2 @@
 TxtMissingMaterial=Fehlendes Material
+TxtConstruct=Bauvorgang fortsetzen
