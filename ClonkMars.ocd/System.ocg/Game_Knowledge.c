@@ -1,17 +1,40 @@
 
 
-// Gives the player plans according to basic knowledge.
-global func GivePlayerBasicKnowledge(int player)
+// Gives the player plans at the scenario start.
+global func GivePlayerInitialKnowledge(int player)
 {
-	var knowledge = [
+	GivePlayerKnowledge(player,
+	[
 		// basic structures for a settlement and production
 		Structure_Base,
 		// basic tools
 		Shovel,
 		// basic resources.
 		Metal, Plastic
-	];
-	for (var plan in knowledge)
+	]);
+}
+
+
+// Gives the player plans once he has built a base.
+global func GivePlayerBasicKnowledge(int player)
+{
+	GivePlayerKnowledge(player,
+	[
+		// basic structures for a settlement and production
+		Structure_Base,
+		Structure_SolarPanel,
+		// basic tools
+		Shovel,
+		// basic resources.
+		Metal, Plastic
+	]);
+}
+
+
+
+global func GivePlayerKnowledge(int player, array plans)
+{
+	for (var plan in plans)
 	{
 		SetPlrKnowledge(player, plan);
 	}

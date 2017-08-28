@@ -15,7 +15,7 @@ public func InitializePlayer(int player)
 	CreateStartingMaterial(player);
 	CreateStartingEquipment(player);
 	CreateStartingCapsule(player);
-	GivePlayerBasicKnowledge(player);
+	GivePlayerInitialKnowledge(player);
 }
 
 
