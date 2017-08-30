@@ -1,0 +1,9 @@
+Name=Tank
+Description=Speichert Öl und gibt es bei Bedarf wieder ab. Kann auch als Lavalagerstätte verwendet werden.|Sollte mit Bohrturm und Materiallabor mittels Rohrbausatz verbunden sein.|Auch kann hier das Jetpack aufgeladen werden.
+
+TxtOnlyOil=Nur Öl möglich!
+TxtOnlyEmptyTank=Nur bei leerem Tank möglich!
+TxtEnemy=Zugriff verweigert
+TxtSwitchToOil=Zu Öl wechseln
+TxtSwitchToLava=Zu Lava wechseln
+TxtFlushTank=Tank leeren

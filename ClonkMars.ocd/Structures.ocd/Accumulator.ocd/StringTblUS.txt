@@ -1,0 +1,9 @@
+Name=Accumulator
+Description=Stores/Saves energy and emits it when necessary. Needs one crystal for energy storage. Full energy cells can  accessorily charge the battery.
+
+TxtStored=Currently stored:|%d kWh
+TxtCharged=EnergyCell charged.
+TxtAssign=Energy assigned.
+TxtNotEnoughPower=Not enough power available.
+TxtNoCell=No empty cell in your inventory.
+TxtNoChargedCell=No charged cell in your inventory.

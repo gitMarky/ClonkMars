@@ -1,0 +1,3 @@
+Name=Rig
+Description=Spuds for fluids.|For exhausting the oil, the drill tower must be connected with a tank.
+

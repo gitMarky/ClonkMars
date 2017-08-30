@@ -1,0 +1,3 @@
+Name=Silicium
+Description=Wichtiges Bauelement zum Energie speichern.
+

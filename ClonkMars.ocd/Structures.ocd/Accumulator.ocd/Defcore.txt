@@ -1,0 +1,16 @@
+[DefCore]
+id=Structure_Accumulator
+Version=8,0
+Category=C4D_Structure
+Width=40
+Height=30
+Offset=-20,-15
+Value=700
+Mass=1000
+Vertices=4
+VertexX=-20,-20,17,17
+VertexY=-12,15,-12,15
+VertexFriction=100,50,50,100
+Exclusive=1
+Construction=1
+ColorByOwner=1

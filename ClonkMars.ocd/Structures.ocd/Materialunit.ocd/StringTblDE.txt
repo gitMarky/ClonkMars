@@ -1,0 +1,9 @@
+Name=Materialeinheit
+Description=Stellt aus Rohstoffen fertige Produkte her.|Damit das Labor Plastik produzieren kann, muss es mit einem Öltank verbunden sein.
+
+TxtCancel=Abbruch
+TxtCancelFull=Bricht die Produktion nach Beendigung der Aktion ab.
+TxtCancelNow=Sofortabbruch
+TxtCancelNowFull=Abbruch der Aktuellen Produktion.|Achtung: Alle Ergebnisse und Ressourcen gehen verloren.
+TxtNothingProducible=Nichts produzierbar
+TxtNotEnoughOil=Nicht genügend Öl in den Tanks vorhanden!

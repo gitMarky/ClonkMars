@@ -1,0 +1,9 @@
+Name=Material unit
+Description=Produces finished products out of raw materials.|In order for the lab to produce plastic, it must be connected to an oil tank.
+
+TxtCancel=Cancel
+TxtCancelFull=Cancel the current production, once it is finished.
+TxtCancelNow=Cancel now
+TxtCancelNowFull=Cancel the current production now. Caution: All materials will be lost.
+TxtNothingProducible=Nothing producible
+TxtNotEnoughOil=Not enough oil available in tanks!

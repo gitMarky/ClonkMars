@@ -1,0 +1,16 @@
+[DefCore]
+id=Silicon
+Version=8,0
+Category=C4D_Object
+Width=10
+Height=10
+Offset=-5,-5
+Value=5
+Mass=10
+Vertices=3
+VertexX=-4,1,4
+VertexY=-4,4,-4
+VertexFriction=50,50,50
+Rotate=1
+StretchGrowth=1
+IncompleteActivity=1

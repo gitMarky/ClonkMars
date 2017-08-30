@@ -1,0 +1,9 @@
+Name=Akkumulator
+Description=Speichert Energie und gibt sie bei Bedarf ab. Benötgt zum Energie speichern einen Kristall. Volle Energiezellen können wieder in den Akku eingespeist werden.
+
+TxtStored=Aktuell gespeichert:|%d kWh
+TxtCharged=Energiezelle geladen.
+TxtAssign=Energie übertragen
+TxtNotEnoughPower=Nicht genügend Strom vorhanden.
+TxtNoCell=Keine leere Zelle im Clonk.
+TxtNoChargedCell=Keine geladene Zelle im Clonk.
