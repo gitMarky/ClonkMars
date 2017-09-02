@@ -1,5 +1,6 @@
 Name=Supply capsule
 Description=Transports crew and equipment to the surface. Handle with care!
 StartLanding=Start automated landing
-CountdownLanding=Starting thrusters in|%d:%03ds
+StartTakeOff=Return to orbit
+CountdownThruster=Starting thrusters in|%d:%03ds
 Exit=Exit

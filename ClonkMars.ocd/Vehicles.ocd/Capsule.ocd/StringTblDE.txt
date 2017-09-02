@@ -1,5 +1,6 @@
 Name=Nachschubsonde
 Description=Zum Transport von Lebewesen und Material auf die Oberfläche. Sollte aber vorsichtig behandelt werden!
 StartLanding=Automatische Landung starten
-CountdownLanding=Zündung Triebwerke in|%d:%03ds
+StartTakeOff=Ins Orbit zurückkehren
+CountdownThruster=Zündung Triebwerke in|%d:%03ds
 Exit=Verlassen

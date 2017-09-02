@@ -373,28 +373,57 @@ local FxBlowout = new Effect
 				}
 			}
 		}
+		// taking off? do skyrocket!
+		else
+		{
+			var increase_thrust = 0;
+			if (Target->GetYDir() > 0)
+			{
+				Target->SetYDir();
+				increase_thrust = 100;
+			}
+			else if (Abs(Target->GetYDir(CAPSULE_Precision)) < Target.capsule.max_velocity / 2)
+			{
+				increase_thrust = 10;
+			}
+			
+			if (increase_thrust)
+			{
+				var thrust_new = Target.capsule.thrust_vertical + increase_thrust;
+
+				if (thrust_new > 0)
+				{
+					Target->SetVerticalThrust(thrust_new);
+				}
+				else
+				{
+					Target->ResetThrust();
+				}
+			}
+		}
 	
 		// everything else is available in automatic mode only:
-		if (!Target.capsule.automatic) return false;
-			
-		// selling
-		if (Target->GetY() <= -20 && Target->GetYDir() < 0)
+		if (Target.capsule.automatic)
 		{
-			for (var item in FindObjects(Find_Container(Target)))
+			// selling
+			if (!Target.capsule.is_landing && Target->GetY() <= -20 && Target->GetYDir() < 0)
 			{
-				if (item) item->Sell(Target->GetOwner()); // TODO: needs a vendor object
+				for (var item in FindObjects(Find_Container(Target)))
+				{
+					if (item) item->Sell(Target->GetOwner()); // TODO: needs a vendor object
+				}
+				if (Target.capsule.port)
+				{
+					Target.capsule.port->PortWait();
+				}
+				return true;
 			}
-			if (Target.capsule.port)
+
+			// stuck or something?
+			if (time > (LandscapeHeight() * 4 / 3 + 300) && !Random(10))
 			{
-				Target.capsule.port->PortWait();
+				Target->DoDamage(1); 
 			}
-			return true;
-		}
-		
-		// stuck or something?
-		if (time > (LandscapeHeight() * 4 / 3 + 300) && !Random(10))
-		{
-			Target->DoDamage(1); 
 		}
 		return false;
 	},
@@ -711,7 +740,7 @@ public func IsInteractable(object clonk)
 	if (Hostile(clonk->GetOwner(), GetOwner()))
 		return false;
 
-	return HasLandingInteraction(clonk) || HasLeaveInteraction(clonk);
+	return HasLandingInteraction(clonk) || HasLeaveInteraction(clonk) || HasTakeOffInteraction(clonk);
 }
 
 
@@ -727,6 +756,13 @@ public func HasLeaveInteraction(object clonk)
 }
 
 
+public func HasTakeOffInteraction(object clonk)
+{
+	var contained_crew = FindObjects(Find_Container(this), Find_OCF(OCF_CrewMember));
+	return clonk->GetAction() == "Push" && clonk->GetActionTarget() == this && !IsFlying() && (0 == GetLength(contained_crew));
+}
+
+
 public func GetInteractionMetaInfo(object clonk)
 {
 	if (HasLandingInteraction(clonk))
@@ -736,6 +772,10 @@ public func GetInteractionMetaInfo(object clonk)
 	else if (HasLeaveInteraction(clonk))
 	{
 		return { Description = "$Exit$", IconName = nil, IconID = Icon_Exit, Selected = false };
+	}
+	else if (HasTakeOffInteraction(clonk))
+	{
+		return { Description = "$StartTakeOff$", IconName = nil, IconID = Icon_Exit, Selected = false};
 	}
 }
 
@@ -754,6 +794,10 @@ public func Interact(object clonk)
 	{
 		EjectCrew(GetX(), GetY());
 	}
+	else if (HasTakeOffInteraction(clonk))
+	{
+		ScheduleTakeOff(clonk);
+	}
 	return false;
 }
 
@@ -770,16 +814,68 @@ local FxLandingCountdown = new Effect
 		var time_remaining = this.time_freefall - time;
 		if (Target.capsule.thrust_vertical || Target.capsule.thrust_horizontal || !Target->IsFlying() || time_remaining < 0) return FX_Execute_Kill;
 
-
-		var frames = 36;
-		var remainder = time_remaining % frames;
-		var seconds = (time_remaining - remainder) / frames;
-
-		var millis = BoundBy(remainder * 1000 / frames, 0, 999);
-		Target->PlayerMessage(Target->GetOwner(), "$CountdownLanding$", seconds, remainder);
+		Target->CountdownMessage(time_remaining);
 		return FX_OK;
 	},
 };
+
+
+local FxTakeOffCountdown = new Effect
+{
+	Construction = func (int time_take_off)
+	{
+		this.time_take_off = time_take_off;
+	},
+
+	Timer = func (int time)
+	{
+		var time_remaining = this.time_take_off - time;
+		if (Target.capsule.thrust_vertical || Target.capsule.thrust_horizontal || Target->IsFlying() || time_remaining < 0) return FX_Execute_Kill;
+
+		Target->CountdownMessage(time_remaining);
+		return FX_OK;
+	},
+};
+
+
+private func CountdownMessage(int time_remaining)
+{
+	var frames = 36;
+	var remainder = time_remaining % frames;
+	var seconds = (time_remaining - remainder) / frames;
+
+	var millis = BoundBy(remainder * 1000 / frames, 0, 999);
+	PlayerMessage(GetOwner(), "$CountdownThruster$", seconds, remainder);
+}
+
+
+private func ScheduleTakeOff(object clonk)
+{
+	if (capsule.port)
+	{
+		capsule.port->PortActive();
+	}
+	var time_to_takeoff = 60;
+	RemoveEffect("FxTakeOffCountdown", this);
+	CreateEffect(FxTakeOffCountdown, 1, 1, time_to_takeoff);
+	ScheduleCall(this, this.StartTakeOff, time_to_takeoff);
+	clonk->ObjectCommand("UnGrab");	
+}
+
+private func StartTakeOff()
+{
+	// Remove all bottom vertices to prevent the capsule from stucking.
+	for (var vertex in [capsule.port_vertex, 2, 1, 0])
+	{
+		RemoveVertex(vertex);
+	}
+	capsule.port_vertex = -1;
+	SetAction("FreeFall");
+	SetActionData();
+	capsule.is_landing = false;
+	capsule.automatic = 1;
+	SetVerticalThrust(50);
+}
 
 
 /* -- Actions -- */
@@ -826,22 +922,6 @@ private func DestroyBlast() {
 	return _inherited(...);
 }
 
-
-protected func ControlUpDouble() {
-	if (capsule.port) capsule.port->PortActive();
-	ScheduleCall(this, "Launch", 60);
-}
-
-private func Launch() {
-	// Remove all bottom vertices to prevent the capsule from stucking.
-	for (var vertex in [capsule.port_vertex, 2, 1, 0])
-		RemoveVertex(vertex);
-	capsule.port_vertex = -1;
-	SetAction("FreeFall");
-	SetActionData();
-	SetVerticalThrust(2);
-	capsule.automatic = 1;
-}
 
 
 
