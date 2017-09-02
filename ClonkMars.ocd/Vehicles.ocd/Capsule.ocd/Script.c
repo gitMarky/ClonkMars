@@ -810,7 +810,11 @@ local FxLandingCountdown = new Effect
 	Timer = func (int time)
 	{
 		var time_remaining = this.time_freefall - time;
-		if (Target.capsule.thrust_vertical || Target.capsule.thrust_horizontal || !Target->IsFlying() || time_remaining < 0) return FX_Execute_Kill;
+		if (Target.capsule.thrust_vertical || Target.capsule.thrust_horizontal || !Target->IsFlying() || time_remaining < 0)
+		{
+			Target->Message("");
+			return FX_Execute_Kill;
+		}
 
 		Target->CountdownMessage(time_remaining);
 		return FX_OK;
@@ -828,7 +832,17 @@ local FxTakeOffCountdown = new Effect
 	Timer = func (int time)
 	{
 		var time_remaining = this.time_take_off - time;
-		if (Target.capsule.thrust_vertical || Target.capsule.thrust_horizontal || Target->IsFlying() || time_remaining < 0) return FX_Execute_Kill;
+		if (Target.capsule.thrust_vertical || Target.capsule.thrust_horizontal || Target->IsFlying())
+		{
+			Target->Message("");
+			return FX_Execute_Kill;
+		}
+		if (time_remaining < 0)
+		{
+			Target->Message("");
+			Target->StartTakeOff();
+			return FX_Execute_Kill;
+		}
 
 		Target->CountdownMessage(time_remaining);
 		return FX_OK;
@@ -843,7 +857,7 @@ private func CountdownMessage(int time_remaining)
 	var seconds = (time_remaining - remainder) / frames;
 
 	var millis = BoundBy(remainder * 1000 / frames, 0, 999);
-	PlayerMessage(GetOwner(), "$CountdownThruster$", seconds, remainder);
+	PlayerMessage(GetOwner(), "$CountdownThruster$", seconds, millis);
 }
 
 
@@ -856,7 +870,6 @@ private func ScheduleTakeOff(object clonk)
 	var time_to_takeoff = 60;
 	RemoveEffect("FxTakeOffCountdown", this);
 	CreateEffect(FxTakeOffCountdown, 1, 1, time_to_takeoff);
-	ScheduleCall(this, this.StartTakeOff, time_to_takeoff);
 	clonk->ObjectCommand("UnGrab");	
 }
 
