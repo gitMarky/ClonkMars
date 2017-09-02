@@ -814,9 +814,6 @@ public func GetTemp() { return 250; } // klimatisiert
 local sat;
 
 
-
-
-
 public func SetSat(pSat) {
 	sat = pSat;
 }
@@ -824,19 +821,6 @@ public func SetSat(pSat) {
 private func DestroyBlast() {
 	if (sat) sat -> CapsuleDestroyed();
 	return _inherited(...);
-}
-
-
-// hat einen Sauerstoffspeicher zum Landen
-public func IsO2Producer() {
-	return 1;
-}
-
-
-protected func ContainedDigDouble() {
-	if (GetAction() == "FreeFall")
-		StartLanding();
-	return 1;
 }
 
 
