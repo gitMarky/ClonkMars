@@ -225,10 +225,10 @@ public func SetHorizontalThrust(int bo)
 	{
 		capsule.thrust_horizontal = bo;
 		PlaySoundJetUpdate();
-	}
-	if (bo)
-	{
-		StartThruster();
+		if (bo)
+		{
+			StartThruster();
+		}
 	}
 }
 
@@ -279,10 +279,12 @@ local FxBlowout = new Effect
 	Timer = func (int time)
 	{
 		NormalizeRotation();
-		if (Target.capsule.thrust_vertical)
+		if (Target.capsule.thrust_vertical || Target.capsule.thrust_horizontal)
 		{
-			ParticleFx();
 			ApplyThrust();
+			ParticleFxVertical();
+			ParticleFxHorizontal();
+			ParticleFxDust();
 
 			if (AutomaticCapsuleControl(time))
 			{
@@ -290,25 +292,12 @@ local FxBlowout = new Effect
 				return FX_Execute_Kill;
 			}
 		}
-		var velocity_min_x = 100;
-		var acceleration_x = 1;
-		var precision_xdir = 70;
-		var precision_rdir = 100;
-		if (Target.capsule.thrust_horizontal == 1)
-		{
-			Target->SetXDir(Max(Target->GetXDir(precision_xdir) - acceleration_x, -velocity_min_x), precision_xdir);		
-			Target->SetRDir(Target->GetRDir(precision_rdir) - 1, 100);
-		}
-		else if (Target.capsule.thrust_horizontal == -1)
-		{
-			Target->SetXDir(Min(Target->GetXDir(precision_xdir) + acceleration_x, +velocity_min_x), precision_xdir);
-			Target->SetRDir(Target->GetRDir(precision_rdir) + 1, precision_rdir);
-		}
-		else if (Target.capsule.thrust_vertical == 0 && !Target.capsule.automatic) // This means that both are 0 and the capsule is hand controlled
+
+		if (Target.capsule.thrust_vertical == 0 && !Target.capsule.automatic) // This means that both are 0 and the capsule is hand controlled
 		{ 
 			return FX_Execute_Kill;
 		}
-		
+
 		if (Target.capsule.automatic && Target->~AdvancedWindCalculations())
 		{
 			var nbo;
@@ -413,40 +402,63 @@ local FxBlowout = new Effect
 	ApplyThrust = func()
 	{
 		var per_mille = 1000;
-		var acceleration = Target.capsule.thrust_vertical * Target.capsule.max_acceleration / per_mille;
+		var acceleration_ver = Target.capsule.thrust_vertical * Target.capsule.max_acceleration / per_mille;
+		var acceleration_hor = Target.capsule.thrust_horizontal * Target.capsule.max_acceleration / per_mille / 4;
 		var angle = Target->GetR()*CAPSULE_Precision;
 
-		var add_xdir = +Sin(angle, acceleration, CAPSULE_Precision);
-		var add_ydir = -Cos(angle, acceleration, CAPSULE_Precision);
+		var add_xdir_ver = +Sin(angle, acceleration_ver, CAPSULE_Precision);
+		var add_ydir_ver = -Cos(angle, acceleration_ver, CAPSULE_Precision);
+		var add_xdir_hor = +Cos(angle, acceleration_hor, CAPSULE_Precision);
+		var add_ydir_hor = +Sin(angle, acceleration_hor, CAPSULE_Precision);
 		
-		Log("[%d] Thrust: acceleration = %d, add_ydir = %d, velocity = %d", FrameCounter(), acceleration, add_ydir, Distance(Target->GetXDir(CAPSULE_Precision), Target->GetYDir(CAPSULE_Precision)));
+		Log("[%d] Thrust: acceleration = %d, add_ydir = %d, velocity = %d, add_xdir_hor %d, add_ydir_hor %d", FrameCounter(), acceleration_ver, add_ydir_ver, Distance(Target->GetXDir(CAPSULE_Precision), Target->GetYDir(CAPSULE_Precision)), add_xdir_hor, add_ydir_hor);
 
-		Target->AddSpeed(add_xdir, add_ydir, CAPSULE_Precision);
-		Target->Message("Acc: %d", Target.capsule.thrust_vertical);
+		Target->AddSpeed(add_xdir_ver + add_xdir_hor, add_ydir_ver + add_ydir_hor, CAPSULE_Precision);
+		Target->Message("Acc: %d %d", Target.capsule.thrust_vertical, Target.capsule.thrust_horizontal);
 	},
 	
-	ParticleFx = func()
+	ParticleFxVertical = func ()
 	{
-		var xdir = -Sin(Target->GetR(),15) +RandomX(-1,1) + Target->GetXDir();
-		var ydir = +Cos(Target->GetR(),15 + Random(5)) + Target->GetYDir()/2;
-		var size = 5 + Target.capsule.thrust_vertical / 100;
-		var lifetime = size;
-		var props =
-		{
+		if (Target.capsule.thrust_vertical)
+		{	
+			var xdir = -Sin(Target->GetR(), +15) +RandomX(-1,+1) + Target->GetXDir();
+			var ydir = +Cos(Target->GetR(), +15 + Random(5)) + Target->GetYDir()/2;
+			var size = 5 + Target.capsule.thrust_vertical / 100;
+			var lifetime = size;
+			var props = ParticleFxThrust(size);
+			for (var i = RandomX(5, 8); i; --i)
+			{
+				Target->CreateParticle("Thrust", -Sin(Target->GetR(), 8) + Cos(Target->GetR(), -10), Cos(Target->GetR(), 8) - Sin(Target->GetR(), +11), xdir, ydir, lifetime, props);
+				Target->CreateParticle("Thrust", -Sin(Target->GetR(), 11),                           Cos(Target->GetR(), 11),                           xdir, ydir, lifetime, props);
+				Target->CreateParticle("Thrust", -Sin(Target->GetR(), 8) + Cos(Target->GetR(), +11), Cos(Target->GetR(), 8) - Sin(Target->GetR(), -11), xdir, ydir, lifetime, props);
+			}
+		}
+	},
+	
+	ParticleFxHorizontal = func ()
+	{
+		if (Target.capsule.thrust_horizontal)
+		{	
+			var dir = BoundBy(Target.capsule.thrust_horizontal, -1, +1) * (-1);
+			var xdir = +Cos(Target->GetR(), 15 + Random(5)) * dir + Target->GetXDir();
+			var ydir = +Sin(Target->GetR(), -15) * dir + RandomX(-1, +1) + Target->GetYDir();
+			var x = dir * 22;
+			var size = 3 + Abs(Target.capsule.thrust_horizontal) / 200;
+			var lifetime = size;
+			var props = ParticleFxThrust(size);
+			Target->CreateParticle("Thrust", Cos(Target->GetR(), x), +Sin(Target->GetR(), x), xdir, ydir, lifetime, props, RandomX(5, 8));
+		}
+	},
+	
+	ParticleFxThrust = func (int size)
+	{
+		return {
 			Prototype = Particles_Thrust(size),
 			Alpha = PV_Linear(128, 0),
 			BlitMode = GFX_BLIT_Additive,
 			R = 200, G = 200, B = 255,
 			Size = PV_KeyFrames(0, 0, 0, 50, size, 1000, size / 2), // these ones shrink
 		};
-		for (var i = RandomX(5, 8); i; --i)
-		{
-			Target->CreateParticle("Thrust", -Sin(Target->GetR(), 8) + Cos(Target->GetR(), -10), Cos(Target->GetR(), 8) - Sin(Target->GetR(), +11), xdir, ydir, lifetime, props);
-			Target->CreateParticle("Thrust", -Sin(Target->GetR(), 11),                           Cos(Target->GetR(), 11),                           xdir, ydir, lifetime, props);
-			Target->CreateParticle("Thrust", -Sin(Target->GetR(), 8) + Cos(Target->GetR(), +11), Cos(Target->GetR(), 8) - Sin(Target->GetR(), -11), xdir, ydir, lifetime, props);
-		}
-
-		ParticleFxDust();
 	},
 	
 	ParticleFxDust = func ()
@@ -500,32 +512,6 @@ local FxBlowout = new Effect
 				CreateParticle("BoostDust", x + x_pos, y + y_offset, PV_Random(x_dir + x_dir_pos / 2, x_dir + x_dir_pos), y_dir,lifetime, particles);
 			}
 		}
-		
-		// burn the landscape?
-		/*
-		if (distance < burn_distance)
-		{
-			var landscape_x, landscape_y;
-			var burn = 70 - distance;
-			var color = RGB(burn, burn, burn);
-
-			for (var amount = 0; amount < 5; ++amount)
-			{
-				landscape_x = RandomX(-20, 20);
-				if (Random(2)) landscape_x *= 2;
-				landscape_x += Target->GetX();
-				
-				landscape_y = 0;
-				for (landscape_y = 0; !GBackSolid(landscape_x, Target->GetY() + landscape_y); ++landscape_y);
-				landscape_y += RandomX(-2, 2) + burn / 3;
-				landscape_y += Target->GetY();
-				if (GBackSolid(landscape_x, landscape_y))
-				{
-					SetLandscapePixel(landscape_x, landscape_y, color);
-				}
-			}
-		}
-		*/
 	},
 };
 
@@ -674,7 +660,7 @@ private func SetThrust(int x, int y)
 	var max = 300; // this many pixels will count as max acceleration
 	var max_thrust_angle = 60 * CAPSULE_Precision; 
 	var acceleration_per_mille = BoundBy(Distance(x, y) * per_mille / max, 1, per_mille);
-	var angle = Angle(0, 0, x, y, CAPSULE_Precision); //Normalize(Angle(0, 0, x, y, CAPSULE_Precision), -180 * CAPSULE_Precision, CAPSULE_Precision);
+	var angle = Angle(0, 0, x, y, CAPSULE_Precision);
 	var rotation = GetR() * CAPSULE_Precision;
 	angle = Normalize(angle - rotation, -180 * CAPSULE_Precision, CAPSULE_Precision);
 
@@ -682,10 +668,12 @@ private func SetThrust(int x, int y)
 	if (Abs(angle) < max_thrust_angle)
 	{	
 		SetVerticalThrust(acceleration_per_mille);
+		SetHorizontalThrust(nil);
 	}
 	else
 	{
-		capsule.thrust_vertical = nil;
+		SetVerticalThrust(nil);
+		SetHorizontalThrust(acceleration_per_mille * BoundBy(angle, -1, +1));
 	}
 	
 	// set the rotation, as long as you aim away far enough (10% of max distance)
@@ -702,6 +690,7 @@ private func SetThrust(int x, int y)
 
 private func ResetThrust()
 {
+	capsule.thrust_horizontal = nil;
 	capsule.thrust_vertical = nil;
 	capsule.target_rotation = nil;
 	PlaySoundJetUpdate();
