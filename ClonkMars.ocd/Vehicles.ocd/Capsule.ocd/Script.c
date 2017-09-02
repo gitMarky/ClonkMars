@@ -297,25 +297,6 @@ local FxBlowout = new Effect
 		{ 
 			return FX_Execute_Kill;
 		}
-
-		if (Target.capsule.automatic && Target->~AdvancedWindCalculations())
-		{
-			var nbo;
-
-			Message("%v %v %v", this, Target->GetXDir(), Target->GetX() - Target.capsule.origin_x, GetWind());
-			
-			if (     Target->GetXDir() >= -17 && Target->GetX() > Target.capsule.origin_x) nbo = 1;
-			else if (Target->GetXDir() <=  17 && Target->GetX() < Target.capsule.origin_x) nbo = -1;
-
-			if (Abs(Target->GetR()) > 8)
-			{
-				if (Target->GetRDir() > 0) Target->SetRDir(Target->GetRDir(100)-1, 100);
-				else Target->SetRDir(Target->GetRDir(100)+1, 100);
-				nbo = 0;
-			}
-
-			if (nbo != Target.capsule.thrust_horizontal) Target->SetHorizontalThrust(nbo);
-		}
 	},
 	
 	NormalizeRotation = func ()
@@ -423,6 +404,23 @@ local FxBlowout = new Effect
 			if (time > (LandscapeHeight() * 4 / 3 + 300) && !Random(10))
 			{
 				Target->DoDamage(1); 
+			}
+			
+			
+			if (Target->~AdvancedWindCalculations())
+			{
+				var thrust_horizontal;
+	
+				Message("%v %v %v", this, Target->GetXDir(), Target->GetX() - Target.capsule.origin_x, GetWind());
+
+				if (     Target->GetXDir() >= -17 && Target->GetX() > Target.capsule.origin_x) thrust_horizontal = 50;
+				else if (Target->GetXDir() <=  17 && Target->GetX() < Target.capsule.origin_x) thrust_horizontal = -50;
+	
+				if (Abs(Target->GetR()) <= 8)
+				{
+					var thrust_new = Target.capsule.thrust_horizontal + thrust_horizontal;
+					Target->SetHorizontalThrust(thrust_new);
+				}
 			}
 		}
 		return false;
