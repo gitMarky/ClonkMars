@@ -223,7 +223,7 @@ public func SetHorizontalThrust(int bo)
 {
 	if (capsule.thrust_horizontal != bo)
 	{
-		capsule.thrust_horizontal = bo;
+		capsule.thrust_horizontal = BoundBy(bo, -1000, 1000);
 		PlaySoundJetUpdate();
 		if (bo)
 		{
@@ -237,7 +237,7 @@ public func SetVerticalThrust(int bo)
 {
 	if (capsule.thrust_vertical != bo)
 	{
-		capsule.thrust_vertical = bo;
+		capsule.thrust_vertical = BoundBy(bo, 0, 1000);
 		PlaySoundJetUpdate();
 		if (bo)
 		{
@@ -441,10 +441,10 @@ local FxBlowout = new Effect
 		{	
 			var dir = BoundBy(Target.capsule.thrust_horizontal, -1, +1) * (-1);
 			var xdir = +Cos(Target->GetR(), 15 + Random(5)) * dir + Target->GetXDir();
-			var ydir = +Sin(Target->GetR(), -15) * dir + RandomX(-1, +1) + Target->GetYDir();
-			var x = dir * 22;
+			var ydir = +Sin(Target->GetR(), 15) * dir + RandomX(-1, +1) + Target->GetYDir();
+			var x = dir * 21;
 			var size = 3 + Abs(Target.capsule.thrust_horizontal) / 200;
-			var lifetime = size;
+			var lifetime = 3 + Abs(Target.capsule.thrust_horizontal) / 100;
 			var props = ParticleFxThrust(size);
 			Target->CreateParticle("Thrust", Cos(Target->GetR(), x), +Sin(Target->GetR(), x), xdir, ydir, lifetime, props, RandomX(5, 8));
 		}
@@ -658,23 +658,26 @@ private func SetThrust(int x, int y)
 
 	var per_mille = 1000;
 	var max = 300; // this many pixels will count as max acceleration
-	var max_thrust_angle = 60 * CAPSULE_Precision; 
+	var side_thrust_angle = 15 * CAPSULE_Precision; 
 	var acceleration_per_mille = BoundBy(Distance(x, y) * per_mille / max, 1, per_mille);
 	var angle = Angle(0, 0, x, y, CAPSULE_Precision);
 	var rotation = GetR() * CAPSULE_Precision;
 	angle = Normalize(angle - rotation, -180 * CAPSULE_Precision, CAPSULE_Precision);
 
-	// set the vertical thruster on, as long as you are in range +/- max_thrust_angle	
-	if (Abs(angle) < max_thrust_angle)
-	{	
-		SetVerticalThrust(acceleration_per_mille);
-		SetHorizontalThrust(nil);
+	// control the vertical thruster at full setting, as long as you are in range +/- side_thrust_angle	
+	// otherwise start setting the side thruster, with increasing strength, and decrease horizontal thruster strength
+	var angle_ver = Max(0, Abs(angle) - side_thrust_angle);
+	var angle_hor;
+	if (angle < 0)
+	{
+		angle_hor = Min(0, angle + side_thrust_angle);
 	}
 	else
 	{
-		SetVerticalThrust(nil);
-		SetHorizontalThrust(acceleration_per_mille * BoundBy(angle, -1, +1));
+		angle_hor = Max(0, angle - side_thrust_angle);
 	}
+	SetVerticalThrust(Cos(angle_ver, acceleration_per_mille, CAPSULE_Precision));
+	SetHorizontalThrust(Sin(angle_hor, acceleration_per_mille, CAPSULE_Precision));
 	
 	// set the rotation, as long as you aim away far enough (10% of max distance)
 	if (acceleration_per_mille > 100)
