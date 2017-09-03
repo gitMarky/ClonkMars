@@ -20,6 +20,7 @@ public func Construction()
 		components = CreateObject(Dummy, 0, 0, NO_OWNER),
 		con_site = nil,		// the actual construction site
 		finished = false,	// if done
+		full_material = false, // mirrors full_material. Necessary, because GetMissingComponents() sets full_material to true at one point, and other functions return values depend on that value. This caused a bug where one material was enough for the building to think that it needs no more material
 	};
 	
 	// determine max component count
@@ -33,7 +34,7 @@ public func Destruction()
 	if (progressive_building.components)
 	{
 		progressive_building.components->SetPosition(GetX(), GetY());
-		progressive_building.components->RemoveObject(!full_material);
+		progressive_building.components->RemoveObject(!progressive_building.full_material);
 	}
 	// Delete basement and con site if unfinished
 	if (!progressive_building.finished)
@@ -292,7 +293,7 @@ public func Set(id structure, int dir, object stick)
 // Gets the number of available components of a type.
 private func GetAvailableComponentCount(id component)
 {
-	if (full_material)
+	if (progressive_building.full_material)
 	{
 		return progressive_building.component_count;
 	}
@@ -320,7 +321,7 @@ private func GetAvailableComponents()
 	{
 		var component = GetDefinition(entry);
 		var amount;
-		if (full_material)
+		if (progressive_building.full_material)
 		{
 			amount = definition.Components[entry];
 		}
@@ -404,5 +405,26 @@ private func GetBasement()
 	{
 		return progressive_building.con_site->~GetBasement();
 	}
+}
+
+
+private func UpdateFullMaterial()
+{
+	progressive_building.full_material = full_material;
+}
+
+
+private func GetMissingComponents()
+{
+	var return_value = _inherited(...);
+	UpdateFullMaterial();
+	return return_value;
+}
+
+
+public func ForceConstruct()
+{
+	_inherited(...);
+	UpdateFullMaterial();
 }
 
