@@ -113,7 +113,7 @@ local FxDoorControl = new Effect
 			}
 			if (this.anim_open)
 			{
-				DoorAnimation("DoorOpen", this.time_opening);
+				DoorAnimation("DoorOpen", 0, this.time_opening);
 				this.anim_open = false;
 			}
 		}
@@ -129,7 +129,7 @@ local FxDoorControl = new Effect
 
 			if (this.anim_opened)
 			{
-				DoorAnimation("DoorOpened", this.time_open);
+				DoorAnimation("DoorOpened", 1, this.time_open);
 				this.anim_opened = false;
 			};
 		}
@@ -148,7 +148,7 @@ local FxDoorControl = new Effect
 			}
 			if (this.anim_close)
 			{
-				DoorAnimation("DoorClose", this.time_closing);
+				DoorAnimation("DoorClose", 2, this.time_closing);
 				this.anim_close = false;
 			}
 		}
@@ -183,9 +183,9 @@ local FxDoorControl = new Effect
 		}
 	},
 	
-	DoorAnimation = func(string animation, int duration)
+	DoorAnimation = func(string animation, int slot, int duration)
 	{
-		Target->PlayAnimation(animation, ANIM_SLOT_Door, Anim_Linear(0, 0, Target->GetAnimationLength(animation), duration, ANIM_Remove), Anim_Linear(0, 0, 1000, 5, ANIM_Remove));
+		Target->PlayAnimation(animation, ANIM_SLOT_Door + slot, Anim_Linear(0, 0, Target->GetAnimationLength(animation), duration + 1, ANIM_Remove), Anim_Linear(0, 0, 1000, 1, ANIM_Remove));
 	},
 };
 
