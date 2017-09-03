@@ -1,5 +1,6 @@
 #include Library_MarsStructure
 #include Library_MarsResearch
+#include Library_ConstructionAnimation
 #include Library_DoorControlFx
 #include Library_DamageControl
 #include Library_OxygenSupplier
