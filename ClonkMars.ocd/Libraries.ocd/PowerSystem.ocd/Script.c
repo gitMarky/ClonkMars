@@ -44,7 +44,7 @@
 
 // A static variable is used to store the different power networks.
 // This variable is also accessed by the flag library.
-static LIB_POWR_Networks;
+static POWER_SYSTEM_NETWORKS;
 
 /**
  * Getter for the power system
@@ -139,7 +139,7 @@ public func TransferPowerLink(object link)
 	var new_network = GetPowerNetwork(link);
 	// Loop over existing networks and find the link.
 	var old_network;
-	for (var network in LIB_POWR_Networks)
+	for (var network in POWER_SYSTEM_NETWORKS)
 	{
 		if (network && network->ContainsPowerLink(link))
 		{
@@ -207,7 +207,7 @@ public func GetPowerNetwork(object for_obj)
 		if (helper == nil)
 		{
 			helper = CreateObject(GetPowerSystemNetwork(), 0, 0, NO_OWNER);
-			LIB_POWR_Networks[GetLength(LIB_POWR_Networks)] = helper;
+			POWER_SYSTEM_NETWORKS[GetLength(POWER_SYSTEM_NETWORKS)] = helper;
 			// Add to all linked flags.
 			flag->SetPowerHelper(helper);
 			for (var linked_flag in flag->GetLinkedFlags())
@@ -228,11 +228,11 @@ public func GetPowerNetwork(object for_obj)
 	// Otherwise, if no flag was available the object is neutral and needs a neutral helper.
 	else
 	{
-		if (!LIB_POWR_Networks)
+		if (!POWER_SYSTEM_NETWORKS)
 		{
-			LIB_POWR_Networks = [];
+			POWER_SYSTEM_NETWORKS = [];
 		}
-		for (var network in LIB_POWR_Networks)
+		for (var network in POWER_SYSTEM_NETWORKS)
 		{
 			if (!network) // TODO || !network.lib_power.neutral_network)
 			{
@@ -246,8 +246,8 @@ public func GetPowerNetwork(object for_obj)
 		{
 			helper = CreateObject(GetPowerSystemNetwork(), 0, 0, NO_OWNER);
 			// TODO helper.lib_power.neutral_network = true;
-			//LIB_POWR_Networks[GetLength(LIB_POWR_Networks)] = helper;
-			PushBack(LIB_POWR_Networks, helper);
+			//POWER_SYSTEM_NETWORKS[GetLength(POWER_SYSTEM_NETWORKS)] = helper;
+			PushBack(POWER_SYSTEM_NETWORKS, helper);
 		}
 	}
 	
@@ -266,9 +266,9 @@ public func Init()
 		return;
 	}
 	// Initialize the list of networks if not done already.
-	if (GetType(LIB_POWR_Networks) != C4V_Array)
+	if (GetType(POWER_SYSTEM_NETWORKS) != C4V_Array)
 	{
-		LIB_POWR_Networks = [];
+		POWER_SYSTEM_NETWORKS = [];
 	}
 	return;
 }
