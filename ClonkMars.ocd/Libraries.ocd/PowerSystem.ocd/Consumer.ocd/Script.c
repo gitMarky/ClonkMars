@@ -203,7 +203,7 @@ private func Destruction()
  */
 private func OnOwnerChanged(int new_owner, int old_owner)
 {
-	Library_Power->TransferPowerLink(this);
+	GetPowerSystem()->TransferPowerLink(this);
 	return _inherited(new_owner, old_owner, ...);
 }
 

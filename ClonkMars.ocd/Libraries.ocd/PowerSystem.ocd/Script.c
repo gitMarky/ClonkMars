@@ -137,7 +137,7 @@ public func TransferPowerLink(object link)
 	{
 		return FatalError("TransferPowerLink() either not called from definition context or no link specified.");
 	}
-	/*
+	
 	// Get the new network for this power link.
 	var new_network = GetPowerNetwork(link);
 	// Loop over existing networks and find the link.
@@ -156,17 +156,17 @@ public func TransferPowerLink(object link)
 		var producer = old_network->GetProducerLink(link);
 		if (producer)
 		{
-			old_network->RemovePowerProducer(producer.obj);
-			new_network->AddPowerProducer(producer.obj);		
+			old_network->RemovePowerProducer(producer);
+			new_network->AddPowerProducer(producer);		
 		}
 		var consumer = old_network->GetConsumerLink(link);
 		if (consumer)
 		{
-			old_network->RemovePowerConsumer(consumer.obj);
-			new_network->AddPowerConsumer(consumer.obj);		
+			old_network->RemovePowerConsumer(consumer);
+			new_network->AddPowerConsumer(consumer);		
 		}
 	}
-	*/
+
 	return;
 }
 
@@ -210,7 +210,7 @@ public func GetPowerNetwork(object for_obj)
 		if (helper == nil)
 		{
 			helper = CreateObject(GetPowerSystemNetwork(), 0, 0, NO_OWNER);
-			POWER_SYSTEM_NETWORKS[GetLength(POWER_SYSTEM_NETWORKS)] = helper;
+			PushBack(POWER_SYSTEM_NETWORKS, helper);
 			// Add to all linked flags.
 			flag->SetPowerHelper(helper);
 			for (var linked_flag in flag->GetLinkedFlags())

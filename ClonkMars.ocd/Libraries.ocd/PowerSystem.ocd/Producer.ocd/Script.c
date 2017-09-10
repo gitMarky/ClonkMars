@@ -51,6 +51,7 @@ private func SetPowerProduction(int amount)
 	}
 
 	lib_power_system.producer.power_production = amount;
+	GetPowerSystem()->UpdateNetworkForPowerLink(this);
 }
 
 
@@ -88,6 +89,7 @@ private func SetProducerPriority(int priority)
 	}
 
 	lib_power_system.producer.priority = priority;
+	GetPowerSystem()->UpdateNetworkForPowerLink(this);
 }
 
 
@@ -189,6 +191,6 @@ private func Destruction()
  */
 private func OnOwnerChanged(int new_owner, int old_owner)
 {
-	Library_Power->TransferPowerLink(this);
+	GetPowerSystem()->TransferPowerLink(this);
 	return _inherited(new_owner, old_owner, ...);
 }
