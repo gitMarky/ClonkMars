@@ -12,7 +12,7 @@ public func AddPowerProducer(object producer)
 		PushBack(power_producers, producer);		
 		Log("POWR - AddPowerProducer(): network = %v, frame = %d, producer = %v", this, FrameCounter(), producer);
 		SortProducers(); // This is necessary only when adding an object to the list
-		CheckPowerBalance(); // Check the power balance of this network, since a change has been made.
+		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
 
@@ -26,7 +26,7 @@ public func RemovePowerProducer(object producer)
 	{
 		RemoveArrayValue(power_producers, producer);		
 		Log("POWR - RemovePowerProducer(): network = %v, frame = %d, producer = %v", this, FrameCounter(), producer);
-		CheckPowerBalance(); // Check the power balance of this network, since a change has been made.
+		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
 
@@ -41,7 +41,7 @@ public func AddPowerConsumer(object consumer)
 		PushBack(power_consumers, consumer);
 		Log("POWR - AddPowerConsumer(): network = %v, frame = %d, consumer = %v", this, FrameCounter(), consumer);
 		SortConsumers(); // This is necessary only when adding an object to the list
-		CheckPowerBalance(); // Check the power balance of this network, since a change has been made.
+		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
 
@@ -55,7 +55,7 @@ public func RemovePowerConsumer(object consumer)
 	{
 		RemoveArrayValue(power_consumers, consumer);		
 		Log("POWR - RemovePowerConsumer(): network = %v, frame = %d, consumer = %v", this, FrameCounter(), consumer);
-		CheckPowerBalance(); // Check the power balance of this network, since a change has been made.
+		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
 
@@ -69,7 +69,7 @@ public func AddPowerStorage(object storage)
 	{
 		PushBack(power_storages, storage);		
 		Log("POWR - AddPowerStorage(): network = %v, frame = %d, storage = %v", this, FrameCounter(), storage);
-		CheckPowerBalance(); // Check the power balance of this network, since a change has been made.
+		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
 
@@ -83,15 +83,8 @@ public func RemovePowerStorage(object storage)
 	{
 		RemoveArrayValue(power_storages, storage);		
 		Log("POWR - RemovePowerStorage(): network = %v, frame = %d, storage = %v", this, FrameCounter(), storage);
-		CheckPowerBalance(); // Check the power balance of this network, since a change has been made.
+		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
-}
-
-
-// TODO: Remove this function
-public func CheckPowerBalance()
-{
-	DoPowerBalanceUpdate();
 }
 
 
@@ -531,6 +524,28 @@ private func Construction()
 }
 
 /* -- Internals -- */
+
+/**
+ * Does an update of the power balance in the next frame.
+ *
+ * This is scheduled, so that objects can manipulate
+ * the network as they like, without having to worry
+ * about infinite recursions and the like.
+ */
+public func SchedulePowerBalanceUpdate()
+{
+	if (!GetEffect("FxUpdatePowerBalance", this))
+		CreateEffect(FxUpdatePowerBalance, 1, 1);
+}
+
+local FxUpdatePowerBalance = new Effect {
+	Timer = func ()
+	{
+		Target->DoPowerBalanceUpdate();
+		return FX_Execute_Kill;
+	},
+};
+
 
 /**
  * Checks the power balance after a change to this network: i.e. removal or addition

@@ -177,7 +177,7 @@ public func UpdateNetworkForPowerLink(object link)
 	{
 		return FatalError("UpdateNetworkForPowerLink() either not called from definition context or no link specified.");
 	}
-	GetPowerNetwork(link)->CheckPowerBalance();
+	GetPowerNetwork(link)->SchedulePowerBalanceUpdate();
 	return;
 }
 
