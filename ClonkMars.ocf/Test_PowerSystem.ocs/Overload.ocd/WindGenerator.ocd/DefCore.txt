@@ -1,0 +1,16 @@
+[DefCore]
+id=WindGenerator
+Version=8,0
+Category=C4D_Structure
+Width=24
+Height=70
+Offset=-12,-35
+Vertices=5
+VertexX=0,-9,9,-9,9
+VertexY=-27,-25,-25,34,34
+VertexFriction=50,50,50,100,100
+Mass=900
+Exclusive=1
+Construction=1
+Rotate=1
+Float=1
