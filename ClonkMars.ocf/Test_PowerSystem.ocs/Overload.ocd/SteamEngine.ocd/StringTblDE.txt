@@ -1,0 +1,8 @@
+Name=Dampfmaschine
+Description=Die Dampfmaschine erzeugt Strom aus Brennstoffen wie Kohle, Holz oder Öl.
+
+MsgConnectedPipe=Rohr angeschlossen.
+MsgPipeProhibited=Dieses Rohr kann nicht an die Dampfmaschine angeschlossen werden.
+MsgHasPipes=Die Dampfmaschine hat schon ein Zu- und Abflussrohr.
+MsgSourcePipeProhibited=Zuflussrohre können nicht an die Dampfmaschine angeschlossen werden.
+MsgDrainPipeProhibited=Abflussrohre können nicht an die Dampfmaschine angeschlossen werden.

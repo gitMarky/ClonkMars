@@ -197,6 +197,46 @@ global func Test1_OnFinished()
 }
 
 
+
+// Test for one on-demand source and a few consumers.
+global func Test2_OnStart(int plr)
+{
+	// Power source: one steam engine.
+	var engine = CreateObjectAbove(SteamEngine, 100, 160, plr);
+	var coal = engine->CreateContents(Coal, 1);
+	coal->SetCon(12);
+	
+	// Power consumer: sawmill.
+	CreateObjectAbove(Sawmill, 40, 160, plr);
+	CreateObjectAbove(Tree_Coconut, 40, 160)->ChopDown();
+	
+	// Power consumer: armory.
+	var armory = CreateObjectAbove(Armory, 280, 160, plr);
+	armory->CreateContents(Firestone, 5);
+	armory->CreateContents(Metal, 5);
+	armory->AddToQueue(IronBomb, 5);
+	
+	// Log what the test is about.
+	Log("An on-demand power source (steam engine) supplying a few on-demand power consumers (sawmill, armory).");
+	return true;	
+}
+
+global func Test2_Completed()
+{
+	// One wood is being burned as fuel by the steam engine.
+	if (ObjectCount(Find_ID(Wood)) >= 3 && ObjectCount(Find_ID(IronBomb)) >= 5)
+		return true;
+	return false;
+}
+
+global func Test2_OnFinished()
+{
+	// Remove steam engine, sawmill (possibly with wood), armory.
+	RemoveAll(Find_Or(Find_ID(SteamEngine), Find_ID(Sawmill), Find_ID(Wood), Find_ID(Armory), Find_ID(Tree_Coconut)));
+	return;
+}
+
+
 /*-- Helper Functions --*/
 
 global func SetWindFixed(int strength)

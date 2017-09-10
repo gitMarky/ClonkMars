@@ -146,6 +146,31 @@ private func OnNotEnoughPower(int amount)
 }
 
 
+/* -- Backwards compatibility -- */
+
+/**
+ * Call this function in the power consuming structure to indicate to the network
+ * a request for power of the specified amount.
+ */
+private func RegisterPowerRequest(int amount)
+{
+	SetPowerConsumption(amount);
+	GetPowerSystem()->RegisterPowerConsumer(this);
+}
+
+
+/**
+ * Call this function in the power consuming structure to indicate to the network
+ * a the end of a power request.
+ */
+private func UnregisterPowerRequest()
+{
+	GetPowerSystem()->UnregisterPowerConsumer(this);
+	// Also ensure that the no-power symbol is not shown any more.
+	RemoveStatusSymbol(Library_PowerConsumer);
+}
+
+
 /* -- Library Code -- */
 
 

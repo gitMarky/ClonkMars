@@ -93,6 +93,30 @@ private func SetProducerPriority(int priority)
 }
 
 
+/* -- Backward compatibility -- */
+
+/**
+ * Call this function in the power producing structure to indicate to the network
+ * that this structure is available and able to produce the specified amount of power.
+ */
+private func RegisterPowerProduction(int amount)
+{
+	SetPowerProduction(amount);
+	GetPowerSystem()->RegisterPowerProducer(this);
+}
+
+
+/**
+ * Call this function in the power producing structure to indicate to the network
+ * that this structure is not able to produce any power any more.
+ */
+private func UnregisterPowerProduction()
+{
+	GetPowerSystem()->UnregisterPowerProducer(this);
+}
+
+
+
 /* -- Callbacks -- */
 
 /**

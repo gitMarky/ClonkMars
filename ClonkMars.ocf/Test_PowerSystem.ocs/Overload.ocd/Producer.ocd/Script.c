@@ -660,19 +660,7 @@ protected func FxProcessProductionStart(object target, proplist effect, int temp
 	// change its power need during production. Only do this for producers
 	// which are power consumers.
 	if (this->~IsPowerConsumer())
-	{
-		var power_need = this->PowerNeed(effect.Product);
-		
-		if (power_need)
-		{
-			GetPowerSystem()->RegisterPowerConsumer(this);
-			SetPowerConsumption(power_need);
-		}
-		else
-		{
-			GetPowerSystem()->RemovePowerConsumer(this);
-		}
-	}
+		RegisterPowerRequest(this->PowerNeed());
 	
 	return FX_OK;
 }
@@ -731,9 +719,7 @@ protected func FxProcessProductionStop(object target, proplist effect, int reaso
 	// process, because OnNotEnoughPower relies on it and it gives other producers the chance
 	// to get some power. Do not unregister if this producer does not consumer power.
 	if (this->~IsPowerConsumer())
-	{
-		GetPowerSystem()->UnregisterPowerConsumer(this);
-	}
+		UnregisterPowerRequest();
 
 	if (reason != 0)
 		return FX_OK;

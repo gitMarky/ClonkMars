@@ -44,8 +44,6 @@ protected func Initialize()
 	PlayAnimation(TurnAnimation(), 5, wheel->Anim_R(0, GetAnimationLength(TurnAnimation())));
 	// Initialize a regular check of the wheel's position and speed, also handles power updates.
 	last_power = 0;
-	SetProducerPriority(100);
-	GetPowerSystem()->RegisterPowerProducer(this);
 	AddTimer("Wind2Turn", 4);
 	Wind2Turn();
 	return;
@@ -55,6 +53,23 @@ protected func Initialize()
 
 // Always produces power, irrespective of the demand.
 public func IsSteadyPowerProducer() { return true; }
+
+// High priority so that this drained first.
+public func GetProducerPriority() { return 100; }
+
+// Callback from the power library for production of power request.
+public func OnPowerProductionStart(int amount) 
+{ 
+	// This is a steady producer, so it is already running.
+	return true;
+}
+
+// Callback from the power library requesting to stop power production.
+public func OnPowerProductionStop(int amount)
+{
+	// This is a steady producer, so don't stop anything.
+	return true;
+}
 
 // Returns the wind weighted over several points.
 private func GetWeightedWind()
@@ -96,7 +111,7 @@ public func Wind2Turn()
 	if (last_power != power)
 	{
 		last_power = power;
-		SetPowerProduction(last_power);
+		RegisterPowerProduction(last_power);
 	}
 	// Adjust the wheel speed.
 	var current_wind = GetWeightedWind();
