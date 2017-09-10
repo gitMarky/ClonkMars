@@ -184,6 +184,27 @@ public func GetStoredPower()
 	return total;
 }
 
+
+/**
+ * Find out whether this is a neutral network, instead of a player owned network.
+ */
+public func IsNeutral()
+{
+	return is_neutral;
+}
+
+
+/**
+ * Set this to be neutral, or player owned.
+ */
+private func SetNeutral(bool neutral)
+{
+	is_neutral = neutral;
+}
+
+
+/* -- Internals -- */
+
 private func SortProducers()
 {
 	SortPowerNodes(power_producers, false);
@@ -515,12 +536,14 @@ public func Init()
 local power_producers;
 local power_consumers;
 local power_storages;
+local is_neutral;
 
 private func Construction()
 {
 	power_producers = [];
 	power_consumers = [];
 	power_storages = [];
+	is_neutral = false;
 }
 
 /* -- Internals -- */

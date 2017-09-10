@@ -237,7 +237,7 @@ public func GetPowerNetwork(object for_obj)
 		}
 		for (var network in POWER_SYSTEM_NETWORKS)
 		{
-			if (!network) // TODO || !network.lib_power.neutral_network)
+			if (!network || !network->IsNeutral())
 			{
 				continue;
 			}
@@ -248,8 +248,7 @@ public func GetPowerNetwork(object for_obj)
 		if (helper == nil)
 		{
 			helper = CreateObject(GetPowerSystemNetwork(), 0, 0, NO_OWNER);
-			// TODO helper.lib_power.neutral_network = true;
-			//POWER_SYSTEM_NETWORKS[GetLength(POWER_SYSTEM_NETWORKS)] = helper;
+			network->SetNeutral(true);
 			PushBack(POWER_SYSTEM_NETWORKS, helper);
 		}
 	}
