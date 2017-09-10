@@ -247,6 +247,16 @@ public func GetPowerNetwork(object for_obj)
 	}
 	
 	Init();
+	
+	// Get the actual power consumer for this object. This can for example be the elevator for the case.
+	var actual;
+	while (actual = for_obj->~GetActualPowerConsumer())
+	{
+		// Stop a possible infinite loop.
+		if (actual == for_obj) 
+			break;
+		for_obj = actual;
+	}
 
 	// Get the flag corresponding to the object.	
 	var flag = GetFlagpoleForPosition(for_obj->GetX() - GetX(), for_obj->GetY() - GetY());
