@@ -510,8 +510,8 @@ public func Init()
 */
 /* -- Properties -- */
 
-local power_level;
-local power_demand;
+//local power_level;
+//local power_demand;
 local power_producers;
 local power_consumers;
 local power_storages;
@@ -554,29 +554,93 @@ local FxUpdatePowerBalance = new Effect {
  */
 private func DoPowerBalanceUpdate()
 {
-	ResetPowerLevel();
+	var power_level = 0;
+	var power_demand = 0;
+	
+	Log("==========================================================================");
+	Log("POWR - Performing power balance update for network %v in frame %d", this, FrameCounter());
 
+
+	// Add up all power needs to get the total demand
 	for (var consumer in power_consumers)
 	{
-		DoPowerDemand(consumer->GetPowerConsumption());
+		power_demand += consumer->GetPowerConsumption();
 	}
 
+	Log("POWR - Consumers demand %d units", power_demand);
+
+	// Activate producers if necessary
 	for (var producer in power_producers)
 	{
-		var supply = producer->GetPowerProduction();
+		// Not supplied yet? Switch on the producer, if possible
+		if (power_level < power_demand)
+		{
+			var supply = producer->GetPowerProduction();
+
+			if (producer->IsPowerProductionActive())
+			{
+				// TODO: Update production symbol in case the amount has changed
+			}
+			else
+			{
+				// If production can be started
+				if (producer->OnPowerProductionStart())
+				{
+					power_level += supply; // The producer supplies, so raise the power level
+				}
+			}
+		}
+		// All consumers have enough power, so switch off the remaining producers
+		else
+		{
+			if (producer->IsPowerProductionActive())
+			{
+				producer->OnPowerProductionStop();
+			}
+		}
+	}
+	
+	Log("POWR - Producers supply %d units", power_level);
+
+	// Supply the consumers
+	for (var consumer in power_consumers)
+	{
+		var demand = consumer->GetPowerConsumption();
+		
+		// Still enough power for this consumer?
+		if (power_level >= demand)
+		{
+			// Reduce available power
+			power_level -= demand;
+
+			// Non on? Switch on
+			if (!consumer->HasEnoughPower())
+			{
+				consumer->OnEnoughPower();
+			}
+		}
+		// Not enough power
+		else
+		{
+			// Still on? Switch off
+			if (consumer->HasEnoughPower())
+			{
+				consumer->OnNotEnoughPower();
+			}
+		}
 	}
 
-	//	for(var pObj in FindObjects(Find_Func("PowerConsumption", 0))); // alle Produzenten liefern Energie
-	//	for(var pObj in FindObjects(Find_Func("PowerConsumption", 1))); // alle Verbraucher ziehen Energie ab und schalten sich bei Mangel aus
-	//	for(var pObj in FindObjects(Find_Func("PowerConsumption", 2))); // alle Speicher nehmen Energie auf - separat von Verbrauchern, weil sonst der Speicher den Verbrauchern den Strom wegzieht
-
+	// TODO: Put the remaining power into storages
+	// This is done separately from supplying consumers, so that storages do not hinder the consumers
+	Log("POWR - Excess energy is %d units", power_level);
+	Log("==========================================================================");
 
 	NotifyOnPowerBalanceChange();
 }
 
 /* -- Setters & Getters -- */
-
-private func ResetPowerLevel()
+/*
+private func ResetPowerBalance()
 {
 	power_level = 0;
 	power_demand = 0;
@@ -586,3 +650,4 @@ private func DoPowerDemand(int change)
 {
 	power_demand += change;
 }
+*/
