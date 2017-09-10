@@ -248,7 +248,7 @@ public func GetPowerNetwork(object for_obj)
 		if (helper == nil)
 		{
 			helper = CreateObject(GetPowerSystemNetwork(), 0, 0, NO_OWNER);
-			network->SetNeutral(true);
+			helper->SetNeutral(true);
 			PushBack(POWER_SYSTEM_NETWORKS, helper);
 		}
 	}
