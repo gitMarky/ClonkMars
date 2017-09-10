@@ -10,7 +10,7 @@ public func AddPowerProducer(object producer)
 	if (!IsValueInArray(power_producers, producer))
 	{
 		PushBack(power_producers, producer);		
-		GetPowerSystem()->DebugInfo("POWR - AddPowerProducer(): network = %v, frame = %d, producer = %v", this, FrameCounter(), producer);
+		GetPowerSystem()->DebugInfo("POWR - AddPowerProducer(): network = %v, frame = %d, producer = %s", this, FrameCounter(), LogObject(producer));
 		SortProducers(); // This is necessary only when adding an object to the list
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
@@ -25,7 +25,7 @@ public func RemovePowerProducer(object producer)
 	if (IsValueInArray(power_producers, producer))
 	{
 		RemoveArrayValue(power_producers, producer);		
-		GetPowerSystem()->DebugInfo("POWR - RemovePowerProducer(): network = %v, frame = %d, producer = %v", this, FrameCounter(), producer);
+		GetPowerSystem()->DebugInfo("POWR - RemovePowerProducer(): network = %v, frame = %d, producer = %s", this, FrameCounter(), LogObject(producer));
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -39,7 +39,7 @@ public func AddPowerConsumer(object consumer)
 	if (!IsValueInArray(power_consumers, consumer))
 	{
 		PushBack(power_consumers, consumer);
-		GetPowerSystem()->DebugInfo("POWR - AddPowerConsumer(): network = %v, frame = %d, consumer = %v", this, FrameCounter(), consumer);
+		GetPowerSystem()->DebugInfo("POWR - AddPowerConsumer(): network = %v, frame = %d, consumer = %s", this, FrameCounter(), LogObject(consumer));
 		SortConsumers(); // This is necessary only when adding an object to the list
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
@@ -54,7 +54,7 @@ public func RemovePowerConsumer(object consumer)
 	if (IsValueInArray(power_consumers, consumer))
 	{
 		RemoveArrayValue(power_consumers, consumer);		
-		GetPowerSystem()->DebugInfo("POWR - RemovePowerConsumer(): network = %v, frame = %d, consumer = %v", this, FrameCounter(), consumer);
+		GetPowerSystem()->DebugInfo("POWR - RemovePowerConsumer(): network = %v, frame = %d, consumer = %s", this, FrameCounter(), LogObject(consumer));
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -68,7 +68,7 @@ public func AddPowerStorage(object storage)
 	if (!IsValueInArray(power_storages, storage))
 	{
 		PushBack(power_storages, storage);		
-		GetPowerSystem()->DebugInfo("POWR - AddPowerStorage(): network = %v, frame = %d, storage = %v", this, FrameCounter(), storage);
+		GetPowerSystem()->DebugInfo("POWR - AddPowerStorage(): network = %v, frame = %d, storage = %s", this, FrameCounter(), LogObject(storage));
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -82,7 +82,7 @@ public func RemovePowerStorage(object storage)
 	if (IsValueInArray(power_storages, storage))
 	{
 		RemoveArrayValue(power_storages, storage);		
-		GetPowerSystem()->DebugInfo("POWR - RemovePowerStorage(): network = %v, frame = %d, storage = %v", this, FrameCounter(), storage);
+		GetPowerSystem()->DebugInfo("POWR - RemovePowerStorage(): network = %v, frame = %d, storage = %s", this, FrameCounter(), LogObject(storage));
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -489,7 +489,7 @@ private func DoPowerBalanceUpdate()
 	{
 		var demand = consumer->GetPowerConsumption();
 		
-		GetPowerSystem()->DebugInfo("POWR - Demand for %v: %d, current power level %d", consumer, demand, power_level);
+		GetPowerSystem()->DebugInfo("POWR - Demand for %s: %d, current power level %d", LogObject(consumer), demand, power_level);
 
 		// Still enough power for this consumer?
 		if (power_level >= demand)
@@ -537,3 +537,10 @@ private func NotifyOnPowerBalanceChange()
 		}
 	}
 }
+
+
+private func LogObject(object target)
+{
+	return Format("%s (%d)", target->GetName(), target->ObjectNumber());
+}
+

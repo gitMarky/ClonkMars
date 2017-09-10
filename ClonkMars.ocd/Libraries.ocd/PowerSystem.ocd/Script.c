@@ -245,6 +245,8 @@ public func GetPowerNetwork(object for_obj)
 	{
 		return FatalError("GetPowerNetwork() either not called from definition context or no object specified.");
 	}
+	
+	Init();
 
 	// Get the flag corresponding to the object.	
 	var flag = GetFlagpoleForPosition(for_obj->GetX() - GetX(), for_obj->GetY() - GetY());
@@ -267,10 +269,6 @@ public func GetPowerNetwork(object for_obj)
 	// Otherwise, if no flag was available the object is neutral and needs a neutral helper.
 	else
 	{
-		if (!POWER_SYSTEM_NETWORKS)
-		{
-			POWER_SYSTEM_NETWORKS = [];
-		}
 		for (var network in POWER_SYSTEM_NETWORKS)
 		{
 			if (!network || !network->IsNeutral())
