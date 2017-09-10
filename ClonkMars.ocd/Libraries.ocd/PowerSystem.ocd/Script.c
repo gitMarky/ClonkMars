@@ -166,9 +166,59 @@ public func TransferPowerLink(object link)
 			new_network->AddPowerConsumer(consumer);		
 		}
 	}
+}
 
+
+/**
+ * Definition call: Refreshes all power networks
+ */
+public func RefreshAllPowerNetworks()
+{
+	// Don't do anything if there are no power helpers created yet.
+	if (GetType(POWER_SYSTEM_NETWORKS) != C4V_Array) return;
+	
+	// Special handling for neutral networks of which there should be at most one.
+	var neutral_network_count = 0;
+	
+	// Do the same for all other helpers: delete / refresh.
+	for (var index = GetLength(POWER_SYSTEM_NETWORKS) - 1; index >= 0; index--)
+	{
+		var network = POWER_SYSTEM_NETWORKS[index];
+		if (!network)
+		{
+			continue;
+		}
+
+		if (network->IsEmpty())
+		{
+			network->RemoveObject();
+			RemoveArrayIndex(POWER_SYSTEM_NETWORKS, index);
+			continue;
+		}
+
+		RefreshPowerNetwork(network);
+		if (network->IsNeutral())
+		{
+			neutral_network_count += 1;
+		}
+	}
+	
+	if (neutral_network_count > 1)
+	{
+		FatalError(Format("There were a total of %d neutral networks, at most there should be one", neutral_network_count));
+	}
 	return;
 }
+
+
+/**
+ * Definition call: Merge all the producers and consumers into their actual networks.
+ */
+private func RefreshPowerNetwork(object network)
+{
+	if (network) network->RefreshPowerNetwork();
+}
+
 
 /**
  * Definition call: updates the network for this power link.
@@ -195,7 +245,7 @@ public func GetPowerNetwork(object for_obj)
 	{
 		return FatalError("GetPowerNetwork() either not called from definition context or no object specified.");
 	}
-	
+
 	// Get the flag corresponding to the object.	
 	var flag = GetFlagpoleForPosition(for_obj->GetX() - GetX(), for_obj->GetY() - GetY());
 	
@@ -209,23 +259,9 @@ public func GetPowerNetwork(object for_obj)
 		// Create the helper if it does not exist yet.
 		if (helper == nil)
 		{
-			helper = CreateObject(GetPowerSystemNetwork(), 0, 0, NO_OWNER);
-			PushBack(POWER_SYSTEM_NETWORKS, helper);
+			helper = CreateNetwork();
 			// Add to all linked flags.
-			flag->SetPowerHelper(helper);
-			for (var linked_flag in flag->GetLinkedFlags())
-			{
-				if (!linked_flag)
-				{
-					continue;
-				}
-				// Assert different power helpers for the same network.
-				if (linked_flag->GetPowerHelper() != nil)
-				{
-					FatalError("Flags in the same network have different power helpers.");
-				}
-				linked_flag->SetPowerHelper(helper);
-			}
+			flag->SetPowerHelper(helper, true, true);
 		}
 	}
 	// Otherwise, if no flag was available the object is neutral and needs a neutral helper.
@@ -247,13 +283,24 @@ public func GetPowerNetwork(object for_obj)
 		// Create the helper if it does not exist yet.
 		if (helper == nil)
 		{
-			helper = CreateObject(GetPowerSystemNetwork(), 0, 0, NO_OWNER);
-			helper->SetNeutral(true);
-			PushBack(POWER_SYSTEM_NETWORKS, helper);
+			helper = CreateNetwork(true);
 		}
 	}
 	
 	return helper;
+}
+
+/**
+ * Definition call: Create a new network and add it to the list of networks.
+ * Can be a neutral network, if desired.
+ */
+private func CreateNetwork(bool neutral)
+{
+	Init();
+	var network = CreateObject(GetPowerSystemNetwork(), 0, 0, NO_OWNER);
+	PushBack(POWER_SYSTEM_NETWORKS, network);
+	network->SetNeutral(neutral);
+	return network;
 }
 
 

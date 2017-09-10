@@ -315,6 +315,45 @@ public func GetConsumerLink(object link)
 	}
 }
 
+
+/**
+ * Merge all the producers and consumers into their actual networks.
+ */
+private func RefreshPowerNetwork()
+{
+	for (var producer in power_producers)
+	{
+		// Remove from old network and add to new network.
+		var actual_network = GetPowerSystem()->GetPowerNetwork(producer);
+		if (actual_network && actual_network != this)
+		{
+			this->RemovePowerProducer(producer);
+			actual_network->AddPowerProducer(producer);
+		}
+	}
+	for (var consumer in power_consumers)
+	{
+		// Remove from old network and add to new network.
+		var actual_network = GetPowerSystem()->GetPowerNetwork(consumer);
+		if (actual_network && actual_network != this)
+		{
+			this->RemovePowerConsumer(consumer);
+			actual_network->AddPowerConsumer(consumer);
+		}
+	}
+	for (var storage in power_storages)
+	{
+		// Remove from old network and add to new network.
+		var actual_network = GetPowerSystem()->GetPowerNetwork(storage);
+		if (actual_network && actual_network != this)
+		{
+			this->RemovePowerStorage(storage);
+			actual_network->AddPowerStorage(storage);
+		}
+	}
+}
+
+
 /*-- Logging --*/
 
 
