@@ -11,6 +11,7 @@ public func AddPowerProducer(object producer)
 	{
 		PushBack(power_producers, producer);		
 		Log("POWR - AddPowerProducer(): network = %v, frame = %d, producer = %v", this, FrameCounter(), producer);
+		SortProducers(); // This is necessary only when adding an object to the list
 		CheckPowerBalance(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -37,8 +38,9 @@ public func AddPowerConsumer(object consumer)
 {
 	if (!IsValueInArray(power_consumers, consumer))
 	{
-		PushBack(power_consumers, consumer);		
+		PushBack(power_consumers, consumer);
 		Log("POWR - AddPowerConsumer(): network = %v, frame = %d, consumer = %v", this, FrameCounter(), consumer);
+		SortConsumers(); // This is necessary only when adding an object to the list
 		CheckPowerBalance(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -158,7 +160,7 @@ public func GetPowerConsumption(bool exclude_storages)
 			total += consumer->GetPowerConsumption();
 		}
 	}
-	return total;	
+	return total;
 }
 
 
@@ -191,11 +193,23 @@ public func GetStoredPower()
 
 private func SortProducers()
 {
-	// First update the priorities of the producers and then sort them according to priority.
-	//UpdatePriorities(power_producers, false);
-	if (GetLength(power_producers) > 1) // TODO: this check should not be necessary.
+	SortPowerNodes(power_producers, false);
+}
+
+private func SortPowerNodes(array power_nodes, bool for_consumers)
+{
+	// Sort only if it makes sense
+	if (GetLength(power_nodes) > 1)
 	{
-		SortArrayByProperty(power_producers, "lib_power_system.producer.priority", true);
+		// First update the priorities and then sort them according to priority, descending order.
+		var array_of_proplists = GetPriorityList(power_nodes, for_consumers);
+		SortArrayByProperty(array_of_proplists, "priority", true);
+		// Sort the thing back into the array
+		SetLength(power_nodes, 0);
+		for (var description in array_of_proplists)
+		{
+			PushBack(power_nodes, description.node);
+		}
 	}
 }
 
@@ -276,11 +290,7 @@ private func RefreshProducers(int power_need)
 
 private func SortConsumers()
 {
-	//UpdatePriorities(power_consumers, true);
-	if (GetLength(power_consumers) > 1) // TODO: this check should not be necessary.
-	{
-		SortArrayByProperty(power_consumers, "lib_power_system.consumer.priority", true);
-	}
+	SortPowerNodes(power_consumers, true);
 }
 
 
@@ -337,22 +347,27 @@ private func RefreshConsumers(int power_available)
 
 
 /**
- * Updates the priorities of either a list of consumers or producers.
+ * Gets the priorities of either a list of consumers or producers,
+ * as a list of proplists, so that they can be sorted with
+ * array sorting functions.
  */
-private func UpdatePriorities(array link_list, bool for_consumers)
+private func GetPriorityList(array power_nodes, bool for_consumers)
 {
-	for (var link in link_list)
+	var list = [];
+	for (var node in power_nodes)
 	{
+		var description;
 		if (for_consumers)
 		{
-			link.priority = link.obj->~GetConsumerPriority();
+			description = { node = node, priority = node->GetConsumerPriority()};
 		}
 		else
 		{
-			link.priority = link.obj->~GetProducerPriority();
+			description = { node = node, priority = node->GetProducerPriority()};
 		}
+		PushBack(list, description);
 	}
-	return;
+	return list;
 }
 
 
@@ -525,8 +540,6 @@ private func Construction()
 private func DoPowerBalanceUpdate()
 {
 	ResetPowerLevel();
-	SortConsumers();
-	SortProducers();
 
 	for (var consumer in power_consumers)
 	{
