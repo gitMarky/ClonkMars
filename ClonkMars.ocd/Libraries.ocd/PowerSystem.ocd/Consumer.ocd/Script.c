@@ -177,8 +177,9 @@ private func Construction()
 	lib_power_system.consumer.ignore_power_need = FindObject(Find_ID(Rule_NoPowerNeed));
 	
 	// Default values
-	lib_power_system.consumer.power_need = 0;	// Works without power by default
-	lib_power_system.consumer.priority = 0;		// No priority
+	lib_power_system.consumer.power_need = 0;			// Works without power by default
+	lib_power_system.consumer.priority = 0;				// No priority
+	lib_power_system.consumer.has_enough_power = true;	// Compatibility with producer library: Assume that it has power, then the update will switch it off
 	return _inherited(...);
 }
 

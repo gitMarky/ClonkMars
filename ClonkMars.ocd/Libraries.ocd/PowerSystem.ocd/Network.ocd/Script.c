@@ -459,24 +459,22 @@ private func DoPowerBalanceUpdate()
 		{
 			var supply = producer->GetPowerProduction();
 
+			// If production can be started
+			if (!producer->IsPowerProductionActive() && producer->OnPowerProductionStart())
+			{
+				producer->SetPowerProductionActive(true);
+			}
+
+			// Production is on?	
 			if (producer->IsPowerProductionActive())
 			{
-				// TODO: Update production symbol in case the amount has changed
-			}
-			else
-			{
-				// If production can be started
-				if (producer->OnPowerProductionStart())
-				{
-					producer->SetPowerProductionActive(true);
-					power_level += supply; // The producer supplies, so raise the power level
-				}
+				power_level += supply;
 			}
 		}
 		// All consumers have enough power, so switch off the remaining producers
 		else
 		{
-			if (producer->IsPowerProductionActive())
+			if (producer->IsPowerProductionActive() && !producer->~IsSteadyPowerProducer())
 			{
 				producer->SetPowerProductionActive(false);
 				producer->OnPowerProductionStop();
@@ -491,6 +489,8 @@ private func DoPowerBalanceUpdate()
 	{
 		var demand = consumer->GetPowerConsumption();
 		
+		GetPowerSystem()->DebugInfo("POWR - Demand for %v: %d, current power level %d", consumer, demand, power_level);
+
 		// Still enough power for this consumer?
 		if (power_level >= demand)
 		{

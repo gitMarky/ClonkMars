@@ -103,7 +103,7 @@ private func SetProducerPriority(int priority)
  */
 public func IsPowerProductionActive()
 {
-	return lib_power_system.producer.is_producing_power;
+	return lib_power_system.producer.is_producing_power || this->~IsSteadyPowerProducer();
 }
 
 
