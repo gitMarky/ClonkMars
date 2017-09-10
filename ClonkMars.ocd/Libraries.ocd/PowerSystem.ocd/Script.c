@@ -46,6 +46,9 @@
 // This variable is also accessed by the flag library.
 static POWER_SYSTEM_NETWORKS;
 
+// A static variable that handles debug information being logged.
+static POWER_SYSTEM_DEBUG;
+
 /**
  * Getter for the power system
  *
@@ -273,7 +276,35 @@ public func Init()
 	return;
 }
 
+
+/**
+ * Definition call: Get the type of network helper object to create.
+ *
+ * @return id the definition of the network helper object. You can overload this function
+ *            if you want to use a different power system.
+ */
 private func GetPowerSystemNetwork()
 {
 	return Library_PowerSystem_Network;
+}
+
+
+/**
+ * Enables or disables the debugging information.
+ */
+public func SetDebugInfo(bool enable)
+{
+	POWER_SYSTEM_DEBUG = enable;
+}
+
+
+/**
+ * Logs the power system info, if debugging is on.
+ */
+private func DebugInfo(string message)
+{
+	if (POWER_SYSTEM_DEBUG)
+	{
+		Log(message, ...);
+	}
 }

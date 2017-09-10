@@ -10,7 +10,7 @@ public func AddPowerProducer(object producer)
 	if (!IsValueInArray(power_producers, producer))
 	{
 		PushBack(power_producers, producer);		
-		Log("POWR - AddPowerProducer(): network = %v, frame = %d, producer = %v", this, FrameCounter(), producer);
+		GetPowerSystem()->DebugInfo("POWR - AddPowerProducer(): network = %v, frame = %d, producer = %v", this, FrameCounter(), producer);
 		SortProducers(); // This is necessary only when adding an object to the list
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
@@ -25,7 +25,7 @@ public func RemovePowerProducer(object producer)
 	if (IsValueInArray(power_producers, producer))
 	{
 		RemoveArrayValue(power_producers, producer);		
-		Log("POWR - RemovePowerProducer(): network = %v, frame = %d, producer = %v", this, FrameCounter(), producer);
+		GetPowerSystem()->DebugInfo("POWR - RemovePowerProducer(): network = %v, frame = %d, producer = %v", this, FrameCounter(), producer);
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -39,7 +39,7 @@ public func AddPowerConsumer(object consumer)
 	if (!IsValueInArray(power_consumers, consumer))
 	{
 		PushBack(power_consumers, consumer);
-		Log("POWR - AddPowerConsumer(): network = %v, frame = %d, consumer = %v", this, FrameCounter(), consumer);
+		GetPowerSystem()->DebugInfo("POWR - AddPowerConsumer(): network = %v, frame = %d, consumer = %v", this, FrameCounter(), consumer);
 		SortConsumers(); // This is necessary only when adding an object to the list
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
@@ -54,7 +54,7 @@ public func RemovePowerConsumer(object consumer)
 	if (IsValueInArray(power_consumers, consumer))
 	{
 		RemoveArrayValue(power_consumers, consumer);		
-		Log("POWR - RemovePowerConsumer(): network = %v, frame = %d, consumer = %v", this, FrameCounter(), consumer);
+		GetPowerSystem()->DebugInfo("POWR - RemovePowerConsumer(): network = %v, frame = %d, consumer = %v", this, FrameCounter(), consumer);
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -68,7 +68,7 @@ public func AddPowerStorage(object storage)
 	if (!IsValueInArray(power_storages, storage))
 	{
 		PushBack(power_storages, storage);		
-		Log("POWR - AddPowerStorage(): network = %v, frame = %d, storage = %v", this, FrameCounter(), storage);
+		GetPowerSystem()->DebugInfo("POWR - AddPowerStorage(): network = %v, frame = %d, storage = %v", this, FrameCounter(), storage);
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -82,7 +82,7 @@ public func RemovePowerStorage(object storage)
 	if (IsValueInArray(power_storages, storage))
 	{
 		RemoveArrayValue(power_storages, storage);		
-		Log("POWR - RemovePowerStorage(): network = %v, frame = %d, storage = %v", this, FrameCounter(), storage);
+		GetPowerSystem()->DebugInfo("POWR - RemovePowerStorage(): network = %v, frame = %d, storage = %v", this, FrameCounter(), storage);
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -213,7 +213,7 @@ private func RefreshProducers(int power_need)
 {
 /*
 	// Debugging logs.
-	//Log("POWR - RefreshProducers(): network = %v, frame = %d, power_need = %d", this, FrameCounter(), power_need);
+	//GetPowerSystem()->DebugInfo("POWR - RefreshProducers(): network = %v, frame = %d, power_need = %d", this, FrameCounter(), power_need);
 	// Keep track of the power found and which was the last link to satisfy the need. 
 	var power_found = 0;
 	var satisfy_need_link = nil;
@@ -293,7 +293,7 @@ private func RefreshConsumers(int power_available)
 {
 /*
 	// Debugging logs.
-	//Log("POWR - RefreshConsumers(): network = %v, frame = %d, power_available = %d", this, FrameCounter(), power_available);
+	//GetPowerSystem()->DebugInfo("POWR - RefreshConsumers(): network = %v, frame = %d, power_available = %d", this, FrameCounter(), power_available);
 	// Keep track of the power used.
 	var power_used = 0;
 	for (var index = GetLength(all_consumers) - 1; index >= 0; index--)
@@ -451,15 +451,15 @@ public func GetAllPowerLinks()
 
 private func LogState(string tag)
 {
-	Log("==========================================================================");
-	Log("POWR - State for network %v in frame %d with tag %s", this, FrameCounter(), tag);
-	Log("==========================================================================");
-	Log("POWR - GetPowerConsumptionNeed() = %d", GetPowerConsumptionNeed());
-	Log("POWR - GetBarePowerAvailable() = %d", GetBarePowerAvailable());
-	Log("POWR - GetPowerAvailable() = %d", GetPowerAvailable());
-	Log("POWR - GetActivePowerAvailable() = %d", GetActivePowerAvailable());
-	Log("POWR - GetPowerConsumption() = %d", GetPowerConsumption());
-	Log("==========================================================================");
+	GetPowerSystem()->DebugInfo("==========================================================================");
+	GetPowerSystem()->DebugInfo("POWR - State for network %v in frame %d with tag %s", this, FrameCounter(), tag);
+	GetPowerSystem()->DebugInfo("==========================================================================");
+	GetPowerSystem()->DebugInfo("POWR - GetPowerConsumptionNeed() = %d", GetPowerConsumptionNeed());
+	GetPowerSystem()->DebugInfo("POWR - GetBarePowerAvailable() = %d", GetBarePowerAvailable());
+	GetPowerSystem()->DebugInfo("POWR - GetPowerAvailable() = %d", GetPowerAvailable());
+	GetPowerSystem()->DebugInfo("POWR - GetActivePowerAvailable() = %d", GetActivePowerAvailable());
+	GetPowerSystem()->DebugInfo("POWR - GetPowerConsumption() = %d", GetPowerConsumption());
+	GetPowerSystem()->DebugInfo("==========================================================================");
 	return;
 }
 
@@ -557,8 +557,8 @@ private func DoPowerBalanceUpdate()
 	var power_level = 0;
 	var power_demand = 0;
 	
-	Log("==========================================================================");
-	Log("POWR - Performing power balance update for network %v in frame %d", this, FrameCounter());
+	GetPowerSystem()->DebugInfo("==========================================================================");
+	GetPowerSystem()->DebugInfo("POWR - Performing power balance update for network %v in frame %d", this, FrameCounter());
 
 
 	// Add up all power needs to get the total demand
@@ -567,7 +567,7 @@ private func DoPowerBalanceUpdate()
 		power_demand += consumer->GetPowerConsumption();
 	}
 
-	Log("POWR - Consumers demand %d units", power_demand);
+	GetPowerSystem()->DebugInfo("POWR - Consumers demand %d units", power_demand);
 
 	// Activate producers if necessary
 	for (var producer in power_producers)
@@ -600,7 +600,7 @@ private func DoPowerBalanceUpdate()
 		}
 	}
 	
-	Log("POWR - Producers supply %d units", power_level);
+	GetPowerSystem()->DebugInfo("POWR - Producers supply %d units", power_level);
 
 	// Supply the consumers
 	for (var consumer in power_consumers)
@@ -632,8 +632,8 @@ private func DoPowerBalanceUpdate()
 
 	// TODO: Put the remaining power into storages
 	// This is done separately from supplying consumers, so that storages do not hinder the consumers
-	Log("POWR - Excess energy is %d units", power_level);
-	Log("==========================================================================");
+	GetPowerSystem()->DebugInfo("POWR - Excess energy is %d units", power_level);
+	GetPowerSystem()->DebugInfo("==========================================================================");
 
 	NotifyOnPowerBalanceChange();
 }
