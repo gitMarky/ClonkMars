@@ -317,6 +317,18 @@ public func GetConsumerLink(object link)
 
 
 /**
+ * Returns the storage link in this network.
+ */
+public func GetStorageLink(object link)
+{
+	if (IsValueInArray(power_storages, link))
+	{
+		return link;
+	}
+}
+
+
+/**
  * Merge all the producers and consumers into their actual networks.
  */
 private func RefreshPowerNetwork()
@@ -514,9 +526,19 @@ private func DoPowerBalanceUpdate()
 		}
 	}
 
-	// TODO: Put the remaining power into storages
+	// Put the remaining power into storages
 	// This is done separately from supplying consumers, so that storages do not hinder the consumers
 	GetPowerSystem()->DebugInfo("POWR - Excess energy is %d units", power_level);
+	
+	for (var storage in power_storages)
+	{
+	    // Storage handles callbacks itself
+		var intake = storage->~GetStoragePower();
+		var rate = storage->~SetStorageInput(Min(intake, power_level));
+		// Update remaining power level
+		power_level -= Max(0, rate);
+	}
+	
 	GetPowerSystem()->DebugInfo("==========================================================================");
 
 	NotifyOnPowerBalanceChange();

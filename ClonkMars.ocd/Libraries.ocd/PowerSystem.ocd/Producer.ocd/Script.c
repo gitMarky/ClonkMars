@@ -205,7 +205,10 @@ private func Construction()
  */
 private func Destruction()
 {
-	// TODO: UnregisterPowerProduction();
+	if (IsPowerProducer())
+	{
+		UnregisterPowerProduction();
+	}
 	return _inherited(...);
 }
 

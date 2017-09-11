@@ -127,6 +127,38 @@ public func UnregisterPowerConsumer(object consumer)
 
 
 /**
+ * Definition call: registers a power storage.
+ */
+public func RegisterPowerStorage(object storage)
+{
+	// Definition call safety checks.
+	if (this != GetPowerSystem() || !storage || !storage->~IsPowerStorage())
+	{
+		return FatalError("RegisterPowerStorage() either not called from definition context or no storage specified.");
+	}
+	GetPowerSystem()->Init();
+	GetPowerNetwork(storage)->AddPowerStorage(storage);
+	return;
+}
+
+
+/**
+ * Definition call: unregisters a power storage.
+ */
+public func UnregisterPowerStorage(object storage)
+{
+	// Definition call safety checks.
+	if (this != GetPowerSystem() || !storage || !storage->~IsPowerStorage())
+	{
+		return FatalError("UnregisterPowerStorage() either not called from definition context or no storage specified.");
+	}
+	GetPowerSystem()->Init();
+	GetPowerNetwork(storage)->RemovePowerStorage(storage);
+	return;
+}
+
+
+/**
  * Definition call: transfers a power link from the network it is registered in to
  * the network it is currently in (base radius).
  */
@@ -164,6 +196,12 @@ public func TransferPowerLink(object link)
 		{
 			old_network->RemovePowerConsumer(consumer);
 			new_network->AddPowerConsumer(consumer);		
+		}
+		var storage = old_network->GetStorageLink(link);
+		if (storage)
+		{
+			old_network->RemovePowerStorage(storage);
+			new_network->AddPowerStorage(storage);		
 		}
 	}
 }

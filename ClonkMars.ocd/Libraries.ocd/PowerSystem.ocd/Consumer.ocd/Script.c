@@ -218,7 +218,7 @@ private func Destruction()
 	// Only unregister if this object actually is a consumer.
 	if (IsPowerConsumer())
 	{
-		// TODO UnregisterPowerRequest();
+		UnregisterPowerRequest();
 	}
 	return _inherited(...);
 }
