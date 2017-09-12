@@ -542,7 +542,9 @@ private func DoPowerBalanceUpdate()
 	
 	for (var storage in power_storages)
 	{
+		// Invalid or power producing storages do not count
 		if (!storage) continue;
+		if (storage->IsPowerProductionActive()) continue;
 	    // Storage handles callbacks itself
 		var intake = storage->~GetStoragePower();
 		var rate = storage->~SetStorageInput(Min(intake, power_level));
