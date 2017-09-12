@@ -454,6 +454,7 @@ private func DoPowerBalanceUpdate()
 	
 	RemoveHoles(power_producers);
 	RemoveHoles(power_consumers);
+	RemoveHoles(power_storages);
 	
 	GetPowerSystem()->DebugInfo("==========================================================================");
 	GetPowerSystem()->DebugInfo("POWR - Performing power balance update for network %v in frame %d", this, FrameCounter());
@@ -542,8 +543,7 @@ private func DoPowerBalanceUpdate()
 	
 	for (var storage in power_storages)
 	{
-		// Invalid or power producing storages do not count
-		if (!storage) continue;
+		// Power producing storages do not count
 		if (storage->IsPowerProductionActive()) continue;
 	    // Storage handles callbacks itself
 		var intake = storage->~GetStoragePower();
