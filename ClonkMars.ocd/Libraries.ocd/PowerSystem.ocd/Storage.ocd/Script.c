@@ -1,3 +1,4 @@
+#include Library_PowerSystem_Producer
 
 // This object is a power storage.
 public func IsPowerStorage() { return true; }
@@ -29,6 +30,7 @@ private func GetStoragePower()
 private func SetStoragePower(int amount)
 {
 	lib_power_system.storage.max_rate = amount;
+	SetPowerProduction(amount);
 }
 
 
@@ -41,6 +43,15 @@ private func SetStoredPower(int to_power)
 	var old_power = GetStoredPower();
 	lib_power_system.storage.stored_power = BoundBy(to_power, 0, GetStorageCapacity());
 	var change = GetStoredPower() - old_power;
+	// Register / unregister power production
+	if (to_power >= GetStoragePower())
+	{
+		RegisterPowerProduction(GetStoragePower());
+	}
+	else
+	{
+		UnregisterPowerProduction();
+	}
 	// Callback to this object that the power has changed.
 	if (change != 0)
 	{
@@ -72,7 +83,8 @@ private func GetStorageCapacity() { return lib_power_system.storage.capacity; }
  */
 private func SetStorageCapacity(int amount)
 {
-	return lib_power_system.storage.capacity = amount;
+	lib_power_system.storage.capacity = amount;
+	SetStoredPower(Min(GetStoredPower(), amount));
 }
 
 
@@ -86,7 +98,7 @@ private func SetStorageInput(int amount)
 	var fx = GetEffect("FxStorageCharge", this);
 	if (rate > 0)
 	{
-		if (!fx) CreateEffect(FxStorageCharge, 1, 36);
+		if (!fx) CreateEffect(FxStorageCharge, 1, POWER_SYSTEM_TICK);
 	}
 	else
 	{
@@ -157,6 +169,37 @@ private func OnStorageStop()
 {
 	GetPowerSystem()->DebugInfo("Stop charging frame %d, %s (%d)", FrameCounter(), GetName(), ObjectNumber());
 	return _inherited(...);
+}
+
+
+/**
+ * When production starts, drain the stored power.
+ */
+private func OnPowerProductionStart()
+{
+	_inherited(...);
+	if (GetStoredPower() >= GetPowerProduction())
+	{
+		if (!GetEffect("FxStorageDrain", this))
+		{
+			CreateEffect(FxStorageDrain, 1, POWER_SYSTEM_TICK);
+		}
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+
+/**
+ * Stop draining saved power.
+ */
+private func OnPowerProductionStop()
+{
+	RemoveEffect("FxStorageDrain", this);
+	_inherited(,,,);
 }
 
 
@@ -242,6 +285,21 @@ local FxStorageCharge = new Effect
 	Destruction = func ()
 	{
 		if (Target) Target->OnStorageStop();
+	},
+};
+
+
+local FxStorageDrain = new Effect
+{
+	Timer = func ()
+	{
+		var expected_change = Target->GetPowerProduction() * this.Interval;
+		var actual_change = Target->SetStoredPower(Target->GetStoredPower() - expected_change);
+		
+		if (expected_change == 0 || Abs(actual_change) < expected_change)
+		{
+			return FX_Execute_Kill;
+		}
 	},
 };
 

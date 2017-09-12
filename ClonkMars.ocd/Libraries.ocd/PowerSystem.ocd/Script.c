@@ -49,6 +49,9 @@ static POWER_SYSTEM_NETWORKS;
 // A static variable that handles debug information being logged.
 static POWER_SYSTEM_DEBUG;
 
+// A static variable that handles the interval in which storages are drained, in frames.
+static const POWER_SYSTEM_TICK = 36;
+
 /**
  * Getter for the power system
  *

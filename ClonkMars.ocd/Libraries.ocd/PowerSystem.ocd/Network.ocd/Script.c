@@ -24,6 +24,10 @@ public func RemovePowerProducer(object producer)
 {
 	if (IsValueInArray(power_producers, producer))
 	{
+		if (producer->IsPowerProductionActive())
+		{
+			producer->OnPowerProductionStop();
+		}
 		RemoveArrayValue(power_producers, producer);		
 		GetPowerSystem()->DebugInfo("POWR - RemovePowerProducer(): network = %v, frame = %d, producer = %s", this, FrameCounter(), LogObject(producer));
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
@@ -474,6 +478,7 @@ private func DoPowerBalanceUpdate()
 			// If production can be started
 			if (!producer->IsPowerProductionActive() && producer->OnPowerProductionStart())
 			{
+				GetPowerSystem()->DebugInfo("POWR - Switch on producer %s", LogObject(producer));
 				producer->SetPowerProductionActive(true);
 			}
 
@@ -482,12 +487,14 @@ private func DoPowerBalanceUpdate()
 			{
 				power_level += supply;
 			}
+			GetPowerSystem()->DebugInfo("POWR - %d units created by %s", supply, LogObject(producer));
 		}
 		// All consumers have enough power, so switch off the remaining producers
 		else
 		{
 			if (producer->IsPowerProductionActive() && !producer->~IsSteadyPowerProducer())
 			{
+				GetPowerSystem()->DebugInfo("POWR - Switch off producer %s", LogObject(producer));
 				producer->SetPowerProductionActive(false);
 				producer->OnPowerProductionStop();
 			}
@@ -512,8 +519,10 @@ private func DoPowerBalanceUpdate()
 			// Non on? Switch on
 			if (!consumer->HasEnoughPower())
 			{
+				GetPowerSystem()->DebugInfo("Consumer has enough power: %s", LogObject(consumer));
 				consumer->OnEnoughPower();
 			}
+			GetPowerSystem()->DebugInfo("POWR - %d units consumed by %s", demand, LogObject(consumer));
 		}
 		// Not enough power
 		else
@@ -521,6 +530,7 @@ private func DoPowerBalanceUpdate()
 			// Still on? Switch off
 			if (consumer->HasEnoughPower())
 			{
+				GetPowerSystem()->DebugInfo("Consumer has Insufficient power: %s", LogObject(consumer));
 				consumer->OnNotEnoughPower();
 			}
 		}
@@ -532,12 +542,16 @@ private func DoPowerBalanceUpdate()
 	
 	for (var storage in power_storages)
 	{
+		if (!storage) continue;
 	    // Storage handles callbacks itself
 		var intake = storage->~GetStoragePower();
 		var rate = storage->~SetStorageInput(Min(intake, power_level));
+		GetPowerSystem()->DebugInfo("Store %d power in %s", rate, LogObject(storage));
 		// Update remaining power level
 		power_level -= Max(0, rate);
 	}
+	
+	GetPowerSystem()->DebugInfo("POWR - Wasted energy is %d units", power_level);
 	
 	GetPowerSystem()->DebugInfo("==========================================================================");
 
