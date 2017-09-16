@@ -337,6 +337,9 @@ public func GetStorageLink(object link)
  */
 private func RefreshPowerNetwork()
 {
+	RemoveHoles(power_producers);
+	RemoveHoles(power_consumers);
+	RemoveHoles(power_storages);
 	GetPowerSystem()->DebugInfo("**************************************************************************");
 	GetPowerSystem()->DebugInfo("POWR - Refreshing network %s", LogObject(this));
 	for (var producer in power_producers)
