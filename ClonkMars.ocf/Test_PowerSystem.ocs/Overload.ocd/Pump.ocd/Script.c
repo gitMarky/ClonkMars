@@ -20,7 +20,6 @@ local animation; // animation handle
 
 local switched_on; // controlled by Interaction. Indicates whether the user wants to pump or not
 
-local powered; // whether the pump has enough power as a consumer, always true if producing
 local power_used; // the amount of power currently consumed or (if negative) produced
 
 local clog_count; // increased when the pump doesn't find liquid or can't insert it. When it reaches max_clog_count, it will put the pump into temporary idle mode.
@@ -285,16 +284,14 @@ public func IsSteadyPowerProducer() { return true; }
 
 public func OnNotEnoughPower()
 {
-	powered = false;
+	_inherited(...);
 	CheckState();
-	return _inherited(...);
 }
 
 public func OnEnoughPower()
 {
-	powered = true;
+	_inherited(...);
 	CheckState();
-	return _inherited(...);
 }
 
 // TODO: these functions may be useful in the liquid tank, maybe move it to that library
@@ -468,7 +465,7 @@ public func CheckState()
 		else
 		{
 			// Can pump, has air but has no power -> wait for power.
-			if (!powered)
+			if (!HasEnoughPower())
 			{
 				SetInfoMessage("$StateNoPower$");
 				SetState("WaitForPower");
@@ -501,7 +498,7 @@ public func CheckState()
 		{
 			accepted_mat = source_mat;
 			// can pump, has liquid but has no power -> wait for power
-			if (!powered)
+			if (!HasEnoughPower())
 			{
 				SetInfoMessage("$StateNoPower$");
 				SetState("WaitForPower");
@@ -556,40 +553,24 @@ private func UpdatePowerUsage()
 	if (new_power == power_used)
 	{
 		// But still set powered to true if power_used was not positive.
-		if (power_used <= 0)
-		{
-			powered = true;
-		}
 		return;
 	}
 	
 	// and update energy system
-	if (new_power > 0)
+	if (new_power > 0) // become a consumer
 	{
-		if (power_used < 0)
-		{
-			powered = false; // needed since the flag was set manually
-			lib_power_system.consumer.has_enough_power = false;
-			UnregisterPowerProduction();
-		}
+		UnregisterPowerProduction();
 		RegisterPowerRequest(new_power);
 	}
-	else if (new_power < 0)
+	else if (new_power < 0) // become a producer
 	{
-		if (power_used > 0)
-			UnregisterPowerRequest();
+		UnregisterPowerRequest();
 		RegisterPowerProduction(-new_power);
-		powered = true; // when producing, we always have power
-		lib_power_system.consumer.has_enough_power = true;
 	}
-	else // new_power == 0
+	else // new_power == 0, do nothing
 	{
-		if (power_used < 0) 
-			UnregisterPowerProduction();
-		else if (power_used > 0)
-			UnregisterPowerRequest();
-		powered = true;
-		lib_power_system.consumer.has_enough_power = true;
+		UnregisterPowerProduction();
+		UnregisterPowerRequest();
 	}
 	
 	power_used = new_power;
@@ -720,13 +701,12 @@ private func SetState(string act)
 	}
 	
 	// Deactivate power usage when not pumping.
-	if (powered && (act == "Wait" || act == "WaitForLiquid"))
+	if (power_used && (act == "Wait" || act == "WaitForLiquid"))
 	{
 		UnregisterPowerProduction();
 		UnregisterPowerRequest();
 		
 		power_used = 0;
-		powered = false;
 	}
 	// Finally, set the action.
 	SetAction(act);
