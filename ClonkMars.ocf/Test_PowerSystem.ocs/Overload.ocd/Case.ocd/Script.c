@@ -3,10 +3,6 @@
 #include Library_Structure
 #include Library_PowerSystem_Consumer
 
-// if you change the vertices in the defcore make sure to adjust this
-static const ElevatorCase_additional_vertex_index_begin = 4;
-static const ElevatorCase_normal_vertex_index_begin = 0;
-static const ElevatorCase_additional_vertex_count = 4;
 
 // Meshes
 local front, back;
@@ -92,6 +88,8 @@ private func Initialize()
 
 	front->SetAction("Attach", this);
 	back->SetAction("Attach", this);
+	
+	lib_power_system.consumer.has_enough_power = false;
 
 	return _inherited(...);
 }
@@ -396,26 +394,29 @@ public func ResetPowerUsage()
 {
 	UnregisterPowerRequest();
 	has_power = false;
+	Log("Elevator case: ResetPowerUsage - has power is false");
 }
 
-public func OnNotEnoughPower()
+public func OnNotEnoughPower(int amount)
 {
 	has_power = false;
+	Log("Elevator case: OnNotEnoughPower - has power is false");
 
 	if (GetYDir())
 		StoreMovementData();
 
 	if (GetAction() != "DriveIdle")
 		Halt(false, true);
-	return _inherited(...);
+	return _inherited(amount, ...);
 }
 
-public func OnEnoughPower()
+public func OnEnoughPower(int amount)
 {
 	has_power = true;
+	Log("Elevator case: OnEnoughPower - has power is true");
 
 	RestoreMovementData();
-	return _inherited(...);
+	return _inherited(amount, ...);
 }
 
 // Stores the movement when power goes out, resumes movement when power is back (RestoreMovementData)
@@ -516,6 +517,7 @@ private func Halt(bool user_requested, bool power_out)
 		StopAutomaticMovement();
 		UnregisterPowerRequest();
 		has_power = false;
+		Log("Elevator case: Halt - has power is false; user requested %v, !power_out %v", user_requested, !power_out);
 	}
 	return;
 }

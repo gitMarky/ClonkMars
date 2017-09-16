@@ -14,11 +14,6 @@
 #include Library_PowerSystem_Producer
 #include Library_Tank
 
-static const PUMP_Menu_Action_Switch_On = "on";
-static const PUMP_Menu_Action_Switch_Off = "off";
-static const PUMP_Menu_Action_Description = "description";
-static const PUMP_Menu_Action_Material_Enable = "material_on";
-static const PUMP_Menu_Action_Material_Disable = "material_off";
 
 
 local animation; // animation handle
