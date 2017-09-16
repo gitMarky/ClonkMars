@@ -461,6 +461,7 @@ private func DoPowerBalanceUpdate()
 {
 	var power_level = 0;
 	var power_demand = 0;
+	var lowest_demand = nil;
 	
 	RemoveHoles(power_producers);
 	RemoveHoles(power_consumers);
@@ -473,34 +474,34 @@ private func DoPowerBalanceUpdate()
 	// Add up all power needs to get the total demand
 	for (var consumer in power_consumers)
 	{
-		power_demand += consumer->GetPowerConsumption();
+		var demand = consumer->GetPowerConsumption();
+		power_demand += demand;
+		
+		if (lowest_demand == nil || demand < lowest_demand)
+		{
+			lowest_demand = demand;
+		}
 	}
+	var should_produce_power = GetPowerAvailable() >= lowest_demand;
 
 	GetPowerSystem()->DebugInfo("POWR - Consumers demand %d units", power_demand);
+	
 
 	// Activate producers if necessary
 	for (var producer in power_producers)
 	{
 		// Not supplied yet? Switch on the producer, if possible
-		if (power_level < power_demand)
+		if (should_produce_power && (power_level < power_demand))
 		{
-			var supply = producer->GetPowerProduction();
-
 			// If production can be started
 			if (!producer->IsPowerProductionActive() && producer->OnPowerProductionStart())
 			{
 				GetPowerSystem()->DebugInfo("POWR - Switch on producer %s", LogObject(producer));
 				producer->SetPowerProductionActive(true);
 			}
-
-			// Production is on?	
-			if (producer->IsPowerProductionActive())
-			{
-				power_level += supply;
-			}
-			GetPowerSystem()->DebugInfo("POWR - %d units created by %s", supply, LogObject(producer));
 		}
 		// All consumers have enough power, so switch off the remaining producers
+		// or the lowest demand cannot be met, so switch all producers off, too
 		else
 		{
 			if (producer->IsPowerProductionActive() && !producer->~IsSteadyPowerProducer())
@@ -509,6 +510,14 @@ private func DoPowerBalanceUpdate()
 				producer->SetPowerProductionActive(false);
 				producer->OnPowerProductionStop();
 			}
+		}
+
+		// Production is on?	
+		if (producer->IsPowerProductionActive())
+		{
+			var supply = producer->GetPowerProduction();
+			power_level += supply;
+			GetPowerSystem()->DebugInfo("POWR - %d units created by %s", supply, LogObject(producer));
 		}
 	}
 	
