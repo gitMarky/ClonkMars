@@ -217,8 +217,26 @@ public func TransferPowerLink(object link)
 
 /**
  * Definition call: Refreshes all power networks
+ * in the next frame. This ensures that the networks
+ * have the correct state.
  */
 public func RefreshAllPowerNetworks()
+{
+	if (!GetEffect("FxUpdateAllPowerNetworks", Scenario))
+		Scenario->CreateEffect(FxUpdateAllPowerNetworks, 1, 1);
+}
+
+
+local FxUpdateAllPowerNetworks = new Effect {
+	Timer = func ()
+	{
+		GetPowerSystem()->DoRefreshAllPowerNetworks();
+		return FX_Execute_Kill;
+	},
+};
+
+
+private func DoRefreshAllPowerNetworks()
 {
 	// Don't do anything if there are no power helpers created yet.
 	if (GetType(POWER_SYSTEM_NETWORKS) != C4V_Array) return;
