@@ -54,6 +54,7 @@ public func IsHammerBuildable() { return true; }
 public func Initialize()
 {
 	switched_on = true;
+	lib_power_system.consumer.has_enough_power = false;
 	var start = 0;
 	var end = GetAnimationLength("pump");
 	animation = PlayAnimation("pump", 5, Anim_Linear(GetAnimationPosition(animation), start, end, 35, ANIM_Loop));
@@ -556,7 +557,9 @@ private func UpdatePowerUsage()
 	{
 		// But still set powered to true if power_used was not positive.
 		if (power_used <= 0)
+		{
 			powered = true;
+		}
 		return;
 	}
 	
@@ -566,6 +569,7 @@ private func UpdatePowerUsage()
 		if (power_used < 0)
 		{
 			powered = false; // needed since the flag was set manually
+			lib_power_system.consumer.has_enough_power = false;
 			UnregisterPowerProduction();
 		}
 		RegisterPowerRequest(new_power);
@@ -576,6 +580,7 @@ private func UpdatePowerUsage()
 			UnregisterPowerRequest();
 		RegisterPowerProduction(-new_power);
 		powered = true; // when producing, we always have power
+		lib_power_system.consumer.has_enough_power = true;
 	}
 	else // new_power == 0
 	{
@@ -584,6 +589,7 @@ private func UpdatePowerUsage()
 		else if (power_used > 0)
 			UnregisterPowerRequest();
 		powered = true;
+		lib_power_system.consumer.has_enough_power = true;
 	}
 	
 	power_used = new_power;
@@ -716,10 +722,8 @@ private func SetState(string act)
 	// Deactivate power usage when not pumping.
 	if (powered && (act == "Wait" || act == "WaitForLiquid"))
 	{
-		if (power_used < 0) 
-			UnregisterPowerProduction();
-		else if (power_used > 0) 
-			UnregisterPowerRequest();
+		UnregisterPowerProduction();
+		UnregisterPowerRequest();
 		
 		power_used = 0;
 		powered = false;
