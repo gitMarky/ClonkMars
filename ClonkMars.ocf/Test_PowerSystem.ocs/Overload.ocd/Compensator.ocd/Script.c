@@ -34,6 +34,7 @@ protected func Initialize()
 	
 	SetStoragePower(20);
 	SetStorageCapacity(10800); // 15 seconds * 36 frames * 20 production
+	SetProducerPriority(50);
 	RegisterPowerStorage(this);
 	
 	return _inherited(...);
