@@ -10,8 +10,8 @@ public func AddPowerProducer(object producer)
 	if (!IsValueInArray(power_producers, producer))
 	{
 		PushBack(power_producers, producer);		
-		GetPowerSystem()->DebugInfo("POWR - AddPowerProducer(): network = %v, frame = %d, producer = %s, all producers: %v", this, FrameCounter(), LogObject(producer), power_producers);
 		SortProducers(); // This is necessary only when adding an object to the list
+		GetPowerSystem()->DebugInfo("POWR - AddPowerProducer(): network = %v, frame = %d, producer = %s, all producers: %v", this, FrameCounter(), LogObject(producer), power_producers);
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -43,8 +43,8 @@ public func AddPowerConsumer(object consumer)
 	if (!IsValueInArray(power_consumers, consumer))
 	{
 		PushBack(power_consumers, consumer);
-		GetPowerSystem()->DebugInfo("POWR - AddPowerConsumer(): network = %v, frame = %d, consumer = %s, all consumers: %v", this, FrameCounter(), LogObject(consumer), power_consumers);
 		SortConsumers(); // This is necessary only when adding an object to the list
+		GetPowerSystem()->DebugInfo("POWR - AddPowerConsumer(): network = %v, frame = %d, consumer = %s, all consumers: %v", this, FrameCounter(), LogObject(consumer), power_consumers);
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -71,7 +71,7 @@ public func AddPowerStorage(object storage)
 {
 	if (!IsValueInArray(power_storages, storage))
 	{
-		PushBack(power_storages, storage);		
+		PushBack(power_storages, storage);
 		GetPowerSystem()->DebugInfo("POWR - AddPowerStorage(): network = %v, frame = %d, storage = %s, all storages: %v", this, FrameCounter(), LogObject(storage), power_storages);
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
