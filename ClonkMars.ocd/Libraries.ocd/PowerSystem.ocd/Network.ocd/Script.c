@@ -337,6 +337,8 @@ public func GetStorageLink(object link)
  */
 private func RefreshPowerNetwork()
 {
+	GetPowerSystem()->DebugInfo("**************************************************************************");
+	GetPowerSystem()->DebugInfo("POWR - Refreshing network %s", LogObject(this));
 	for (var producer in power_producers)
 	{
 		// Remove from old network and add to new network.
@@ -367,6 +369,7 @@ private func RefreshPowerNetwork()
 			actual_network->AddPowerStorage(storage);
 		}
 	}
+	GetPowerSystem()->DebugInfo("**************************************************************************");
 }
 
 
@@ -520,7 +523,7 @@ private func DoPowerBalanceUpdate()
 			// Non on? Switch on
 			if (!consumer->HasEnoughPower())
 			{
-				GetPowerSystem()->DebugInfo("Consumer has enough power: %s", LogObject(consumer));
+				GetPowerSystem()->DebugInfo("POWR - Consumer has enough power: %s", LogObject(consumer));
 				consumer->OnEnoughPower();
 			}
 			GetPowerSystem()->DebugInfo("POWR - %d units consumed by %s", demand, LogObject(consumer));
@@ -531,7 +534,7 @@ private func DoPowerBalanceUpdate()
 			// Still on? Switch off
 			if (consumer->HasEnoughPower())
 			{
-				GetPowerSystem()->DebugInfo("Consumer has Insufficient power: %s", LogObject(consumer));
+				GetPowerSystem()->DebugInfo("POWR - Consumer has Insufficient power: %s", LogObject(consumer));
 				consumer->OnNotEnoughPower();
 			}
 		}

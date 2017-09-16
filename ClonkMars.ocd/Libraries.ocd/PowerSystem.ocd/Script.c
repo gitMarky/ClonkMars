@@ -173,6 +173,10 @@ public func TransferPowerLink(object link)
 		return FatalError("TransferPowerLink() either not called from definition context or no link specified.");
 	}
 	
+	DebugInfo("**************************************************************************");
+	DebugInfo("POWR - Transfer power link for %v", link);
+	
+	
 	// Get the new network for this power link.
 	var new_network = GetPowerNetwork(link);
 	// Loop over existing networks and find the link.
@@ -207,6 +211,7 @@ public func TransferPowerLink(object link)
 			new_network->AddPowerStorage(storage);		
 		}
 	}
+	GetPowerSystem()->DebugInfo("**************************************************************************");
 }
 
 
