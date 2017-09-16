@@ -10,7 +10,7 @@ public func AddPowerProducer(object producer)
 	if (!IsValueInArray(power_producers, producer))
 	{
 		PushBack(power_producers, producer);		
-		GetPowerSystem()->DebugInfo("POWR - AddPowerProducer(): network = %v, frame = %d, producer = %s", this, FrameCounter(), LogObject(producer));
+		GetPowerSystem()->DebugInfo("POWR - AddPowerProducer(): network = %v, frame = %d, producer = %s, all producers: %v", this, FrameCounter(), LogObject(producer), power_producers);
 		SortProducers(); // This is necessary only when adding an object to the list
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
@@ -29,7 +29,7 @@ public func RemovePowerProducer(object producer)
 			producer->OnPowerProductionStop();
 		}
 		RemoveArrayValue(power_producers, producer);		
-		GetPowerSystem()->DebugInfo("POWR - RemovePowerProducer(): network = %v, frame = %d, producer = %s", this, FrameCounter(), LogObject(producer));
+		GetPowerSystem()->DebugInfo("POWR - RemovePowerProducer(): network = %v, frame = %d, producer = %s, all producers: %v", this, FrameCounter(), LogObject(producer), power_producers);
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -43,7 +43,7 @@ public func AddPowerConsumer(object consumer)
 	if (!IsValueInArray(power_consumers, consumer))
 	{
 		PushBack(power_consumers, consumer);
-		GetPowerSystem()->DebugInfo("POWR - AddPowerConsumer(): network = %v, frame = %d, consumer = %s", this, FrameCounter(), LogObject(consumer));
+		GetPowerSystem()->DebugInfo("POWR - AddPowerConsumer(): network = %v, frame = %d, consumer = %s, all consumers: %v", this, FrameCounter(), LogObject(consumer), power_consumers);
 		SortConsumers(); // This is necessary only when adding an object to the list
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
@@ -58,7 +58,7 @@ public func RemovePowerConsumer(object consumer)
 	if (IsValueInArray(power_consumers, consumer))
 	{
 		RemoveArrayValue(power_consumers, consumer);		
-		GetPowerSystem()->DebugInfo("POWR - RemovePowerConsumer(): network = %v, frame = %d, consumer = %s", this, FrameCounter(), LogObject(consumer));
+		GetPowerSystem()->DebugInfo("POWR - RemovePowerConsumer(): network = %v, frame = %d, consumer = %s, all consumers: %v", this, FrameCounter(), LogObject(consumer), power_consumers);
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -72,7 +72,7 @@ public func AddPowerStorage(object storage)
 	if (!IsValueInArray(power_storages, storage))
 	{
 		PushBack(power_storages, storage);		
-		GetPowerSystem()->DebugInfo("POWR - AddPowerStorage(): network = %v, frame = %d, storage = %s", this, FrameCounter(), LogObject(storage));
+		GetPowerSystem()->DebugInfo("POWR - AddPowerStorage(): network = %v, frame = %d, storage = %s, all storages: %v", this, FrameCounter(), LogObject(storage), power_storages);
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -86,7 +86,7 @@ public func RemovePowerStorage(object storage)
 	if (IsValueInArray(power_storages, storage))
 	{
 		RemoveArrayValue(power_storages, storage);		
-		GetPowerSystem()->DebugInfo("POWR - RemovePowerStorage(): network = %v, frame = %d, storage = %s", this, FrameCounter(), LogObject(storage));
+		GetPowerSystem()->DebugInfo("POWR - RemovePowerStorage(): network = %v, frame = %d, storage = %s, all storages: %v", this, FrameCounter(), LogObject(storage), power_storages);
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
 }
@@ -369,6 +369,10 @@ private func RefreshPowerNetwork()
 			actual_network->AddPowerStorage(storage);
 		}
 	}
+	GetPowerSystem()->DebugInfo("POWR - Refreshing network %s done - will list all contents now", LogObject(this));
+	GetPowerSystem()->DebugInfo("POWR - Network %s producers: %v", LogObject(this), power_producers);
+	GetPowerSystem()->DebugInfo("POWR - Network %s consumers: %v", LogObject(this), power_consumers);
+	GetPowerSystem()->DebugInfo("POWR - Network %s storages: %v", LogObject(this), power_storages);
 	GetPowerSystem()->DebugInfo("**************************************************************************");
 }
 
