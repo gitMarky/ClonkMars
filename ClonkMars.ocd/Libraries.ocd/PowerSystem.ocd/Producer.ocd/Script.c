@@ -102,6 +102,10 @@ private func SetProducerPriority(int priority)
 private func RegisterPowerProduction(int amount)
 {
 	SetPowerProduction(amount);
+	if (this->~IsSteadyPowerProducer())
+	{
+		SetPowerProductionActive(true);
+	}
 	GetPowerSystem()->RegisterPowerProducer(this);
 }
 
@@ -112,6 +116,7 @@ private func RegisterPowerProduction(int amount)
  */
 private func UnregisterPowerProduction()
 {
+	SetPowerProductionActive(false);
 	GetPowerSystem()->UnregisterPowerProducer(this);
 }
 
