@@ -114,6 +114,17 @@ private func SetStorageInput(int amount)
 /**
  * This many power is added to the storage each frame.
  */
+private func DoStorageInput(int change)
+{
+	var old_value = GetStorageInput();
+	var new_value  = SetStorageInput(old_value + change);
+	return new_value - old_value;
+}
+
+
+/**
+ * This many power is added to the storage each frame.
+ */
 private func GetStorageInput()
 {
 	return lib_power_system.storage.input;

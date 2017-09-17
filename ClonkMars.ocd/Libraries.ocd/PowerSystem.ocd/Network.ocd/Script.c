@@ -567,21 +567,35 @@ private func DoPowerBalanceUpdate()
 
 	// Put the remaining power into storages
 	// This is done separately from supplying consumers, so that storages do not hinder the consumers
+	// Distribution is equal among all power storages, so that as many storages as possible can
+	// produce at the same time
 	GetPowerSystem()->DebugInfo("POWR - Excess energy is %d units", power_level);
-	
+
 	for (var storage in power_storages)
 	{
-		// Power producing storages do not count
-		// if (storage->IsPowerProductionActive()) continue;
-	    // Storage handles callbacks itself
-		var rate = storage->SetStorageInput(power_level);
-		GetPowerSystem()->DebugInfo("Store %d power in %s", rate, LogObject(storage));
-		// Update remaining power level
-		power_level -= Max(0, rate);
+		storage->SetStorageInput(0);
+	}
+	while (power_level > 0)
+	{	
+		var total_change = 0;
+		for (var storage in power_storages)
+		{
+			// Update remaining power level
+			var change = storage->DoStorageInput(1);
+			power_level -= change;
+			total_change += change;
+		}
+		if (total_change == 0)
+		{
+			break;
+		}
+	}
+	for (var storage in power_storages)
+	{
+		GetPowerSystem()->DebugInfo("Store %d power in %s", storage->GetStorageInput(), LogObject(storage));
 	}
 	
 	GetPowerSystem()->DebugInfo("POWR - Wasted energy is %d units", power_level);
-	
 	GetPowerSystem()->DebugInfo("==========================================================================");
 
 	NotifyOnPowerBalanceChange();
