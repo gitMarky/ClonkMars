@@ -29,15 +29,11 @@
 	The power library and its components Library_Producer, Library_Consumer and
 	Library_Storage depend on the following other definitions:
 	 * StatusSymbol
-	
-	OPEN TODOS:
-	 * Remove all the if (!link) checks, they are not needed in principle but errors arise when they are removed.
-	 * Fix overproduction flowing into power storage (producers can be deactivated).
-	 * Move network merging from flag to power library.
-	 * Optimize network and flag removal.
 
 	@author Zapper, Maikel, Marky
 */
+
+#include Library_PowerSystem_NetworkFlagRadius
 
 
 /* -- Global stuff -- */
@@ -322,25 +318,25 @@ public func GetPowerNetwork(object for_obj)
 		for_obj = actual;
 	}
 
-	// Get the flag corresponding to the object.	
-	var flag = GetFlagpoleForPosition(for_obj->GetX() - GetX(), for_obj->GetY() - GetY());
+	// Get the link corresponding to the object.	
+	var link = this->GetPowerLink(for_obj);
 	
-	// Find the network helper object for this flag.
+	// Find the network helper object for this link.
 	var helper = nil;
 	
-	// Just get the helper from the flag.
-	if (flag)
+	// Just get the helper from the link.
+	if (link)
 	{
-		helper = flag->GetPowerHelper();
+		helper = link->GetPowerHelper();
 		// Create the helper if it does not exist yet.
 		if (helper == nil)
 		{
 			helper = CreateNetwork();
-			// Add to all linked flags.
-			flag->SetPowerHelper(helper, true, true);
+			// Add to all linked links.
+			link->SetPowerHelper(helper, true, true);
 		}
 	}
-	// Otherwise, if no flag was available the object is neutral and needs a neutral helper.
+	// Otherwise, if no link was available the object is neutral and needs a neutral helper.
 	else
 	{
 		for (var network in POWER_SYSTEM_NETWORKS)
@@ -361,6 +357,18 @@ public func GetPowerNetwork(object for_obj)
 	
 	return helper;
 }
+
+
+/**
+ * Definition call: Find out which object is the power link for a node.
+ * 
+ * Is defined by the plugins.
+ */
+private func GetPowerLink(object for_obj)
+{
+	return _inherited(for_obj, ...);
+}
+
 
 /**
  * Definition call: Create a new network and add it to the list of networks.
