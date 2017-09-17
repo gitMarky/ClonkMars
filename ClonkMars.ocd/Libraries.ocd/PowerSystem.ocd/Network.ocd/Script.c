@@ -505,10 +505,11 @@ private func DoPowerBalanceUpdate()
 		if (should_produce_power && (power_level < power_demand))
 		{
 			// If production can be started
-			if (!producer->IsPowerProductionActive() && producer->OnPowerProductionStart())
+			if (!producer->IsPowerProductionActive() && producer->CanPowerProductionStart(Min(power_demand - power_level, supply)))
 			{
 				GetPowerSystem()->DebugInfo("POWR - Switch on producer %s", LogObject(producer));
 				producer->SetPowerProductionActive(true);
+				producer->OnPowerProductionStart();
 			}
 		}
 		// All consumers have enough power, so switch off the remaining producers

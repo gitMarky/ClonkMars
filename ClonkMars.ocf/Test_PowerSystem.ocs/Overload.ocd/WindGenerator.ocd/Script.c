@@ -9,6 +9,7 @@
 #include Library_Ownable
 #include Library_Flag
 #include Library_PowerSystem_Producer
+#include Library_PowerSystem_DisplayStatus
 
 local DefaultFlagRadius = 90;
 
@@ -56,20 +57,6 @@ public func IsSteadyPowerProducer() { return true; }
 
 // High priority so that this drained first.
 public func GetProducerPriority() { return 100; }
-
-// Callback from the power library for production of power request.
-public func OnPowerProductionStart(int amount) 
-{ 
-	// This is a steady producer, so it is already running.
-	return true;
-}
-
-// Callback from the power library requesting to stop power production.
-public func OnPowerProductionStop(int amount)
-{
-	// This is a steady producer, so don't stop anything.
-	return true;
-}
 
 // Returns the wind weighted over several points.
 private func GetWeightedWind()

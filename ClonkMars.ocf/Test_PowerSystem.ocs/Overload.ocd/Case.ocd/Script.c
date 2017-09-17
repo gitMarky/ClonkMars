@@ -2,6 +2,7 @@
 
 #include Library_Structure
 #include Library_PowerSystem_Consumer
+#include Library_PowerSystem_DisplayStatus
 
 
 // Meshes

@@ -52,11 +52,19 @@ private func GetPowerConsumption()
  */
 private func SetPowerConsumption(int amount)
 {
+	// Safety check
 	if (amount < 0)
 	{
 		FatalError(Format("Power consumption must be >= 0, was %d", amount));
 	}
-
+	
+	// Callback to visualization
+	if (HasEnoughPower())
+	{
+		this->~VisualizePowerChange(GetPowerConsumption(), amount, false);
+	}
+	
+	// Update the value
 	lib_power_system.consumer.power_need = amount;
 }
 
@@ -123,8 +131,14 @@ private func OnEnoughPower(int amount)
 {
 	// Remove the no-power symbol.
 	RemoveStatusSymbol(Library_PowerConsumer);
+	
+	// Callback to visualization
+	this->~VisualizePowerChange(0, GetPowerConsumption(), false);
+	
 	// Update the status
 	lib_power_system.consumer.has_enough_power = true;
+	
+	// Let the parent class handle things
 	_inherited(amount, ...);
 }
 
@@ -140,8 +154,14 @@ private func OnNotEnoughPower(int amount)
 {
 	// Show the no-power symbol.
 	ShowStatusSymbol(Library_PowerConsumer);
+	
+	// Callback to visualization
+	this->~VisualizePowerChange(GetPowerConsumption(), 0, true);
+
 	// Update the status
 	lib_power_system.consumer.has_enough_power = false;
+	
+	// Let the parent class handle things
 	_inherited(amount, ...);
 }
 

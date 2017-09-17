@@ -45,13 +45,24 @@ private func GetPowerProduction()
  */
 private func SetPowerProduction(int amount)
 {
+	// Safety check
 	if (amount < 0)
 	{
 		FatalError(Format("Power production must be >= 0, was %d", amount));
 	}
+	
+	// Callback to visualization
+	if (IsPowerProductionActive())
+	{
+		this->~VisualizePowerChange(GetPowerProduction(), amount, false);
+	}
 
+	// Update
 	lib_power_system.producer.power_production = amount;
 	GetPowerSystem()->UpdateNetworkForPowerLink(this);
+	
+	// Let parent class handle things
+	_inherited(amount, ...);
 }
 
 
@@ -146,13 +157,28 @@ public func SetPowerProductionActive(bool status)
 
 
 /**
+ * Callback by the power network: Is power production for the requested amount possible?
+ *
+ * By default this is the case, if the amount is less than or equal to the power production.
+ * Usually the network should not request more than the possible production.
+ */
+private func CanPowerProductionStart(int amount) 
+{ 
+	return amount <= GetPowerProduction();
+}
+
+
+/**
  * Callback by the power network. Overload this function and start the production 
  * of power in this structure for the requested amount if possible. 
  */
 private func OnPowerProductionStart(int amount) 
-{ 
-	// A return value of false indicates to the network that power production is not possible.
-	return false;
+{
+	// Callback to visualization
+	this->~VisualizePowerChange(0, GetPowerProduction(), false);
+	
+	// Let parent class handle things
+	_inherited(amount, ...);
 }
 
 
@@ -162,10 +188,11 @@ private func OnPowerProductionStart(int amount)
  */
 private func OnPowerProductionStop(int amount)
 {
-	// A return value of false indicates to the network that stopping the current production
-	// was not possible, this should in principle never happen. However, if so the network
-	// must assume this producer is still actively delivering power.
-	return true;
+	// Callback to visualization
+	this->~VisualizePowerChange(GetPowerProduction(), 0, true);
+	
+	// Let parent class handle things
+	_inherited(amount, ...);
 }
 
 

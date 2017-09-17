@@ -12,6 +12,7 @@
 #include Library_Ownable
 #include Library_PowerSystem_Consumer
 #include Library_PowerSystem_Producer
+#include Library_PowerSystem_DisplayStatus
 #include Library_Tank
 
 

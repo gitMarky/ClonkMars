@@ -8,6 +8,7 @@
 #include Library_Structure
 #include Library_Ownable
 #include Library_PowerSystem_Storage
+#include Library_PowerSystem_DisplayStatus
 #include Library_Flag
 
 local DefaultFlagRadius = 90;

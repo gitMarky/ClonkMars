@@ -23,6 +23,7 @@
 */
 
 #include Library_PowerSystem_Consumer
+#include Library_PowerSystem_DisplayStatus
 
 // Production queue, a list of items to be produced.
 // Contains proplists of format {Product = <objid>, Amount = <int>, Infinite = (optional)<bool>, ProducingPlayer = (optional)<int>}. /Infinite/ == true -> infinite production.

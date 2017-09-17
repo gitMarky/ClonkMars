@@ -10,6 +10,7 @@
 #include Library_Structure
 #include Library_Ownable
 #include Library_PowerSystem_Producer
+#include Library_PowerSystem_DisplayStatus
 #include Library_Flag
 #include Library_Tank
 
@@ -85,15 +86,19 @@ public func IsSteadyPowerProducer() { return false; }
 // Low priority so that other sources of power are drained before burning fuel.
 public func GetProducerPriority() { return 0; }
 
+public func CanPowerProductionStart(int amount)
+{
+	RefillFuel();
+	return GetFuelAmount() > 0;
+}
+
 // Callback from the power library for production of power request.
 public func OnPowerProductionStart(int amount) 
 { 
-	// Check if there is fuel.
-	RefillFuel();
 	// There is enough fuel so start producing power and notify network of this.
 	if (GetAction() == "Idle") 
 		SetAction("Work");
-	return true;
+	_inherited(amount, ...);
 }
 
 // Callback from the power library requesting to stop power production.
@@ -102,7 +107,7 @@ public func OnPowerProductionStop(int amount)
 	// Set action to idle when it was working.
 	if (IsWorking())
 		SetAction("Idle");
-	return true;
+	_inherited(amount, ...);
 }
 
 // Start call from working action.
