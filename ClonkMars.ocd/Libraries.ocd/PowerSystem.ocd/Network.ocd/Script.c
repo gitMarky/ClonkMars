@@ -508,7 +508,6 @@ private func DoPowerBalanceUpdate()
 			if (!producer->IsPowerProductionActive() && producer->CanPowerProductionStart(Min(power_demand - power_level, supply)))
 			{
 				GetPowerSystem()->DebugInfo("POWR - Switch on producer %s", LogObject(producer));
-				producer->SetPowerProductionActive(true);
 				producer->OnPowerProductionStart();
 			}
 		}
@@ -519,7 +518,6 @@ private func DoPowerBalanceUpdate()
 			if (producer->IsPowerProductionActive() && !producer->~IsSteadyPowerProducer())
 			{
 				GetPowerSystem()->DebugInfo("POWR - Switch off producer %s", LogObject(producer));
-				producer->SetPowerProductionActive(false);
 				producer->OnPowerProductionStop();
 			}
 		}

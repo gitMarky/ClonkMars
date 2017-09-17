@@ -174,6 +174,9 @@ private func CanPowerProductionStart(int amount)
  */
 private func OnPowerProductionStart(int amount) 
 {
+	// Set status
+	SetPowerProductionActive(true);
+
 	// Callback to visualization
 	this->~VisualizePowerChange(0, GetPowerProduction(), false);
 	
@@ -188,6 +191,9 @@ private func OnPowerProductionStart(int amount)
  */
 private func OnPowerProductionStop(int amount)
 {
+	// Set status
+	SetPowerProductionActive(false);
+
 	// Callback to visualization
 	this->~VisualizePowerChange(GetPowerProduction(), 0, true);
 	
