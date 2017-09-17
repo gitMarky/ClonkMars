@@ -573,7 +573,7 @@ private func DoPowerBalanceUpdate()
 
 	for (var storage in power_storages)
 	{
-		storage->SetStorageInput(0);
+		storage->SetStorageInput(-storage->GetPowerProduction());
 	}
 	while (power_level > 0)
 	{	

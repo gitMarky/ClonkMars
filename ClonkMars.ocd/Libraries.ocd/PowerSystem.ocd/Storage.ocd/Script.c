@@ -46,9 +46,8 @@ private func SetStoredPower(int to_power)
 	var change = GetStoredPower() - old_power;
 
 	// Register / unregister power production
-	var remainder = GetStoredPower() % POWER_SYSTEM_TICK;	
+	var remainder = GetStoredPower() % POWER_SYSTEM_TICK;
 	var production = BoundBy((GetStoredPower() - remainder) / POWER_SYSTEM_TICK, 0, GetStoragePower());
-	SetStorageOutput(production);
 	RegisterPowerProduction(production);
 
 	// Callback to this object that the power has changed.
@@ -103,7 +102,7 @@ private func SetStorageCapacity(int amount)
  */
 private func SetStorageInput(int amount)
 {
-	var rate = BoundBy(amount, 0, GetStoragePower() + GetStorageOutput()); // can at least put in as much as is put out
+	var rate = BoundBy(amount, -GetPowerProduction(), GetStoragePower()); // can at least put in as much as is put out
 
 	lib_power_system.storage.input = rate;
 	CheckCharge();
@@ -124,6 +123,9 @@ private func DoStorageInput(int change)
 
 /**
  * This many power is added to the storage each frame.
+ *
+ * Value can range from the negative power production to
+ * the positive storage power.
  */
 private func GetStorageInput()
 {
@@ -131,39 +133,10 @@ private func GetStorageInput()
 }
 
 
-/**
- * This many power is removed from the storage each frame.
- */
-private func SetStorageOutput(int amount)
-{
-	var rate = BoundBy(amount, 0, GetStoragePower());
-
-	lib_power_system.storage.output = rate;
-	CheckCharge();
-	return rate;
-}
-
-
-/**
- * This many power is removed from the storage each frame.
- */
-private func GetStorageOutput()
-{
-	return lib_power_system.storage.output;
-}
-
-
 private func CheckCharge()
 {
 	var fx = GetEffect("FxStorageCharge", this);
-	if (GetStorageInput() || GetStorageOutput())
-	{
-		if (!fx) CreateEffect(FxStorageCharge, 1, POWER_SYSTEM_TICK);
-	}
-	else
-	{
-		if (fx) RemoveEffect(nil, nil, fx);
-	}
+	if (!fx) CreateEffect(FxStorageCharge, 1, POWER_SYSTEM_TICK);
 }
 
 
@@ -251,7 +224,6 @@ private func Construction()
 	// Default values
 	lib_power_system.storage.max_rate = 0;		// Do not store by default
 	lib_power_system.storage.input = 0;			// Do not store by default
-	lib_power_system.storage.output = 0;			// Do not produce by default
 	lib_power_system.storage.stored_power = 0; 	// Empty by default
 	lib_power_system.storage.capacity = 0;		// Cannot store anything by default
 	return _inherited(...);
@@ -297,7 +269,7 @@ local FxStorageCharge = new Effect
 
 	Timer = func ()
 	{
-		var expected_change = (Target->GetStorageInput() - Target->GetStorageOutput()) * this.Interval;
+		var expected_change = Target->GetStorageInput() * this.Interval;
 		var actual_change = 0;
 		actual_change = Target->SetStoredPower(Target->GetStoredPower() + expected_change);
 
