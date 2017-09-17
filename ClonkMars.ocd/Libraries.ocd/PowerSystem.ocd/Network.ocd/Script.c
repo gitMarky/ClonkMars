@@ -459,8 +459,9 @@ local FxUpdatePowerBalance = new Effect {
  */
 private func DoPowerBalanceUpdate()
 {
-	var power_level = 0;
-	var power_demand = 0;
+	var power_level = 0;	// how much is produced?
+	var power_demand = 0;	// how much is demanded?
+	var power_capacity = 0;	// how much can be saved?
 	var lowest_demand = nil;
 	
 	RemoveHoles(power_producers);
@@ -486,10 +487,20 @@ private func DoPowerBalanceUpdate()
 
 	GetPowerSystem()->DebugInfo("POWR - Consumers demand %d units", power_demand);
 	
+	// Add up all storage powers to get total storage power
+	for (var storage in power_storages)
+	{
+		if (storage->GetStorageRemaining() > 0)
+		{
+			power_capacity += storage->GetStoragePower();
+		}
+	}
 
 	// Activate producers if necessary
 	for (var producer in power_producers)
 	{
+		var supply = producer->GetPowerProduction();
+
 		// Not supplied yet? Switch on the producer, if possible
 		if (should_produce_power && (power_level < power_demand))
 		{
@@ -502,7 +513,7 @@ private func DoPowerBalanceUpdate()
 		}
 		// All consumers have enough power, so switch off the remaining producers
 		// or the lowest demand cannot be met, so switch all producers off, too
-		else
+		else if (power_level >= power_demand + power_capacity)
 		{
 			if (producer->IsPowerProductionActive() && !producer->~IsSteadyPowerProducer())
 			{
@@ -515,7 +526,6 @@ private func DoPowerBalanceUpdate()
 		// Production is on?	
 		if (producer->IsPowerProductionActive())
 		{
-			var supply = producer->GetPowerProduction();
 			power_level += supply;
 			GetPowerSystem()->DebugInfo("POWR - %d units created by %s", supply, LogObject(producer));
 		}
@@ -563,10 +573,9 @@ private func DoPowerBalanceUpdate()
 	for (var storage in power_storages)
 	{
 		// Power producing storages do not count
-		if (storage->IsPowerProductionActive()) continue;
+		// if (storage->IsPowerProductionActive()) continue;
 	    // Storage handles callbacks itself
-		var intake = storage->~GetStoragePower();
-		var rate = storage->~SetStorageInput(Min(intake, power_level));
+		var rate = storage->SetStorageInput(power_level);
 		GetPowerSystem()->DebugInfo("Store %d power in %s", rate, LogObject(storage));
 		// Update remaining power level
 		power_level -= Max(0, rate);
