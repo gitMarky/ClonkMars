@@ -273,14 +273,31 @@ local FxStorageCharge = new Effect
 		var actual_change = 0;
 		actual_change = Target->SetStoredPower(Target->GetStoredPower() + expected_change);
 
-		if (!this.is_storing && actual_change > 0)
+		if (actual_change > 0)
 		{
-			Target->OnStorageStart();
+			if (!this.is_storing)
+			{
+				this.is_storing = true;
+				Target->OnStorageStart();
+			}
+			if (this.is_producing)
+			{
+				this.is_producing = false;
+				Target->OnPowerProductionStop();
+			}
 		}
-		
-		if (this.is_storing && actual_change < 0)
+		else
 		{
-			Target->OnStorageStop();
+			if (this.is_storing)
+			{
+				this.is_storing = false;
+				Target->OnStorageStop();
+			}
+			if (!this.is_producing && actual_change < 0)
+			{
+				this.is_producing = true;
+				Target->OnPowerProductionStart();
+			}
 		}
 
 		if (actual_change != expected_change) //expected_change == 0 || actual_change < expected_change)
