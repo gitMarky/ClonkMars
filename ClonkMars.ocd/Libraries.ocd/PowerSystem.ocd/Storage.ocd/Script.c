@@ -55,7 +55,6 @@ private func SetStoredPower(int to_power)
 	{
 		OnStoredPowerChange();
 	}
-	Log("SetStoredPower: %d, change = %d", GetStoredPower(), change);
 	return change;
 }
 
