@@ -34,7 +34,7 @@ private func Initialize()
 	SetAction("Connect");
 	SetVertexXY(0, GetX(), GetY());
 	SetVertexXY(1, GetX(), GetY());
-	this.LineColors = [RGB(80, 80, 120), RGB(80, 80, 120)];
+	this.LineColors = [RGB(120, 120, 160), RGB(80, 80, 120)];
 	return _inherited(...);
 }
 
