@@ -33,7 +33,7 @@
 	@author Zapper, Maikel, Marky
 */
 
-#include Library_PowerSystem_NetworkFlagRadius
+#include Library_PowerSystem_NetworkPowerLine
 
 
 /* -- Global stuff -- */
