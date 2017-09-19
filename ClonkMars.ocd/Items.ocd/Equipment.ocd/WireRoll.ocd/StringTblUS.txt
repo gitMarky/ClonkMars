@@ -1,0 +1,3 @@
+Name=Wire roll
+Description=Connect by pressing [Use].
+

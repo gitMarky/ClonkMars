@@ -1,0 +1,3 @@
+Name=Kabelrolle
+Description=Per [Benutzen] anschließen. Transportiert Energie.
+
