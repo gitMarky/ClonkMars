@@ -10,6 +10,7 @@ local Name = "$Name$";
 local Description = "$Description$";
 local ContainBlast = 1;
 local Components = { Metal=1, Plastic=1 };
+local HitPoints = 12;
 local panel_angle = 0;	// made this a property, because it is way easier to debug the current angle this way
 
 
