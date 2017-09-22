@@ -1,0 +1,32 @@
+material cm_accu_light
+{
+	receive_shadows on 
+
+	technique
+	{
+		pass 
+		{
+			ambient 1.0 1.0 1.0 1.0
+			diffuse 0.64 0.58 0.51 1.0
+			specular 1.0 1.0 1.0 1.0 25
+			emissive 0.0 0.0 0.0 1.0
+		}
+	}
+}
+
+material cm_accu_dark
+{
+	receive_shadows on 
+
+	technique
+	{
+		pass 
+		{
+			ambient 1.0 1.0 1.0 1.0
+			diffuse 0.38 0.35 0.33 1.0
+			specular 1.0 1.0 1.0 1.0 25
+			emissive 0.0 0.0 0.0 1.0
+		}
+	}
+}
+
