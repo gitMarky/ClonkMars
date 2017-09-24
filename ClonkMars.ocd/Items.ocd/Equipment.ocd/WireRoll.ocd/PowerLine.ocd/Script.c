@@ -219,6 +219,8 @@ private func RefreshAllLineNetworks()
 	{
 		line->RefreshLinkedObjects(all_lines);
 	}
+	
+	GetPowerSystem()->RefreshAllPowerNetworks();
 }
 
 

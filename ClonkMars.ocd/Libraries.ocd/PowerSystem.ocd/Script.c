@@ -267,6 +267,13 @@ private func DoRefreshAllPowerNetworks()
 	{
 		FatalError(Format("There were a total of %d neutral networks, at most there should be one", neutral_network_count));
 	}
+
+	// Schedule an update, too, because the network nodes may have changed
+	RemoveHoles(POWER_SYSTEM_NETWORKS);
+	for (var network in POWER_SYSTEM_NETWORKS)
+	{
+		network->SchedulePowerBalanceUpdate();
+	}
 	return;
 }
 

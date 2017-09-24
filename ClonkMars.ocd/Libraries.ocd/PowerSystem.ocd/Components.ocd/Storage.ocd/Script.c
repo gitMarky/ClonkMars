@@ -189,6 +189,7 @@ private func OnStorageStart()
 private func OnStorageStop()
 {
 	GetPowerSystem()->DebugInfo("Stop charging frame %d, %s (%d)", FrameCounter(), GetName(), ObjectNumber());
+	GetPowerSystem()->RefreshAllPowerNetworks();
 	return _inherited(...);
 }
 
