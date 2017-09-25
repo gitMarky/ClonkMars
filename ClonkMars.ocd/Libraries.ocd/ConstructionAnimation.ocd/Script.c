@@ -19,10 +19,21 @@ private func Destruction()
 }
 
 
+private func Initialize()
+{
+	// Create objects normally if placed via editor - delay the initialization here, so that it can be removed by the construction site
+	CreateEffect(FxInitializeStructure, 1, 2);
+	return _inherited(...);
+}
+
+
 /* -- Internals -- */
 
 private func OnStartConstructing()
 {
+	// Remove forced initialization
+	RemoveEffect(FxInitializeStructure.Name, this);
+	// Initialize animations
 	library_construction_animation.overlay = CreateObject(Dummy, 0, 0, NO_OWNER);
 	library_construction_animation.overlay->SetGraphics("Construction", GetID());
 	AttachMesh(library_construction_animation.overlay, "main", "main", nil, AM_MatchSkeleton);
@@ -42,6 +53,16 @@ private func InitializeStructure()
 		library_construction_animation.overlay->RemoveObject();
 	}
 }
+
+
+local FxInitializeStructure = new Effect
+{
+	Timer = func ()
+	{
+		Target->InitializeStructure();
+		return FX_Execute_Kill;
+	}
+};
 
 
 /* -- Actions -- */
