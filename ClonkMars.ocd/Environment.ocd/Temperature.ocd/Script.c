@@ -199,7 +199,7 @@ local FxTemperatureControl = new Effect
 		// set values
 		this.grid_distance = 10;
 		this.grid = [];
-		this.debug = true;
+		this.debug = false;
 		this.temperature = GetTemperature();
 
 		// do some ticks beforehand, for a better result
