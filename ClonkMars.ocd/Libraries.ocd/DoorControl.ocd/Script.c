@@ -8,8 +8,13 @@
 
 static const ANIM_SLOT_Door = 1;
 
+/* --- Properties --- */
 
-/* -- Engine callbacks -- */
+local AnimName_DoorOpen = "DoorOpen";
+local AnimName_DoorOpened = "DoorOpened";
+local AnimName_DoorClose = "DoorClose";
+
+/* --- Engine callbacks --- */
 
 public func Initialize()
 {
@@ -20,7 +25,7 @@ public func Initialize()
 
 public func ActivateEntrance(object entering_obj)
 {
-	// block enemies?
+	// Block enemies?
 	if (this->~CanBlockEnemies())
 	{
 		var for_plr = entering_obj->GetOwner();
@@ -32,8 +37,8 @@ public func ActivateEntrance(object entering_obj)
 		}
 	}
 
-	// open door
-	if (!GetEffect("FxDoorControl", this))
+	// Open door
+	if (!GetEffect(FxDoorControl.Name, this))
 	{
 		CreateEffect(FxDoorControl, 1, 1);
 	}
@@ -57,7 +62,7 @@ public func Collection2(object obj)
 	return _inherited(obj, ...);
 }
 
-/* -- Internals -- */
+/* --- Internals --- */
 
 private func OpenEntrance()
 {
@@ -73,7 +78,7 @@ private func CloseEntrance()
 
 private func KeepOpen()
 {
-	var control = GetEffect("FxDoorControl", this);
+	var control = GetEffect(FxDoorControl.Name, this);
 	
 	if (control)
 	{
@@ -84,6 +89,8 @@ private func KeepOpen()
 
 local FxDoorControl = new Effect
 {
+	Name = "FxDoorControl",
+
 	Construction = func()
 	{
 		var default_delay = 20;
@@ -113,7 +120,7 @@ local FxDoorControl = new Effect
 			}
 			if (this.anim_open)
 			{
-				DoorAnimation("DoorOpen", 0, this.time_opening);
+				DoorAnimation(this.Target.AnimName_DoorOpen, 0, this.time_opening);
 				this.anim_open = false;
 			}
 		}
@@ -129,7 +136,7 @@ local FxDoorControl = new Effect
 
 			if (this.anim_opened)
 			{
-				DoorAnimation("DoorOpened", 1, this.time_open);
+				DoorAnimation(this.Target.AnimName_DoorOpened, 1, this.time_open);
 				this.anim_opened = false;
 			};
 		}
@@ -148,7 +155,7 @@ local FxDoorControl = new Effect
 			}
 			if (this.anim_close)
 			{
-				DoorAnimation("DoorClose", 2, this.time_closing);
+				DoorAnimation(this.Target.AnimName_DoorClose, 2, this.time_closing);
 				this.anim_close = false;
 			}
 		}
@@ -190,7 +197,7 @@ local FxDoorControl = new Effect
 };
 
 
-/* -- Internal callbacks that can be overloaded */
+/* --- Internal callbacks that can be overloaded --- */
 
 
 private func SoundOpenDoor()
