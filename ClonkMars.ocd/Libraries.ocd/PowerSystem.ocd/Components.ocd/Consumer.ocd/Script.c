@@ -263,4 +263,14 @@ private func OnOwnerChanged(int new_owner, int old_owner)
 public func SetNoPowerNeed(bool ignore_power_need)
 {
 	lib_power_system.consumer.ignore_power_need = ignore_power_need;
+	GetPowerSystem()->UpdateNetworkForPowerLink(this);
+}
+
+
+/**
+ * Find out whether this consumer does not even need power.
+ */
+public func IsNoPowerNeeded()
+{
+	return lib_power_system.consumer.ignore_power_need;
 }

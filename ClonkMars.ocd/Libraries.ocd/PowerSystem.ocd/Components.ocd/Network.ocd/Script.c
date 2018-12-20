@@ -536,14 +536,18 @@ private func DoPowerBalanceUpdate()
 	for (var consumer in power_consumers)
 	{
 		var demand = consumer->GetPowerConsumption();
-		
+		var ignores_power_level = consumer->IsNoPowerNeeded();
+
 		GetPowerSystem()->DebugInfo("POWR - Demand for %s: %d, current power level %d", LogObject(consumer), demand, power_level);
 
 		// Still enough power for this consumer?
-		if (power_level >= demand)
+		if ((power_level >= demand) || ignores_power_level)
 		{
 			// Reduce available power
-			power_level -= demand;
+			if (!ignores_power_level)
+			{
+				power_level -= demand;
+			}
 
 			// Non on? Switch on
 			if (!consumer->HasEnoughPower())
