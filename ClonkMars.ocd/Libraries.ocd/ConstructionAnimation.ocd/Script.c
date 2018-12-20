@@ -2,15 +2,15 @@ local library_construction_animation;
 
 /* -- Engine callbacks -- */
 
-private func Construction()
+func Construction(object by)
 {
 	library_construction_animation = {};
 
-	return _inherited(...);
+	return _inherited(by, ...);
 }
 
 
-private func Destruction()
+func Destruction()
 {
 	if (library_construction_animation.overlay)
 	{
@@ -19,7 +19,7 @@ private func Destruction()
 }
 
 
-private func Initialize()
+func Initialize()
 {
 	// Create objects normally if placed via editor - delay the initialization here, so that it can be removed by the construction site
 	CreateEffect(FxInitializeStructure, 1, 2);
@@ -29,24 +29,26 @@ private func Initialize()
 
 /* -- Internals -- */
 
-private func OnStartConstructing()
+func OnStartConstructing()
 {
 	// Remove forced initialization
 	RemoveEffect(FxInitializeStructure.Name, this);
 	// Initialize animations
 	library_construction_animation.overlay = CreateObject(Dummy, 0, 0, NO_OWNER);
 	library_construction_animation.overlay->SetGraphics("Construction", GetID());
-	AttachMesh(library_construction_animation.overlay, "main", "main", nil, AM_MatchSkeleton);
+	library_construction_animation.overlay->SetObjectLayer(library_construction_animation.overlay);
+	var bone = this.AnimBone_Construction ?? "main";
+	AttachMesh(library_construction_animation.overlay, bone, bone, nil, AM_MatchSkeleton);
 }
 
 
-private func OnFinishConstructing()
+func OnFinishConstructing()
 {
 	SetAction("construction_finish");
 }
 
 
-private func InitializeStructure()
+func InitializeStructure()
 {
 	if (library_construction_animation.overlay)
 	{
