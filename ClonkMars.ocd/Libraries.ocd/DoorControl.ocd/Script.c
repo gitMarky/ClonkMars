@@ -6,7 +6,7 @@
 	
 */
 
-static const ANIM_SLOT_Door = 1;
+static const ANIM_SLOT_Door = 10;
 
 /* --- Properties --- */
 
