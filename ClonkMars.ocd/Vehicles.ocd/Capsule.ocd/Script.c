@@ -14,13 +14,13 @@ local ContactCalls = true;
 local Touchable = 1;
 local BorderBound = C4D_Border_Sides;
 local Components = { Metal = 2 };
-local capsule; // proplist
-local MaxContentsCount = 20; // for loading?
+local capsule; // Proplist
+local MaxContentsCount = 20; // For loading?
 
 static const CAPSULE_Precision = 100; // 1/100 px per tick
 
-public func IsContainer() { return true; } // can carry items
-public func IsVehicle() { return true; }	// not sure where this is used, but the lorry has it
+public func IsContainer() { return true; } // Can carry items
+public func IsVehicle() { return true; }   // Not sure where this is used, but the lorry has it
 
 /* -- Engine callbacks -- */
 
@@ -34,22 +34,22 @@ private func Construction()
 private func Initialize() 
 {
 	capsule = {
-		// starting and landing settings
+		// Starting and landing settings
 		port = nil,
 		port_vertex = -1,
 		origin_x = GetX(),
 		automatic = false,
-		// properties
+		// Properties
 		max_velocity = 500,      // in CAPSULE_PRECISION: px / tick
 		max_velocity_land = 200, // in CAPSULE_PRECISION: px / tick
 		max_acceleration = 30,   // in CAPSULE_PRECISION: px / tick^2
 		max_rotation = 1000,     // in CAPSULE_PRECISION: degrees
 		damage_velocity = 210,   // in precision 100:     px / tick
-		// control
+		// Control
 		thrust_vertical = 0,     // in per mille
 		thrust_horizontal = 0,
 		target_rotation = 0, 	 // in CAPSULE_PRECISION: degrees
-		// misc
+		// Misc
 		stacked_sounds = 0,
 		is_landing = false,
 	};
@@ -103,33 +103,33 @@ public func SetLandingDestination(object port, bool auto)
 	{
 		var dist_left = Abs(GetY() - GetHorizon(-24));
 		var dist_right = Abs(GetY() - GetHorizon(+24));
-		distance_y = Min(dist_left, dist_right); // distance to ground
+		distance_y = Min(dist_left, dist_right); // Distance to ground
 		capsule.origin_x += RandomX(-400, 400);
 		
-		// start engine earlier if the ground is steep, up to 18 frames earlier
+		// Start engine earlier if the ground is steep, up to 18 frames earlier
 		var angle_ground = Normalize(Angle(dist_left, 48, dist_right, 0), -180);
 		time_precaution = Abs(angle_ground / 10);
 		Log("Capsule will start engine %d frames earlier due to steep ground", time_precaution);
 	}
-	distance_y -= GetBottom(); // subtract capsule height
-	distance_y -= 5; // add a small safety buffer
+	distance_y -= GetBottom(); // Subtract capsule height
+	distance_y -= 5;           // Add a small safety buffer
 	distance_y *= CAPSULE_Precision;
 	if (distance_y < 1) distance_y = 1;
 
-	var acceleration_gravity = GetGravity(); // the usual gravity
-	var acceleration_capsule = -capsule.max_acceleration; // accelerate upwards
+	var acceleration_gravity = GetGravity(); // The usual gravity
+	var acceleration_capsule = -capsule.max_acceleration; // Accelerate upwards
 	var velocity_capsule = this->GetYDir(CAPSULE_Precision);
 	
-	// calculate the minimum time to fall down the entire distance, with the quadratic formula, for a = 0.5*acceleration_gravity, b = velocity_capsule, c = -distance_y;
-	// why? if cancelling the gravity with an upwards boost in the landing phase it will take longer
+	// Calculate the minimum time to fall down the entire distance, with the quadratic formula, for a = 0.5*acceleration_gravity, b = velocity_capsule, c = -distance_y;
+	// Why? if cancelling the gravity with an upwards boost in the landing phase it will take longer
 	var time_forecast = (Sqrt(velocity_capsule**2 + 2 * distance_y * acceleration_gravity) -  velocity_capsule);
 	Log("Capsule landing parameters: distance_y = %d, velocity_capsule = %d, acceleration_capsule = %d, acceleration_gravity = %d, forecast %d", distance_y, velocity_capsule, acceleration_capsule, acceleration_gravity, time_forecast);
 	time_forecast /= acceleration_gravity;
 
-	// brute force determine the landing time at first - could probably be solved with an equation system and some sensible boundary conditions, but I am too lazy for that
+	// Brute force determine the landing time at first - could probably be solved with an equation system and some sensible boundary conditions, but I am too lazy for that
 	var time_freefall = time_forecast / 2;
 	
-	// maximize time in freefall
+	// Maximize time in freefall
 	// used the following equations / conditions
 	// E1) distance_y = distance_fall + distance_land
 	// E2) distance_fall = velocity_capsule * time_fall + 0.5 * acceleration_gravity * time_fall^2
@@ -186,10 +186,10 @@ public func SetLandingDestination(object port, bool auto)
 	}
     */
     
-    // remove frames of freefall as a precaution
+    // Remove frames of freefall as a precaution
     time_freefall = Max(1, time_freefall - time_precaution);
     
-    // schedule landing
+    // Schedule landing
 	ScheduleCall(this, this.StartLanding, time_freefall, nil, Abs(acceleration_capsule));
 	if (capsule.port)
 	{
@@ -204,7 +204,7 @@ private func StartLanding(int override_acceleration)
 {
 	if (!capsule.thrust_vertical)
 	{
-		// activate the port a second time in case that the landing started too early
+		// Activate the port a second time in case that the landing started too early
 		if (capsule.port)
 		{
 			capsule.port->PortActive();
@@ -268,7 +268,7 @@ private func IsThrusterOn()
 }
 
 
-public func IsBlowingOut() // seems to be unused, but kept for compatibility reasons for now
+public func IsBlowingOut() // Seems to be unused, but kept for compatibility reasons for now
 {
 	IsThrusterOn();
 }
@@ -325,7 +325,7 @@ local FxBlowout = new Effect
 	
 	AutomaticCapsuleControl = func (int time)
 	{
-		// landing control: do not skyrocket
+		// Landing control: do not skyrocket
 		if (Target.capsule.is_landing)
 		{
 			var reduce_thrust = false;
@@ -354,7 +354,7 @@ local FxBlowout = new Effect
 				}
 			}
 		}
-		// taking off? do skyrocket!
+		// Taking off? do skyrocket!
 		else
 		{
 			var increase_thrust = 0;
@@ -383,10 +383,10 @@ local FxBlowout = new Effect
 			}
 		}
 	
-		// everything else is available in automatic mode only:
+		// Everything else is available in automatic mode only:
 		if (Target.capsule.automatic)
 		{
-			// selling
+			// Selling
 			if (!Target.capsule.is_landing && Target->GetY() <= -20 && Target->GetYDir() < 0)
 			{
 				for (var item in FindObjects(Find_Container(Target)))
@@ -400,7 +400,7 @@ local FxBlowout = new Effect
 				return true;
 			}
 
-			// stuck or something?
+			// Stuck or something?
 			if (time > (LandscapeHeight() * 4 / 3 + 300) && !Random(10))
 			{
 				Target->DoDamage(1); 
@@ -490,7 +490,7 @@ local FxBlowout = new Effect
 	
 	ParticleFxDust = func ()
 	{
-		// distance from the ground when dust starts appearing
+		// Distance from the ground when dust starts appearing
 		var dust_distance = 50;
 		var burn_distance = 50;
 		var max_y = Target->GetY() + dust_distance;
@@ -498,7 +498,7 @@ local FxBlowout = new Effect
 		var y;
 		var ground_material = -1; // sky material
 		
-		// find out if there is ground at all
+		// Find out if there is ground at all
 		for (y = Target->GetY() + 10; y < max_y; y += 5)
 		{
 			if (GBackSolid(x, y))
@@ -510,10 +510,10 @@ local FxBlowout = new Effect
 	
 		var distance = y - Target->GetY();
 
-		// create dust?
+		// Create dust?
 		if (GetMaterialVal("DigFree", "Material", ground_material) != 0)
 		{
-			// some values depend on distance
+			// Some values depend on distance
 			var size = RandomX(4, Max(6, (600 - distance) / 10));
 			var alpha = Max(0, (225 - distance) * 100 / 225);
 			var texture = GetTexture(x, y);
@@ -522,7 +522,7 @@ local FxBlowout = new Effect
 				var particles = Particles_DustAdvanced(texture, size, alpha);
 				particles.Rotation = PV_Direction();
 				
-				// calculate values
+				// Calculate values
 				var x_offset = 30;
 				var y_offset = -7;
 				var x_dir_base = 50;
@@ -534,7 +534,7 @@ local FxBlowout = new Effect
 				var x_dir_neg = (-x_dir_base + x_pos);
 				var x_dir_pos = (+x_dir_base - x_pos);
 				
-				// the nearer the dust to the center, the faster it is blown aside 
+				// The nearer the dust to the center, the faster it is blown aside 
 				CreateParticle("BoostDust", x - x_pos, y + y_offset, PV_Random(x_dir + x_dir_neg / 2, x_dir + x_dir_neg), y_dir,lifetime, particles);
 				CreateParticle("BoostDust", x + x_pos, y + y_offset, PV_Random(x_dir + x_dir_pos / 2, x_dir + x_dir_pos), y_dir,lifetime, particles);
 			}
@@ -592,7 +592,7 @@ private func ContactBottom()
 			}
 			if (capsule.port)
 			{ 
-				if (ObjectCount(Find_Container(this), Find_OCF(OCF_CrewMember))) // do this only if there is a port - crew members dying because you fail to construct a base is not cool
+				if (ObjectCount(Find_Container(this), Find_OCF(OCF_CrewMember))) // Do this only if there is a port - crew members dying because you fail to construct a base is not cool
 				{
 					ScheduleCall(this, this.EjectCrew, 30, nil, GetX(), GetY());
 				}
