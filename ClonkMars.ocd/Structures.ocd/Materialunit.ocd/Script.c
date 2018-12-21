@@ -25,21 +25,22 @@ local AnimBone_Construction = "base";
 
 local work_animation;
 local work_timer;
+local work_position;
 
 /* --- Engine Callbacks --- */
 
 
-func Definition(def)
+func Definition(type)
 {
-	//def.MeshTransformation = Trans_Mul(Trans_Scale(800), Trans_Translate(2000, 0, 0), Trans_Rotate(8, 0, 1, 0));
-	//def.PictureTransformation = Trans_Mul(Trans_Translate(0, -25000, 50000), Trans_Scale(600));
-	return _inherited(def, ...);
+	type.PictureTransformation = Trans_Mul(Trans_Rotate(20, 0, 1, 0), Trans_Rotate(-2, 0, 0, 1), Trans_Translate(-7000,  -15000, 40000), Trans_Scale(800));
+	return _inherited(type, ...);
 }
 
 
 func Initialize()
 {
-	work_animation = PlayAnimation("smelt", 1, Anim_Const(0));
+	work_position = 0;
+	work_animation = PlayAnimation("smelt", 1, Anim_Const(work_position));
 	return _inherited(...);
 }
 
@@ -51,31 +52,66 @@ func IsProduct(id product_id)
 	return product_id->GetCategory() & C4D_Object;
 }
 
-func ProductionTime(id product) { return _inherited(product, ...) ?? 400; }
+func ProductionTime(id product) { return _inherited(product, ...) ?? 180; }
 
 
 func OnProductionStart(id product)
 {
-	work_timer = CreateEffect(FxSmeltAnimation, 1, 1);
+	work_timer = CreateEffect(FxWorkTimer, 1, 3);
+	PlaySoundWorking(true);
 	return _inherited(product, ...);
 }
 
 func OnProductionHold(id product)
 {
 	work_timer.paused = true;
+	PlaySoundWorking(false);
 	return _inherited(product, ...);
 }
 
 func OnProductionContinued(id product)
 {
 	work_timer.paused = false;
+	PlaySoundWorking(true);
 	return _inherited(product, ...);
 }
 
 func OnProductionFinish(id product)
 {
 	RemoveEffect(nil, this, work_timer);
+	PlaySoundWorking(false);
 	return _inherited(product, ...);
+}
+
+func OnProductionProgress(id product, int progress)
+{
+	// TODO: Do this only for metal
+	var length = GetAnimationLength("smelt");
+	work_position = BoundBy(progress * length / 1000, 0, length);
+	SetAnimationPosition(work_animation, Anim_Const(work_position));
+	return _inherited(product, ...);
+}
+
+/* --- Effects --- */
+
+func PlaySoundCrushing()
+{
+	Sound("Structure::MaterialUnit::Melt_Crushing");
+}
+
+func PlaySoundWorking(bool on)
+{
+	var loop;
+	if (on)
+	{
+		loop = 1;
+	}
+	else
+	{
+		loop = -1;
+	}
+
+	Sound("Structure::MaterialUnit::Melt_Working", {loop_count = loop});
 }
 
 local FxSmeltAnimation = new Effect
@@ -89,6 +125,20 @@ local FxSmeltAnimation = new Effect
 			var position = (this.Target->GetAnimationPosition(this.Target.work_animation) + advance) % length;
 
 			this.Target->SetAnimationPosition(this.Target.work_animation, Anim_Const(position));
+		}
+	},
+};
+
+local FxWorkTimer = new Effect
+{
+	Timer = func ()
+	{
+		if (!this.paused)
+		{
+			if (!Random(2))
+				this.Target->Smoke(17, Random(3) - 19, Random(9) + 20);
+			if (!Random(4))
+				this.Target->Smoke(17, Random(3) - 15, Random(5) + 20);
 		}
 	},
 };
