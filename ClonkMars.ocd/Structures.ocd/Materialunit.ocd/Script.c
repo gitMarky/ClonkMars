@@ -27,6 +27,8 @@ local work_animation;
 local work_timer;
 local work_position;
 
+local smelter_light;
+
 /* --- Engine Callbacks --- */
 
 
@@ -44,6 +46,12 @@ func Initialize()
 	return _inherited(...);
 }
 
+func Destruction()
+{
+	RemoveSmelterLight();
+	return _inherited(...);
+}
+
 
 /* --- Production --- */
 
@@ -58,36 +66,91 @@ func ProductionTime(id product) { return _inherited(product, ...) ?? 180; }
 func OnProductionStart(id product)
 {
 	work_timer = CreateEffect(FxWorkTimer, 1, 3);
-	PlaySoundWorking(true);
+	if (product->~IsBucketMaterial())
+	{
+		PlaySoundCrushing();
+	}
+	PlaySoundWorking(product, true);
 	return _inherited(product, ...);
 }
 
 func OnProductionHold(id product)
 {
 	work_timer.paused = true;
-	PlaySoundWorking(false);
+	PlaySoundWorking(product, false);
 	return _inherited(product, ...);
 }
 
 func OnProductionContinued(id product)
 {
 	work_timer.paused = false;
-	PlaySoundWorking(true);
+	PlaySoundWorking(product, true);
 	return _inherited(product, ...);
 }
 
 func OnProductionFinish(id product)
 {
 	RemoveEffect(nil, this, work_timer);
-	PlaySoundWorking(false);
+	PlaySoundWorking(product, false);
 	return _inherited(product, ...);
 }
 
 func OnProductionProgress(id product, int progress)
 {
-	// TODO: Do this only for metal
-	var length = GetAnimationLength("smelt");
-	work_position = BoundBy(progress * length / 1000, 0, length);
+	if (product->~IsFoundryProduct())
+	{
+		var length = GetAnimationLength("smelt");
+		work_position = BoundBy(progress * length / 1000, 0, length);
+
+		if (Inside(progress, 210, 570))
+		{
+			var exit_x = 12 * GetCalcDir();
+			var exit_y = 9;
+			CreateParticle("Fire", PV_Random(exit_x - 2, exit_x + 2), exit_y, PV_Random(-1, 1), 0, PV_Random(18, 20), 
+			{
+				Prototype = Particles_Fire(),
+				ForceY = 5,
+				Size = PV_Linear(PV_Random(2, 4), PV_Random(4, 6)),
+			}, 5);
+		}
+
+		var material = "cm_smelter_melt";
+		if (progress >= 865)
+		{
+			material = "cm_smelter_melt";
+			RemoveSmelterLight();
+		}
+		else if (progress >= 800)
+		{
+			material = "cm_smelter_melt_cooling2";
+		}
+		else if (progress >= 700)
+		{
+			material = "cm_smelter_melt_cooling1";
+			if (smelter_light)
+			{
+				smelter_light->SetLightColor(RGB(150, 55, 25));
+			}
+		}
+		else if (progress >= 570)
+		{
+			material = "cm_smelter_melt_hot2";
+		}
+		else if (progress >= 400)
+		{
+			material = "cm_smelter_melt_hot1";
+		}
+		else if (progress >= 210)
+		{
+			AddSmelterLight();
+		}
+
+		SetMeshMaterial(material, 6);
+	}
+	else
+	{
+		work_position = 0;
+	}
 	SetAnimationPosition(work_animation, Anim_Const(work_position));
 	return _inherited(product, ...);
 }
@@ -99,8 +162,13 @@ func PlaySoundCrushing()
 	Sound("Structure::MaterialUnit::Melt_Crushing");
 }
 
-func PlaySoundWorking(bool on)
+func PlaySoundWorking(id product, bool on)
 {
+	if (product->~IsBucketMaterial())
+	{
+		return;
+	}
+
 	var loop;
 	if (on)
 	{
@@ -113,21 +181,6 @@ func PlaySoundWorking(bool on)
 
 	Sound("Structure::MaterialUnit::Melt_Working", {loop_count = loop});
 }
-
-local FxSmeltAnimation = new Effect
-{
-	Timer = func ()
-	{
-		if (!this.paused)
-		{
-			var advance = 50;
-			var length = this.Target->GetAnimationLength("smelt");
-			var position = (this.Target->GetAnimationPosition(this.Target.work_animation) + advance) % length;
-
-			this.Target->SetAnimationPosition(this.Target.work_animation, Anim_Const(position));
-		}
-	},
-};
 
 local FxWorkTimer = new Effect
 {
@@ -142,3 +195,23 @@ local FxWorkTimer = new Effect
 		}
 	},
 };
+
+func AddSmelterLight()
+{
+	if (!smelter_light)
+	{
+		smelter_light = CreateObject(Dummy, 0, 0, NO_OWNER);
+		smelter_light->SetObjectLayer(smelter_light);
+		smelter_light.Visibility = VIS_All;
+		smelter_light->SetLightRange(40);
+	}
+	smelter_light->SetLightColor(RGB(255, 96, 0));
+}
+
+func RemoveSmelterLight()
+{
+	if (smelter_light)
+	{
+		smelter_light->RemoveObject();
+	}
+}

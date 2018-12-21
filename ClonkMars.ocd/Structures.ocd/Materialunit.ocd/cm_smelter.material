@@ -74,13 +74,6 @@ material cm_smelter_vent
 			diffuse 1.0 1.0 1.0 1.0
 			specular 1.0 1.0 1.0 1.0 12.5
 			emissive 0.0 0.0 0.0 1.0
-
-//			texture_unit
-//			{
-//				texture generator.png
-//				tex_address_mode wrap
-//				colour_op modulate
-//			}
 		}
 	}
 }
@@ -126,11 +119,74 @@ material cm_smelter_melt
 		pass 
 		{
 			ambient 1.0 1.0 1.0 1.0
-			diffuse 0.57 0.52 0.41 1.0
+			diffuse 0.405 0.331 0.310 1.0
 			specular 1.0 1.0 1.0 1.0 25
 			emissive 0.0 0.0 0.0 1.0
 		}
 	}
 }
 
+material cm_smelter_melt_hot1
+{
+	receive_shadows on 
+
+	technique
+	{
+		pass 
+		{
+			ambient 1.0 1.0 1.0 1.0
+			diffuse 1.0 0.396 0.239 1.0
+			specular 1.0 1.0 1.0 1.0 25
+			emissive 0.0 0.0 0.0 1.0
+		}
+	}
+}
+
+material cm_smelter_melt_hot2
+{
+	receive_shadows on 
+
+	technique
+	{
+		pass 
+		{
+			ambient 1.0 1.0 1.0 1.0
+			diffuse 0.996 0.243 0.051 1.0
+			specular 1.0 1.0 1.0 1.0 25
+			emissive 0.0 0.0 0.0 1.0
+		}
+	}
+}
+
+material cm_smelter_melt_cooling1
+{
+	receive_shadows on 
+
+	technique
+	{
+		pass 
+		{
+			ambient 1.0 1.0 1.0 1.0
+			diffuse 0.471 0.102 0.0 1.0
+			specular 1.0 1.0 1.0 1.0 25
+			emissive 0.0 0.0 0.0 1.0
+		}
+	}
+}
+
+material cm_smelter_melt_cooling2
+{
+	receive_shadows on 
+
+	technique
+	{
+		pass 
+		{
+			ambient 1.0 1.0 1.0 1.0
+			diffuse 0.361 0.176 0.122 1.0
+			specular 1.0 1.0 1.0 1.0 25
+			emissive 0.0 0.0 0.0 1.0
+		}
+	}
+}
 
