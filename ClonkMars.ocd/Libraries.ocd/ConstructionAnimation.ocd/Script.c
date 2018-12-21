@@ -59,6 +59,8 @@ func InitializeStructure()
 
 local FxInitializeStructure = new Effect
 {
+	Name = "FxInitializeStructure",
+
 	Timer = func ()
 	{
 		Target->InitializeStructure();
