@@ -23,6 +23,10 @@ global func GivePlayerBasicKnowledge(int player)
 		// basic structures for a settlement and production
 		Structure_Base,
 		Structure_SolarPanel,
+		Structure_Accumulator,
+		Structure_MaterialUnit,
+		Structure_OilRig,
+		Structure_OilTank,
 		// basic tools
 		Shovel,
 		// basic resources.
