@@ -1,0 +1,91 @@
+material cm_oiltank_catwalk
+{
+    receive_shadows on
+    technique
+    {
+        pass
+        {
+            ambient 1.0 1.0 1.0 1.0
+            diffuse 0.200 0.176 0.160 1.0
+            specular 0.5 0.5 0.5 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+        }
+    }
+}
+
+material cm_oiltank_gauge
+{
+    receive_shadows on
+    technique
+    {
+        pass
+        {
+            ambient 1.0 1.0 1.0 1.0
+            diffuse 0.64 0.64 0.64 1.0
+            specular 0.5 0.5 0.5 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+        }
+    }
+}
+
+
+material cm_oiltank_inside
+{
+    receive_shadows on
+    technique
+    {
+        pass
+        {
+            ambient 1.0 1.0 1.0 1.0
+            diffuse 0.426 0.392 0.370 1.0
+            specular 0.5 0.5 0.5 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+        }
+    }
+}
+
+material cm_oiltank_gauge_outer
+{
+    receive_shadows on
+    technique
+    {
+        pass
+        {
+            ambient 1.0 1.0 1.0 1.0
+            diffuse 0.273 0.242 0.214 1.0
+            specular 0.5 0.5 0.5 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+        }
+    }
+}
+
+material cm_oiltank_tank
+{
+    receive_shadows on
+    technique
+    {
+        pass cm_oiltank_tank
+        {
+            ambient 1.0 1.0 1.0 1.0
+            diffuse 0.696 0.656 0.634 1.0
+            specular 0.5 0.5 0.5 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+        }
+    }
+}
+
+material cm_oiltank_truss
+{
+    receive_shadows on
+    technique
+    {
+        pass cm_oiltank_truss
+        {
+            ambient 1.0 1.0 1.0 1.0
+            diffuse 0.359 0.359 0.359 1.0
+            specular 0.5 0.5 0.5 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+        }
+    }
+}
+
