@@ -6,4 +6,12 @@ TxtOnlyEmptyTank=Nur bei leerem Tank möglich!
 TxtEnemy=Zugriff verweigert
 TxtSwitchToOil=Zu Öl wechseln
 TxtSwitchToLava=Zu Lava wechseln
-TxtFlushTank=Tank leeren
+
+MsgConnectedPipe=Rohr angeschlossen.
+MsgPipeProhibited=Dieses Rohr kann nicht an den Tank angeschlossen werden.
+MsgHasPipes=Der Tank hat schon ein Zu- und Abflussrohr.
+MsgSourcePipeProhibited=Zuflussrohre können nicht an den Tank angeschlossen werden.
+MsgDrainPipeProhibited=Abflussrohre können nicht an den Tank angeschlossen werden.
+
+MsgOpenTank=Ventil öffnen.
+MsgCloseTank=Ventil schließen.
