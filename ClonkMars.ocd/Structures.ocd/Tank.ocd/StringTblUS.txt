@@ -1,12 +1,6 @@
 Name=Tank
 Description=Stores/Saves oil and emits it when necessary. Additionally, it can store lava.|Should be connected with drill tower and material lab by means of a pipe construction kit.|You can also recharge your jetpack here.
 
-TxtOnlyOil=Only Oil possible.
-TxtOnlyEmptyTank=Only possible if|tank is empty!
-TxtEnemy=Access denied
-TxtSwitchToOil=Switch to Oil
-TxtSwitchToLava=Switch to Lava
-
 MsgConnectedPipe=Connected pipe.
 MsgPipeProhibited=This pipe cannot be connected to the liquid tank.
 MsgHasPipes=Liquid tank already has a source and a drain pipe.
@@ -15,3 +9,13 @@ MsgDrainPipeProhibited=Unable to connect drain pipe to the liquid tank.
 
 MsgOpenTank=Open valve.
 MsgCloseTank=Close valve.
+
+TankMaterials=Restrict material
+TankControl=Valve control
+
+MsgAllMaterialsAllowed=The tank can be filled with any material.
+MsgMaterialsRestricted=The tank can be filled with %s only.
+MsgAllowAllMaterials=Clicking this option will allow filling the tank with any material.
+MsgRestrictMaterial=Clicking this option will restrict filling the tank with %s exclusively.
+MsgRemoveMaterialOnly=Removing the contained %s is allowed.
+MsgInsertMaterialBlocked=Contained %s must be removed completely, before %s can be filled into the tank.

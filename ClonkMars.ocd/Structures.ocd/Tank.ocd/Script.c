@@ -2,6 +2,7 @@
 #include Library_MarsResearch
 #include Library_ConstructionAnimation
 #include Library_Tank
+#include Library_ResourceSelection
 
 
 /* --- Properties --- */
@@ -12,8 +13,6 @@ local ContainBlast = 1;
 local HitPoints = 20;
 local Components = { Metal=3 };
 
-local OilTank_Liquid = nil;
-local OilTank_Type = nil;
 
 local DispersionRate = 40;
 local DispersionRadius = 40;
@@ -137,11 +136,17 @@ public func IsLiquidContainerForMaterial(string liquid_name)
 			if (GetLiquidDef(liquid_name) != GetLiquidDef(liquid_content))
 				return false;
 		}
-		return true;
+	}
+	if (GetLength(GetResourceSelection()) == 0)
+	{
+		// No restrictions, accept any liquid that is accepted in the selection
+		return ShowResourceSelectionMenuEntry(GetLiquidDef(liquid_name));
 	}
 	else
 	{
-		return IsValueInArray(["Oil", "Lava", "DuroLava"], liquid_name); // Currently only for oil and lava, otherwise for specific liquid
+		// Restrictions from the selection
+		// If the contained liquid is prohibited, then you may not add new liquid of that type
+		return IsInResourceSelection(GetLiquidDef(liquid_name));
 	}
 }
 
@@ -203,43 +208,6 @@ public func OnPipeConnect(object pipe, string specific_pipe_state)
 }
 
 
-/*-- Interaction --*/
-
-public func IsInteractable(object clonk)
-{
-	if (GetCon() < 100)
-	{
-		return false;
-	}
-	return !Hostile(GetOwner(), clonk->GetOwner());
-}
-
-public func GetInteractionMetaInfo(object clonk)
-{
-	if (GetEffect(FxDisperseLiquid.Name, this))
-	{
-		return { Description = "$MsgCloseTank$", IconName = nil, IconID = Icon_Enter, Selected = false };
-	}
-	else
-	{
-		return { Description = "$MsgOpenTank$", IconName = nil, IconID = Icon_Exit, Selected = false };
-	}
-}
-
-public func Interact(object clonk)
-{
-	var fx = GetEffect(FxDisperseLiquid.Name, this);
-	if (fx)
-	{
-		fx->Remove();
-		return true;
-	}
-	else
-	{
-		CreateEffect(FxDisperseLiquid, 100, 2);	
-		return true;
-	}
-}
 
 local FxDisperseLiquid = new Effect
 {
@@ -279,9 +247,188 @@ local FxDisperseLiquid = new Effect
 
 public func IsContainer() { return true; }
 
+public func GetInteractionMenus(object clonk)
+{
+	var menus = _inherited(clonk, ...) ?? [];		
+	var materials_menu =
+	{
+		title = "$TankMaterials$",
+		entries_callback = this.GetResourceSelectionMenuEntries,
+		callback = "OnTankMaterialsClick",
+		callback_hover = "OnTankMaterialsHover",
+		callback_target = this,
+		BackgroundColor = RGB(0, 50, 50),
+		Priority = 25,
+	};
+	PushBack(menus, materials_menu);
+	var control_menu =
+	{
+		title = "$TankControl$",
+		entries_callback = this.GetValveControlMenuEntries,
+		callback = "OnValveControlClick",
+		callback_hover = "OnValveControlHover",
+		callback_target = this,
+		BackgroundColor = RGB(0, 50, 50),
+		Priority = 30,
+	};
+	PushBack(menus, control_menu);
+	return menus;
+}
+
+
+func GetValveControlMenuEntries(object clonk)
+{
+	// switch on and off
+	var symbol, text, action;
+	if (GetEffect(FxDisperseLiquid.Name, this))
+	{
+		text = "$MsgCloseTank$";
+		symbol = Icon_Enter;
+		action = PUMP_Menu_Action_Switch_Off;
+	}
+	else
+	{
+		text = "$MsgOpenTank$";
+		symbol = Icon_Exit;
+		action = PUMP_Menu_Action_Switch_On;
+	}
+
+	return [{symbol = symbol, extra_data = action, 
+		custom =
+		{
+			Right = "100%", Bottom = "2em",
+			BackgroundColor = {Std = 0, OnHover = 0x50ff0000},
+			Priority = 1,
+			text = {Left = "2em", Text = text},
+			image = {Right = "2em", Symbol = symbol}
+		}}];
+}
+
+
+func OnTankMaterialsHover(id resource, string action, desc_menu_target, menu_id)
+{
+	var selection_description, allowed;
+	var contained_resource = Contents();
+	if (GetLength(GetResourceSelection()) == 0)
+	{
+		selection_description = "$MsgAllMaterialsAllowed$";
+		allowed = true;
+	}
+	else
+	{
+		var text;
+		for (var selected in GetResourceSelection())
+		{
+			if (text)
+			{
+				text = Format("%s, %s", text, selected->GetName());
+			}
+			else
+			{
+				text = selected->GetName();
+			}
+		}
+		selection_description = Format("$MsgMaterialsRestricted$", text);
+		allowed = IsInResourceSelection(resource);
+	}
+	if (FindContents(resource) || contained_resource)
+	{
+		var is_contained_resource = contained_resource->GetID() == resource;
+		if (is_contained_resource && !allowed)
+		{
+			selection_description = Format("%s %s", selection_description, Format("$MsgRemoveMaterialOnly$", resource->GetName()));
+		}
+		if (allowed && !is_contained_resource)
+		{
+			selection_description = Format("%s %s", selection_description, Format("$MsgInsertMaterialBlocked$", contained_resource->GetID()->GetName(), resource->GetName()));
+		}
+	}
+
+	var action_description;
+	if (action == RESOURCE_SELECT_Menu_Action_Resource_Enable)
+	{
+		action_description = Format("$MsgRestrictMaterial$", resource->GetName());
+	}
+	else
+	{
+		action_description = Format("$MsgAllowAllMaterials$");
+	}
+
+	GuiUpdateText(Format("%s||%s", selection_description, action_description), menu_id, 1, desc_menu_target);
+}
+
+func OnTankMaterialsClick(id resource, string action, object clonk)
+{
+	if (action == RESOURCE_SELECT_Menu_Action_Resource_Enable)
+	{
+		SetResourceSelection([resource]);
+	}
+	else
+	{
+		SetResourceSelection([]);
+	}
+	UpdateInteractionMenus(this.GetResourceSelectionMenuEntries);	
+}
+
+func OnValveControlClick()
+{
+	var fx = GetEffect(FxDisperseLiquid.Name, this);
+	if (fx)
+	{
+		fx->Remove();
+	}
+	else
+	{
+		CreateEffect(FxDisperseLiquid, 100, 2);	
+	}
+	UpdateInteractionMenus(this.GetValveControlMenuEntries);
+}
+
+func OnValveControlHover()
+{
+}
+
 /* --- Display --- */
+
+func IsResourceSelectionParent(id child_resource, id parent_resource)
+{
+	return child_resource->~GetParentLiquidType() == parent_resource;
+}
+
+func ShowResourceSelectionMenuEntry(id resource)
+{
+	return resource == Oil
+	    || resource == Lava;
+}
+
+func GetResourceSelectionIcon(id resource, bool enabled)
+{
+	var has_item = FindContents(resource);
+	var has_other_item = !!Contents() && !has_item;
+	if (GetLength(GetResourceSelection()) == 0) // No restrictions?
+	{
+		enabled = true;
+	}
+
+	var icon = {Symbol = Icon_Ok};
+	if (enabled)
+	{
+		if (has_other_item) // Show that other items block adding new material
+		{
+			icon.GraphicsName = "Red";
+		}
+	}
+	else if (has_item) // Show that contained resources can be extracted
+	{
+		icon.GraphicsName = "Red";
+	}
+	else // Show that the item is not allowed
+	{
+		icon.Symbol = Icon_Cancel;
+	}
+	return icon;
+}
 
 func UpdateOilTank()
 {
-	OilTank_Liquid = Contents();
 }

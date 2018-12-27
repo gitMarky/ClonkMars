@@ -1,12 +1,6 @@
 Name=Tank
 Description=Speichert Öl und gibt es bei Bedarf wieder ab. Kann auch als Lavalagerstätte verwendet werden.|Sollte mit Bohrturm und Materiallabor mittels Rohrbausatz verbunden sein.|Auch kann hier das Jetpack aufgeladen werden.
 
-TxtOnlyOil=Nur Öl möglich!
-TxtOnlyEmptyTank=Nur bei leerem Tank möglich!
-TxtEnemy=Zugriff verweigert
-TxtSwitchToOil=Zu Öl wechseln
-TxtSwitchToLava=Zu Lava wechseln
-
 MsgConnectedPipe=Rohr angeschlossen.
 MsgPipeProhibited=Dieses Rohr kann nicht an den Tank angeschlossen werden.
 MsgHasPipes=Der Tank hat schon ein Zu- und Abflussrohr.
@@ -15,3 +9,13 @@ MsgDrainPipeProhibited=Abflussrohre können nicht an den Tank angeschlossen werd
 
 MsgOpenTank=Ventil öffnen.
 MsgCloseTank=Ventil schließen.
+
+TankMaterials=Material einschränken
+TankControl=Ventilsteuerung
+
+MsgAllMaterialsAllowed=Der Tank darf mit beliebigem Material befüllt werden.
+MsgMaterialsRestricted=Der Tank darf mit %s befüllt werden.
+MsgAllowAllMaterials=Durch Anklicken wird das Befüllen mit beliebigem Material erlaubt.
+MsgRestrictMaterial=Durch Anklicken wird das Befüllen ausschließlich mit %s erlaubt.
+MsgRemoveMaterialOnly=Das Entnehmen von %s ist weiterhin möglich.
+MsgInsertMaterialBlocked=%s muss vollständig entnommen werden, bevor der Tank mit %s befüllt werden kann.
