@@ -1,5 +1,5 @@
 
-private func Hit()
+func Hit()
 {
 	Sound("Hits::Materials::Glass::GlassHit?");
 }

@@ -232,7 +232,7 @@ local FxUpdateAllPowerNetworks = new Effect {
 };
 
 
-private func DoRefreshAllPowerNetworks()
+func DoRefreshAllPowerNetworks()
 {
 	// Don't do anything if there are no power helpers created yet.
 	if (GetType(POWER_SYSTEM_NETWORKS) != C4V_Array) return;
@@ -281,7 +281,7 @@ private func DoRefreshAllPowerNetworks()
 /**
  * Definition call: Merge all the producers and consumers into their actual networks.
  */
-private func RefreshPowerNetwork(object network)
+func RefreshPowerNetwork(object network)
 {
 	if (network) network->RefreshPowerNetwork();
 }
@@ -371,7 +371,7 @@ public func GetPowerNetwork(object for_obj)
  * 
  * Is defined by the plugins.
  */
-private func GetPowerLink(object for_obj)
+func GetPowerLink(object for_obj)
 {
 	return _inherited(for_obj, ...);
 }
@@ -381,7 +381,7 @@ private func GetPowerLink(object for_obj)
  * Definition call: Create a new network and add it to the list of networks.
  * Can be a neutral network, if desired.
  */
-private func CreateNetwork(bool neutral)
+func CreateNetwork(bool neutral)
 {
 	Init();
 	var network = CreateObject(GetPowerSystemNetwork(), 0, 0, NO_OWNER);
@@ -416,7 +416,7 @@ public func Init()
  * @return id the definition of the network helper object. You can overload this function
  *            if you want to use a different power system.
  */
-private func GetPowerSystemNetwork()
+func GetPowerSystemNetwork()
 {
 	return Library_PowerSystem_Network;
 }
@@ -434,7 +434,7 @@ public func SetDebugInfo(bool enable)
 /**
  * Logs the power system info, if debugging is on.
  */
-private func DebugInfo(string message)
+func DebugInfo(string message)
 {
 	if (POWER_SYSTEM_DEBUG)
 	{

@@ -64,19 +64,19 @@ public func Collection2(object obj)
 
 /* --- Internals --- */
 
-private func OpenEntrance()
+func OpenEntrance()
 {
 	SetEntrance(true);
 }
 
 
-private func CloseEntrance()
+func CloseEntrance()
 {
 	SetEntrance(false);
 }
 
 
-private func KeepOpen()
+func KeepOpen()
 {
 	var control = GetEffect(FxDoorControl.Name, this);
 	
@@ -200,13 +200,13 @@ local FxDoorControl = new Effect
 /* --- Internal callbacks that can be overloaded --- */
 
 
-private func SoundOpenDoor()
+func SoundOpenDoor()
 {
 	Sound("Structures::DoorOpen?");
 }
 
 
-private func SoundCloseDoor()
+func SoundCloseDoor()
 {
 	Sound("Structures::DoorClose?");
 }

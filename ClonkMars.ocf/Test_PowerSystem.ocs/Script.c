@@ -16,7 +16,7 @@
 
 static script_plr;
 
-protected func Initialize()
+func Initialize()
 {
 	// Create a script player for some tests.
 	script_plr = nil;
@@ -25,7 +25,7 @@ protected func Initialize()
 	return;
 }
 
-protected func InitializePlayer(int plr)
+func InitializePlayer(int plr)
 {
 	// Set zoom to full map size.
 	SetPlayerZoomByViewRange(plr, LandscapeWidth(), nil, PLRZOOM_Direct);
@@ -63,7 +63,7 @@ protected func InitializePlayer(int plr)
 	return;
 }
 
-protected func RemovePlayer(int plr)
+func RemovePlayer(int plr)
 {
 	// Remove script player.
 	if (GetPlayerType(plr) == C4PT_Script)

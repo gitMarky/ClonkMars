@@ -21,19 +21,19 @@ public func InitializePlayer(int player)
 
 /* -- Parameters & useful functions -- */
 
-private func Scenario_Gravity()
+func Scenario_Gravity()
 {
     SetGravity(8); // 37% of default value 20, rounded up
 }
 
 
-private func Scenario_Temperature()
+func Scenario_Temperature()
 {
 	Temperature->CreateGrid(10);
 }
 
 
-private func CreateStartingCapsule(int player)
+func CreateStartingCapsule(int player)
 {
 	var capsule = CreateSupplyCapsule(player);
 	capsule->SetLandingDestination();
@@ -44,18 +44,18 @@ private func CreateStartingCapsule(int player)
 }
 
 
-private func CreateSupplyCapsule(int player)
+func CreateSupplyCapsule(int player)
 {
 	return CreateObject(Capsule, RandomX(100, LandscapeWidth() - 100), 70, player);
 }
 
 
-private func CreateStartingMaterial(int player)
+func CreateStartingMaterial(int player)
 {
 	CreateObjects({ConKit = 2, Metal = 2, Plastic = 2}, nil, nil, player);
 }
 
-private func CreateStartingEquipment(int player)
+func CreateStartingEquipment(int player)
 {
 	var crew_members = FindObjects(Find_Owner(player), Find_OCF(OCF_CrewMember));
 	for (var i = 0; i < GetLength(crew_members); ++i)
@@ -65,7 +65,7 @@ private func CreateStartingEquipment(int player)
 	}
 }
 
-private func CreateStartingEquipmentForCrewMember(int player, object crew, int crew_index)
+func CreateStartingEquipmentForCrewMember(int player, object crew, int crew_index)
 {
 	var suit = crew->CreateContents(SpaceSuit);
 	suit->PutOn(crew);

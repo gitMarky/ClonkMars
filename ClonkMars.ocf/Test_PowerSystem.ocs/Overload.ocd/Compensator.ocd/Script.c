@@ -17,7 +17,7 @@ local DefaultFlagRadius = 90;
 // Variables for displaying the charge.
 local leftcharge, rightcharge, anim;
 
-protected func Construction(object creator)
+func Construction(object creator)
 {
 	anim = PlayAnimation("Charge", 1, Anim_Const(GetAnimationLength("Charge")), Anim_Const(1000));
 	SetAction("Default");
@@ -26,7 +26,7 @@ protected func Construction(object creator)
 
 public func IsHammerBuildable() { return true; }
 
-protected func Initialize()
+func Initialize()
 {
 	leftcharge = CreateObjectAbove(Compensator_ChargeShower, 7 * GetCalcDir(), 10, NO_OWNER);
 	leftcharge->Init(this);
@@ -41,7 +41,7 @@ protected func Initialize()
 	return _inherited(...);
 }
 
-protected func Incineration(int caused_by)
+func Incineration(int caused_by)
 {
 	if (GetStoredPower() == 0)
 		return Extinguish();
@@ -59,12 +59,12 @@ protected func Incineration(int caused_by)
 
 /*-- Animations & Effects --*/
 
-private func OnStoredPowerChange()
+func OnStoredPowerChange()
 {
 	RefreshAnimationPosition();
 }
 
-private func RefreshAnimationPosition()
+func RefreshAnimationPosition()
 {
 	var charge = (GetStoredPower() * 100) / GetStorageCapacity();
 	/*var current = GetAnimationPosition(anim);
@@ -89,7 +89,7 @@ public func OnPowerProductionStop(int amount)
 	return _inherited(...);
 }
 
-protected func FxSparkleTimer(object target, proplist effect, int time)
+func FxSparkleTimer(object target, proplist effect, int time)
 {
 	effect.Interval *= 2;
 	if (effect.Interval > 36 * 3) 

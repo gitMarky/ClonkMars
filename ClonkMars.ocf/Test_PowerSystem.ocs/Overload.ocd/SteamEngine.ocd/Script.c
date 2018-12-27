@@ -20,7 +20,7 @@ static const SteamEngine_produced_power = 120;
 
 local fuel_amount;
 
-protected func Initialize()
+func Initialize()
 {
 	fuel_amount = 0;
 	SetAction("Idle");
@@ -32,7 +32,7 @@ public func IsHammerBuildable() { return true; }
 
 public func IsContainer() { return true; }
 
-protected func RejectCollect(id item, object obj)
+func RejectCollect(id item, object obj)
 {
 	// Accept fuel only
 	if (obj->~IsFuel())
@@ -46,7 +46,7 @@ protected func RejectCollect(id item, object obj)
 	return true;
 }
 
-protected func Collection(object obj, bool put)
+func Collection(object obj, bool put)
 {
 	Sound("Objects::Clonk");
 }
@@ -111,17 +111,17 @@ public func OnPowerProductionStop(int amount)
 }
 
 // Start call from working action.
-protected func WorkStart()
+func WorkStart()
 {
 	Sound("Structures::SteamEngine", {loop_count = 1});
 	return;
 }
 
 // Status?
-protected func IsWorking(){ return GetAction() == "Work";}
+func IsWorking(){ return GetAction() == "Work";}
 
 // Phase call from working action, every two frames.
-protected func Working()
+func Working()
 {
 	DoFuelAmount(-2); // Reduce the fuel amount by 1 per frame
 	RefillFuel(); // Check if there is still enough fuel available.
@@ -137,14 +137,14 @@ protected func Working()
 }
 
 // Stop call from working action.
-protected func WorkStop()
+func WorkStop()
 {
 	// Don't kill the sound in this call, since that would interupt the sound effect.
 	return;
 }
 
 // Abort call from working action.
-protected func WorkAbort()
+func WorkAbort()
 {
 	// Sound can be safely stopped here since this action will always end with an abort call.
 	Sound("Structures::SteamEngine", {loop_count = -1});
@@ -284,7 +284,7 @@ local ActMap = {
 	},
 };
 
-protected func Definition(def) 
+func Definition(def) 
 {
 	SetProperty("MeshTransformation", Trans_Mul(Trans_Rotate(25, 0, 1, 0), Trans_Scale(625)), def);
 	SetProperty("PictureTransformation", Trans_Mul(Trans_Translate(-4000, -18000, 60000), Trans_Rotate(25, 0, 1, 0), Trans_Scale(625)), def);

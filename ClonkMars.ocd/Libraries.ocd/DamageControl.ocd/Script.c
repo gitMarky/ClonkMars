@@ -35,7 +35,7 @@ public func Damage (int change, int cause, int cause_plr)
 
 
 // Callback from the structure: Object was destroyed
-private func OnNoHitPointsRemaining(int cause, int cause_plr)
+func OnNoHitPointsRemaining(int cause, int cause_plr)
 {
 	if (!GetEffect("FxMaxDamageExplosion", this))
 	{
@@ -48,7 +48,7 @@ private func OnNoHitPointsRemaining(int cause, int cause_plr)
 /* -- Internals -- */
 
 
-private func DestroyBlast(int by_player)
+func DestroyBlast(int by_player)
 {
 	AssertObjectContext();
 		
@@ -118,19 +118,19 @@ local FxMaxDamageExplosion = new Effect
 };
 
 
-private func MaxHitPoints()
+func MaxHitPoints()
 {
 	return Max(1, this->~GetHitPoints());
 }
 
 
-private func CreateParticleInRectangle(string name, proplist rect, xdir, ydir, lifetime, proplist properties, int amount)
+func CreateParticleInRectangle(string name, proplist rect, xdir, ydir, lifetime, proplist properties, int amount)
 {
 	return CreateParticle(name, PV_Random(rect.x, rect.x + rect.wdt), PV_Random(rect.y, rect.y + rect.hgt), xdir, ydir, lifetime, properties, amount);
 }
 
 
-private func CreateFragment(name, xdir, ydir, proplist properties, int amount)
+func CreateFragment(name, xdir, ydir, proplist properties, int amount)
 {
 	return CreateParticleInRectangle(name, GetShapeRectangle(), xdir, ydir, 50, properties ?? Particles_WoodChip(), amount);
 }

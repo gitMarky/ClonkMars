@@ -104,7 +104,7 @@ public func GetMaterialChangeSpeed(int material)
 
 /* -- Internals -- */
 
-private func GetTemperatureControl(bool create_if_necessary)
+func GetTemperatureControl(bool create_if_necessary)
 {
 	var control = GetEffect("FxTemperatureControl");
 	if (!control && create_if_necessary)
@@ -344,7 +344,7 @@ local FxTemperatureControl = new Effect
 
 /* -- Calculations -- */
 
-private func CalcTempChange_Planet(proplist point, int change)
+func CalcTempChange_Planet(proplist point, int change)
 {
 	if (GBackSolid(point.X, point.Y))
 	{
@@ -363,7 +363,7 @@ private func CalcTempChange_Planet(proplist point, int change)
 }
 
 
-private func CalcTempChange_Sun(proplist point, int change)
+func CalcTempChange_Sun(proplist point, int change)
 {
 	if (GBackSolid(point.X, point.Y))
 	{
@@ -387,7 +387,7 @@ private func CalcTempChange_Sun(proplist point, int change)
 }
 
 
-private func CalcTempChange_Season(proplist point, int change, int temperature)
+func CalcTempChange_Season(proplist point, int change, int temperature)
 {
 	if (GBackSky(point.X, point.Y))
 	{
@@ -403,7 +403,7 @@ private func CalcTempChange_Season(proplist point, int change, int temperature)
 }
 
 
-private func CalcTempChange_LowerBorder(proplist point, int change)
+func CalcTempChange_LowerBorder(proplist point, int change)
 {
 	if (LowerBorderDistance > 0)
 	{
@@ -416,7 +416,7 @@ private func CalcTempChange_LowerBorder(proplist point, int change)
 }
 
 
-private func CalcTempChange_UpperBorder(proplist point, int change)
+func CalcTempChange_UpperBorder(proplist point, int change)
 {
 	if (UpperBorderDistance > 0)
 	{
@@ -429,7 +429,7 @@ private func CalcTempChange_UpperBorder(proplist point, int change)
 }
 
 
-private func CalcTempChange(value)
+func CalcTempChange(value)
 {
 	if (GetType(value) == C4V_Int)
 	{
@@ -446,7 +446,7 @@ private func CalcTempChange(value)
 }
 
 
-private func UpperBorderTempChangeByLight()
+func UpperBorderTempChangeByLight()
 {
 	return -110 + GetAmbientBrightness() / 3;
 }

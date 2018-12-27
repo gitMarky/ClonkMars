@@ -13,12 +13,12 @@ local power_line;
 
 /* -- Engine callbacks -- */
 
-private func Hit()
+func Hit()
 {
 	Sound("Hits::GeneralHit?");
 }
 
-private func Destruction()
+func Destruction()
 {
 	// Remove the line first, so that it does not provoke errors on destruction.
 	// Actually there is an ill-defined state where line contains the line and is
@@ -87,7 +87,7 @@ func IsDroppedOnDeath(object clonk)
 /* ---------- Line Connection ---------- */
 
 
-private func ConnectLineTo(object target, string specific_line_state, bool block_cutting)
+func ConnectLineTo(object target, string specific_line_state, bool block_cutting)
 {
 	if (!target || target->~QueryConnectLine(this)) return false;
 	AddLineConnectionTo(target, block_cutting);
@@ -200,7 +200,7 @@ public func QueryCutLineConnection(object target)
  *
  * @return object the line that was created
  */
-private func CreateLine(object target, bool block_cutting)
+func CreateLine(object target, bool block_cutting)
 {
 	// Create and connect line.
 	power_line = CreateObject(PowerLine, 0, 0, NO_OWNER);
@@ -212,7 +212,7 @@ private func CreateLine(object target, bool block_cutting)
 
 
 /** Will connect liquid line to building at the clonk's position. */
-private func ControlUse(object clonk, int x, int y)
+func ControlUse(object clonk, int x, int y)
 {
 	var target = FindObject(Find_AtPoint(), Find_Or(Find_Func("IsPowerProducer"), Find_Func("IsPowerConsumer") /* storages are producers, too */));
 	if (target)
@@ -227,7 +227,7 @@ private func ControlUse(object clonk, int x, int y)
  * Displays a message at top-level container of this object.
  * @par message the message
  */
-private func Report(string message)
+func Report(string message)
 {
 	var reporter = this;
 	var next = Contained();

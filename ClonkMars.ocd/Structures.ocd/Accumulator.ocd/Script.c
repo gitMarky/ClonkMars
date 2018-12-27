@@ -15,7 +15,7 @@ local HitPoints = 25;
 /* -- Power System -- */
 
 
-private func Initialize()
+func Initialize()
 {
 	SetStoragePower(10);
 	SetStorageCapacity(1500 * POWER_SYSTEM_TICK); // 150 seconds * 10 production * 36 frames

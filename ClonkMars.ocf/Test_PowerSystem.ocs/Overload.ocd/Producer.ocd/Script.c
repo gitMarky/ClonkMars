@@ -30,7 +30,7 @@
 local queue;
 
 
-protected func Initialize()
+func Initialize()
 {
 	queue = [];
 	AddTimer("ProcessQueue", 10);
@@ -188,7 +188,7 @@ public func OnProductHover(symbol, extra_data, desc_menu_target, menu_id)
 }
 
 
-private func GetCostString(int amount, bool available)
+func GetCostString(int amount, bool available)
 {
 	// Format amount to colored string; make it red if it's not available
 	if (available) return Format("%dx", amount);
@@ -239,14 +239,14 @@ public func FxIntUpgradeProductProgressBarTimer(object target, effect fx, int ti
 
 // This function may be overloaded by the actual producer.
 // If set to true, the producer will show every product which is assigned to it instead of checking the knowledge base of its owner.
-private func IgnoreKnowledge() { return false; }
+func IgnoreKnowledge() { return false; }
 
 
 /** Determines whether the product specified can be produced. Should be overloaded by the producer.
 	@param product_id item's id of which to determine if it is producible.
 	@return \c true if the item can be produced, \c false otherwise.
 */
-private func IsProduct(id product_id)
+func IsProduct(id product_id)
 {
 	return false;
 }
@@ -419,7 +419,7 @@ public func ClearQueue(bool abort) // TODO: parameter is never used
 	@param info
 		proplist with Product, Amount. If the player holds the menu-modifier key, this will toggle infinite production. 
 */
-private func ModifyProduction(proplist info, int player)
+func ModifyProduction(proplist info, int player)
 {
 	if (Hostile(GetOwner(), player)) return;
 	
@@ -459,7 +459,7 @@ public func GetQueue()
 	return queue;
 }
 
-private func ProcessQueue()
+func ProcessQueue()
 {
 	// If target is currently producing, don't do anything.
 	if (IsProducing())
@@ -497,15 +497,15 @@ private func ProcessQueue()
 /*-- Production --*/
 
 // These functions may be overloaded by the actual producer.
-private func ProductionTime(id product) { return product->~GetProductionTime(); }
-private func FuelNeed(id product) { return product->~GetFuelNeed(); }
+func ProductionTime(id product) { return product->~GetProductionTime(); }
+func FuelNeed(id product) { return product->~GetFuelNeed(); }
 
 public func PowerNeed() { return 80; }
 
 public func GetConsumerPriority() { return 50; }
 
 
-private func Produce(id product, producing_player)
+func Produce(id product, producing_player)
 {
 	// Already producing? Wait a little.
 	if (IsProducing())
@@ -533,7 +533,7 @@ private func Produce(id product, producing_player)
 }
 
 
-private func CheckComponents(id product, bool remove)
+func CheckComponents(id product, bool remove)
 {
 	for (var item in ProductionCosts(product))
 	{
@@ -622,13 +622,13 @@ public func CheckFuel(id product, bool remove)
 }
 
 
-private func CheckForPower()
+func CheckForPower()
 {
 	return true; // always assume that power is available
 }
 
 
-private func IsProducing()
+func IsProducing()
 {
 	if (GetEffect("ProcessProduction", this))
 		return true;
@@ -636,7 +636,7 @@ private func IsProducing()
 }
 
 
-protected func FxProcessProductionStart(object target, proplist effect, int temporary, id product, int producing_player)
+func FxProcessProductionStart(object target, proplist effect, int temporary, id product, int producing_player)
 {
 	if (temporary)
 		return FX_OK;
@@ -695,7 +695,7 @@ public func OnEnoughPower()
 }
 
 
-protected func FxProcessProductionTimer(object target, proplist effect, int time)
+func FxProcessProductionTimer(object target, proplist effect, int time)
 {
 	if (!effect.Active)
 		return FX_OK;
@@ -711,7 +711,7 @@ protected func FxProcessProductionTimer(object target, proplist effect, int time
 }
 
 
-protected func FxProcessProductionStop(object target, proplist effect, int reason, bool temp)
+func FxProcessProductionStop(object target, proplist effect, int reason, bool temp)
 {
 	if (temp) 
 		return FX_OK;	
@@ -770,7 +770,7 @@ public func OnProductEjection(object product)
 /**
 	Requests the necessary material from the cable network if available.
 */
-private func RequestAllMissingComponents(id item_id)
+func RequestAllMissingComponents(id item_id)
 {
 	for (var item in ProductionCosts(item_id))
 	{
@@ -870,7 +870,7 @@ public func RejectCollect(id item_id, object item)
 // and this functionality may be removed in
 // the near future.
 // TODO
-private func ConvertToLiquid(object obj)
+func ConvertToLiquid(object obj)
 {
 	var liquid = GetDefinition(obj->CanConvertToLiquidType())->CreateLiquid(obj->GetLiquidAmount());
 

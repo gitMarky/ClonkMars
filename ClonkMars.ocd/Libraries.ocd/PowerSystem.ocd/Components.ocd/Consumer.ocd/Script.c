@@ -28,7 +28,7 @@ public func IsPowerConsumer() { return true; }
  * @return the needed amount, usually > 0; if the amount is 0 the
  *         object counts as treated as if it has enough power.
  */
-private func GetPowerConsumption()
+func GetPowerConsumption()
 {
 	if (lib_power_system.consumer.ignore_power_need)
 	{
@@ -50,7 +50,7 @@ private func GetPowerConsumption()
  *
  * @par amount the amount, must be >= 0;
  */
-private func SetPowerConsumption(int amount)
+func SetPowerConsumption(int amount)
 {
 	// Safety check
 	if (amount < 0)
@@ -79,7 +79,7 @@ private func SetPowerConsumption(int amount)
  *         - Workshop:  50
  *         - Elevator: 100	
  */
-private func GetConsumerPriority()
+func GetConsumerPriority()
 {
 	return lib_power_system.consumer.priority;
 }
@@ -95,7 +95,7 @@ private func GetConsumerPriority()
  *         - Workshop:  50
  *         - Elevator: 100	
  */
-private func SetConsumerPriority(int priority)
+func SetConsumerPriority(int priority)
 {
 	if (priority < 0)
 	{
@@ -127,7 +127,7 @@ public func HasEnoughPower()
  * 
  * It is not allowed to (un)register a power request in this callback.
  */
-private func OnEnoughPower(int amount)
+func OnEnoughPower(int amount)
 {
 	// Remove the no-power symbol.
 	RemoveStatusSymbol(Library_PowerConsumer);
@@ -150,7 +150,7 @@ private func OnEnoughPower(int amount)
  * 
  * It is not allowed to (un)register a power request in this callback.
  */
-private func OnNotEnoughPower(int amount)
+func OnNotEnoughPower(int amount)
 {
 	// Show the no-power symbol.
 	ShowStatusSymbol(Library_PowerConsumer);
@@ -172,7 +172,7 @@ private func OnNotEnoughPower(int amount)
  * Call this function in the power consuming structure to indicate to the network
  * a request for power of the specified amount.
  */
-private func RegisterPowerRequest(int amount)
+func RegisterPowerRequest(int amount)
 {
 	SetPowerConsumption(amount);
 	GetPowerSystem()->RegisterPowerConsumer(this);
@@ -183,7 +183,7 @@ private func RegisterPowerRequest(int amount)
  * Call this function in the power consuming structure to indicate to the network
  * a the end of a power request.
  */
-private func UnregisterPowerRequest()
+func UnregisterPowerRequest()
 {
 	GetPowerSystem()->UnregisterPowerConsumer(this);
 	// Also ensure that the no-power symbol is not shown any more.
@@ -206,7 +206,7 @@ local lib_power_system;
 /**
  * Construction callback by the engine: check whether the no power need rule is active.
  */
-private func Construction()
+func Construction()
 {
 	// Initialize the single proplist for the power consumer library.
 	if (lib_power_system == nil)
@@ -233,7 +233,7 @@ private func Construction()
  * Destruction callback by the engine: let power network know this object is not
  * a consumer anymore, it must always be unregistered from the power network.
  */
-private func Destruction()
+func Destruction()
 {
 	// Only unregister if this object actually is a consumer.
 	if (IsPowerConsumer())
@@ -247,7 +247,7 @@ private func Destruction()
 /**
  * When ownership has changed, the consumer may have moved out of or into a new network.
  */
-private func OnOwnerChanged(int new_owner, int old_owner)
+func OnOwnerChanged(int new_owner, int old_owner)
 {
 	GetPowerSystem()->TransferPowerLink(this);
 	return _inherited(new_owner, old_owner, ...);

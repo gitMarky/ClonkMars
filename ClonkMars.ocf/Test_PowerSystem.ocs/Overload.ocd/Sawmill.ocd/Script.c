@@ -42,13 +42,13 @@ public func IsInteractable() { return false; }
 
 /*-- Production --*/
 
-private func Collection(object obj)
+func Collection(object obj)
 {
 	Sound("Objects::Clonk");
 	Saw(obj);
 }
 
-private func RejectCollect(id id_def, object collect)
+func RejectCollect(id id_def, object collect)
 {
 	// Don't collect wood
 	if (id_def == Wood)
@@ -69,7 +69,7 @@ public func CollectTrees()
 }
 
 // Automatically search for trees in front of sawmill. Temporary solution?
-private func FindTrees()
+func FindTrees()
 {
 	var tree = FindObject(Find_AtPoint(), Find_Func("IsTree"), Find_Not(Find_Func("IsStanding")), Find_Func("GetComponent", Wood));
 	if (!tree)
@@ -79,7 +79,7 @@ private func FindTrees()
 }
 
 // Returns whether the object is made purely out of wood.
-private func CheckWoodObject(object target)
+func CheckWoodObject(object target)
 {
 	if (target->GetComponent(nil, 0) != Wood) 
 		return false;
@@ -137,10 +137,10 @@ public func Saw(object target)
 	return true;
 }
 
-private func ProductionTime(id product) { return _inherited(product, ...) ?? 100; }
-private func PowerNeed() { return 20; }
+func ProductionTime(id product) { return _inherited(product, ...) ?? 100; }
+func PowerNeed() { return 20; }
 
-private func FxWoodProductionStart(object t, proplist effect, int temp)
+func FxWoodProductionStart(object t, proplist effect, int temp)
 {
 	if (temp) return;
 
@@ -150,7 +150,7 @@ private func FxWoodProductionStart(object t, proplist effect, int temp)
 	RegisterPowerRequest(PowerNeed());
 }
 
-private func FxWoodProductionTimer(object t, proplist effect, int time)
+func FxWoodProductionTimer(object t, proplist effect, int time)
 {
 	if (!power)
 	{
@@ -185,7 +185,7 @@ private func FxWoodProductionTimer(object t, proplist effect, int time)
 		return FX_Execute_Kill;
 }
 
-private func FxWoodProductionStop(object t, proplist effect, int r, bool temp)
+func FxWoodProductionStop(object t, proplist effect, int r, bool temp)
 {
 	if (temp) return;
 
@@ -225,7 +225,7 @@ public func EjectWood()
 
 /*-- Animation --*/
 
-private func SpinOn(int diff)
+func SpinOn(int diff)
 {
 	var spin;
 	var rotate = 0;
@@ -254,7 +254,7 @@ private func SpinOn(int diff)
 	SetAnimationPosition(this.SpinAnimation, Anim_Linear(GetAnimationPosition(this.SpinAnimation), 0, GetAnimationLength("work"), spin, ANIM_Loop));
 }
 
-private func SpinOff(int call)
+func SpinOff(int call)
 {
 	var spin;
 	if (!call)

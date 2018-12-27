@@ -24,14 +24,14 @@ public func IsVehicle() { return true; }   // Not sure where this is used, but t
 
 /* -- Engine callbacks -- */
 
-private func Construction()
+func Construction()
 {
 	this.MeshTransformation = Trans_Translate(0, -7000, 0);
 	_inherited(...);
 }
 
 
-private func Initialize() 
+func Initialize() 
 {
 	capsule = {
 		// Starting and landing settings
@@ -62,7 +62,7 @@ private func Initialize()
 }
 
 
-private func Hit(int xdir, int ydir)
+func Hit(int xdir, int ydir)
 {
 	var velocity = Distance(xdir, ydir);
 	var hit = velocity - capsule.damage_velocity;
@@ -200,7 +200,7 @@ public func SetLandingDestination(object port, bool auto)
 }
 
 
-private func StartLanding(int override_acceleration)
+func StartLanding(int override_acceleration)
 {
 	if (!capsule.thrust_vertical)
 	{
@@ -247,7 +247,7 @@ public func SetVerticalThrust(int bo)
 }
 
 
-private func StartThruster()
+func StartThruster()
 {
 	if (!GetEffect("FxBlowout", this))
 	{
@@ -256,13 +256,13 @@ private func StartThruster()
 }
 
 
-private func StopThruster()
+func StopThruster()
 {
 	RemoveEffect("FxBlowout", this);
 }
 
 
-private func IsThrusterOn()
+func IsThrusterOn()
 {
 	return GetEffect("FxBlowout", this);
 }
@@ -545,7 +545,7 @@ local FxBlowout = new Effect
 
 /* -- Misc -- */
 
-private func PlaySoundJetUpdate()
+func PlaySoundJetUpdate()
 {
 	var play;
 	
@@ -563,7 +563,7 @@ private func PlaySoundJetUpdate()
 }
 
 
-private func ContactBottom()
+func ContactBottom()
 { 
 	if (capsule.is_landing)
 	{
@@ -605,7 +605,7 @@ private func ContactBottom()
 
 
 // Ejects the contained clonks if the given position matches.
-private func EjectCrew(int x, int y)
+func EjectCrew(int x, int y)
 {
 	if (capsule.thrust_vertical) return false;
 
@@ -679,7 +679,7 @@ public func ContainedUseCancel(object clonk, int x, int y)
 }
 
 
-private func SetThrust(int x, int y)
+func SetThrust(int x, int y)
 {
 	capsule.is_landing = false; // user control removes autopilot
 
@@ -718,7 +718,7 @@ private func SetThrust(int x, int y)
 }
 
 
-private func ResetThrust()
+func ResetThrust()
 {
 	capsule.thrust_horizontal = nil;
 	capsule.thrust_vertical = nil;
@@ -850,7 +850,7 @@ local FxTakeOffCountdown = new Effect
 };
 
 
-private func CountdownMessage(int time_remaining)
+func CountdownMessage(int time_remaining)
 {
 	var frames = 36;
 	var remainder = time_remaining % frames;
@@ -861,7 +861,7 @@ private func CountdownMessage(int time_remaining)
 }
 
 
-private func ScheduleTakeOff(object clonk)
+func ScheduleTakeOff(object clonk)
 {
 	if (capsule.port)
 	{
@@ -873,7 +873,7 @@ private func ScheduleTakeOff(object clonk)
 	clonk->ObjectCommand("UnGrab");	
 }
 
-private func StartTakeOff()
+func StartTakeOff()
 {
 	// Remove all bottom vertices to prevent the capsule from stucking.
 	for (var vertex in [capsule.port_vertex, 2, 1, 0])
@@ -928,7 +928,7 @@ public func SetSat(pSat) {
 	sat = pSat;
 }
 
-private func DestroyBlast() {
+func DestroyBlast() {
 	if (sat) sat -> CapsuleDestroyed();
 	return _inherited(...);
 }

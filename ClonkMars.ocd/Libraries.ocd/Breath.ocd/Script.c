@@ -12,7 +12,7 @@
 local library_breath;
 
 
-private func Construction()
+func Construction()
 {
 	_inherited(...);
 	library_breath = {

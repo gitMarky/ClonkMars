@@ -16,7 +16,7 @@ local panel_angle = 0;	// made this a property, because it is way easier to debu
 
 /* -- Engine callbacks -- */
 
-private func Construction()
+func Construction()
 {
 	_inherited(...);
 	
@@ -27,7 +27,7 @@ private func Construction()
 }
 
 
-private func InitializeStructure()
+func InitializeStructure()
 {
 	_inherited(...);
 	GetPowerSystem()->RegisterPowerProducer(this);
@@ -37,13 +37,13 @@ private func InitializeStructure()
 
 /* -- Power production -- */
 
-private func IsSteadyPowerProducer()
+func IsSteadyPowerProducer()
 {
 	return true;
 }
 
 
-private func BaseEnergy()
+func BaseEnergy()
 {
 /* TODO
 	if (upgraded)
@@ -53,7 +53,7 @@ private func BaseEnergy()
 		return 15;
 }
 
-private func SolarPanelProducePower()
+func SolarPanelProducePower()
 {
 	var rot_h = -20;
 	var rot_v = +65;
@@ -98,7 +98,7 @@ private func SolarPanelProducePower()
 }
 
 
-private func SetDishRotation(int horizontal, int vertical, int time)
+func SetDishRotation(int horizontal, int vertical, int time)
 {
 	horizontal = BoundBy(Normalize(horizontal, -180), -90, 90);
 	vertical = BoundBy(55 - vertical, -35, 55);

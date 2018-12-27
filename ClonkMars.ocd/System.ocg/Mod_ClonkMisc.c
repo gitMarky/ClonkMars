@@ -1,6 +1,6 @@
 #appendto Clonk
 
-private func Recruitment(int player)
+func Recruitment(int player)
 {
 	// For better ambience
 	SetLightColor(RGB(180, 180, 150));

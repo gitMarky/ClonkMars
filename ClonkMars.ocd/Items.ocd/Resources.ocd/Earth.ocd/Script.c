@@ -3,7 +3,7 @@
 // The bucket uses stacked earth-objects.
 #include Library_Stackable
 
-private func Construction()
+func Construction()
 {
 	var graphic = Random(5);
 	if(graphic)
@@ -11,7 +11,7 @@ private func Construction()
 	_inherited(...);
 }
 
-private func Hit()
+func Hit()
 {
 	
 	CastPXS("Earth", GetMaterialAmount() * GetStackCount(), 18);
@@ -20,7 +20,7 @@ private func Hit()
 	return true;
 }
 
-private func Entrance(object into)
+func Entrance(object into)
 {
 	// The stackable library has cared stacking into existing stacks.
 	// Look for new ones..
@@ -30,7 +30,7 @@ private func Entrance(object into)
 	return _inherited(into, ...);
 }
 
-private func RejectEntrance(object into)
+func RejectEntrance(object into)
 {
 	// The stackable library will care about stacking into existing slots.
 	var handled = _inherited(into, ...);

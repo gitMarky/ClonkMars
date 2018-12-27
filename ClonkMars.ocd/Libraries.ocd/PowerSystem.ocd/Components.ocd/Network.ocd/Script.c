@@ -201,7 +201,7 @@ public func IsNeutral()
 /**
  * Set this to be neutral, or player owned.
  */
-private func SetNeutral(bool neutral)
+func SetNeutral(bool neutral)
 {
 	is_neutral = neutral;
 }
@@ -223,7 +223,7 @@ public func IsEmpty()
 /**
  * Sort the producers by priority, descending.
  */
-private func SortProducers()
+func SortProducers()
 {
 	SortPowerNodes(power_producers, false);
 }
@@ -232,7 +232,7 @@ private func SortProducers()
 /**
  * Sort the consumers by priority, descending.
  */
-private func SortConsumers()
+func SortConsumers()
 {
 	SortPowerNodes(power_consumers, true);
 }
@@ -245,7 +245,7 @@ private func SortConsumers()
  * The priority information is used only here, so there is no need to carry a proplist with all information
  * all the time, and iterating over an array is easier that going through the objects in the proplist.
  */
-private func SortPowerNodes(array power_nodes, bool for_consumers)
+func SortPowerNodes(array power_nodes, bool for_consumers)
 {
 	// Sort only if it makes sense
 	if (GetLength(power_nodes) > 1)
@@ -268,7 +268,7 @@ private func SortPowerNodes(array power_nodes, bool for_consumers)
  * as a list of proplists, so that they can be sorted with
  * array sorting functions.
  */
-private func GetPriorityList(array power_nodes, bool for_consumers)
+func GetPriorityList(array power_nodes, bool for_consumers)
 {
 	var list = [];
 	for (var node in power_nodes)
@@ -335,7 +335,7 @@ public func GetStorageLink(object link)
 /**
  * Merge all the producers and consumers into their actual networks.
  */
-private func RefreshPowerNetwork()
+func RefreshPowerNetwork()
 {
 	RemoveHoles(power_producers);
 	RemoveHoles(power_consumers);
@@ -383,7 +383,7 @@ private func RefreshPowerNetwork()
 /*-- Logging --*/
 
 
-private func LogState(string tag)
+func LogState(string tag)
 {
 	GetPowerSystem()->DebugInfo("==========================================================================");
 	GetPowerSystem()->DebugInfo("POWR - State for network %v in frame %d with tag %s", this, FrameCounter(), tag);
@@ -421,7 +421,7 @@ local power_consumers;
 local power_storages;
 local is_neutral;
 
-private func Construction()
+func Construction()
 {
 	power_producers = [];
 	power_consumers = [];
@@ -457,7 +457,7 @@ local FxUpdatePowerBalance = new Effect {
  * Checks the power balance after a change to this network: i.e. removal or addition
  * of a consumer or producer. 
  */
-private func DoPowerBalanceUpdate()
+func DoPowerBalanceUpdate()
 {
 	var power_level = 0;	// how much is produced?
 	var power_demand = 0;	// how much is demanded?
@@ -609,7 +609,7 @@ private func DoPowerBalanceUpdate()
 /**
  * Called when the power balance of this network changes: notify other objects depending on this.
  */
-private func NotifyOnPowerBalanceChange()
+func NotifyOnPowerBalanceChange()
 {
 	// Notify all power display objects a balance change has occured.
 	for (var display_obj in FindObjects(Find_Func("IsPowerDisplay")))
@@ -622,7 +622,7 @@ private func NotifyOnPowerBalanceChange()
 }
 
 
-private func LogObject(object target)
+func LogObject(object target)
 {
 	return Format("%s (%d)", target->GetName(), target->ObjectNumber());
 }

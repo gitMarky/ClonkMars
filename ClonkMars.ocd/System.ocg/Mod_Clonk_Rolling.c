@@ -1,7 +1,7 @@
 #appendto Clonk
 
 
-private func DoRoll(bool is_falling)
+func DoRoll(bool is_falling)
 {
 	// the suit slows you down
 	if (this->IsWearingSpaceSuit())

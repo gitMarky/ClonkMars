@@ -28,7 +28,7 @@ public func IsPowerProducer() { return true; }
  *
  * @return the created amount, usually > 0;
  */
-private func GetPowerProduction()
+func GetPowerProduction()
 {
 	return lib_power_system.producer.power_production;
 }
@@ -43,7 +43,7 @@ private func GetPowerProduction()
  *
  * @par amount the amount, must be >= 0;
  */
-private func SetPowerProduction(int amount)
+func SetPowerProduction(int amount)
 {
 	// Safety check
 	if (amount < 0)
@@ -76,7 +76,7 @@ private func SetPowerProduction(int amount)
  *         - Compensator:  50
  *         - Steam engine:  0	
  */
-private func GetProducerPriority()
+func GetProducerPriority()
 {
 	return lib_power_system.producer.priority;
 }
@@ -92,7 +92,7 @@ private func GetProducerPriority()
  *         - Compensator:  50
  *         - Steam engine:  0	
  */
-private func SetProducerPriority(int priority)
+func SetProducerPriority(int priority)
 {
 	if (priority < 0)
 	{
@@ -110,7 +110,7 @@ private func SetProducerPriority(int priority)
  * Call this function in the power producing structure to indicate to the network
  * that this structure is available and able to produce the specified amount of power.
  */
-private func RegisterPowerProduction(int amount)
+func RegisterPowerProduction(int amount)
 {
 	SetPowerProduction(amount);
 	if (this->~IsSteadyPowerProducer())
@@ -125,7 +125,7 @@ private func RegisterPowerProduction(int amount)
  * Call this function in the power producing structure to indicate to the network
  * that this structure is not able to produce any power any more.
  */
-private func UnregisterPowerProduction()
+func UnregisterPowerProduction()
 {
 	SetPowerProductionActive(false);
 	GetPowerSystem()->UnregisterPowerProducer(this);
@@ -162,7 +162,7 @@ public func SetPowerProductionActive(bool status)
  * By default this is the case, if the amount is less than or equal to the power production.
  * Usually the network should not request more than the possible production.
  */
-private func CanPowerProductionStart(int amount) 
+func CanPowerProductionStart(int amount) 
 { 
 	return amount <= GetPowerProduction();
 }
@@ -172,7 +172,7 @@ private func CanPowerProductionStart(int amount)
  * Callback by the power network. Overload this function and start the production 
  * of power in this structure for the requested amount if possible. 
  */
-private func OnPowerProductionStart(int amount) 
+func OnPowerProductionStart(int amount) 
 {
 	// Set status
 	SetPowerProductionActive(true);
@@ -189,7 +189,7 @@ private func OnPowerProductionStart(int amount)
  * Callback by the power network. Overload this function and stop the production
  * of power in this structure if possible.
  */
-private func OnPowerProductionStop(int amount)
+func OnPowerProductionStop(int amount)
 {
 	// Set status
 	SetPowerProductionActive(false);
@@ -217,7 +217,7 @@ local lib_power_system;
 /**
  * Construction callback by the engine: check whether the no power need rule is active.
  */
-private func Construction()
+func Construction()
 {
 	// Initialize the single proplist for the power consumer library.
 	if (lib_power_system == nil)
@@ -241,7 +241,7 @@ private func Construction()
  * Destruction callback by the engine: let power network know this object is not
  * a producer anymore, it must always be unregistered from the power network.
  */
-private func Destruction()
+func Destruction()
 {
 	if (IsPowerProducer())
 	{
@@ -254,7 +254,7 @@ private func Destruction()
 /**
  * When ownership has changed, the consumer may have moved out of or into a new network.
  */
-private func OnOwnerChanged(int new_owner, int old_owner)
+func OnOwnerChanged(int new_owner, int old_owner)
 {
 	GetPowerSystem()->TransferPowerLink(this);
 	return _inherited(new_owner, old_owner, ...);

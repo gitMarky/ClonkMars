@@ -2,7 +2,7 @@
 /* -- Power Visualization -- */
 
 // Visualizes the power change on an object from before to to.
-private func VisualizePowerChange(int old_value, int new_value, bool loss)
+func VisualizePowerChange(int old_value, int new_value, bool loss)
 {
 	// Safety: object must exist.
 	if (GetType(this) != C4V_C4Object)

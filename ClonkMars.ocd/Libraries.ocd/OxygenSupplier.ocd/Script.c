@@ -17,7 +17,7 @@ public func IsOxygenSupplier(){ return true; }
 
 /* -- Engine callbacks -- */
 
-private func Construction()
+func Construction()
 {
 	_inherited(...);
 	library_supply_oxygen = {

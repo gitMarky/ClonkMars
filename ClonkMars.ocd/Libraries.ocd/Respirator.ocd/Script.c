@@ -5,7 +5,7 @@
 local library_respirator;
 
 
-private func Construction()
+func Construction()
 {
 	_inherited(...);
 	library_respirator = {

@@ -23,7 +23,7 @@ local last_wind_efficiency = nil;
 func TurnAnimation() { return "Turn"; }
 func MinRevolutionTime() { return 4500; } // in frames
 
-protected func Construction()
+func Construction()
 {
 	// First initialize the libraries (especially the flag library).
 	_inherited(...);
@@ -34,7 +34,7 @@ protected func Construction()
 
 public func IsHammerBuildable() { return true; }
 
-protected func Initialize()
+func Initialize()
 {
 	// First initialize the libraries (especially the flag library).
 	_inherited(...);	
@@ -59,7 +59,7 @@ public func IsSteadyPowerProducer() { return true; }
 public func GetProducerPriority() { return 100; }
 
 // Returns the wind weighted over several points.
-private func GetWeightedWind()
+func GetWeightedWind()
 {
 	var weighted_wind_sum = 0;
 	var max_wind = 0;
@@ -155,7 +155,7 @@ public func GetInfoMenuEntries()
 
 /*-- Properties --*/
 
-protected func Definition(def) 
+func Definition(def) 
 {
 	SetProperty("PictureTransformation", Trans_Mul(Trans_Translate(2000, 0, 7000), Trans_Rotate(-20, 1, 0, 0), Trans_Rotate(30, 0, 1, 0)), def);
 	return _inherited(def, ...);

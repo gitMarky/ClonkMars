@@ -77,7 +77,7 @@ public func DrawCustomInteractionSelector(object dummy, object clonk, int intera
 // Case is not a structure, but uses the library.
 public func IsStructure() { return false; }
 
-private func Initialize()
+func Initialize()
 {
 	AddEffect("ElevatorUpperLimitCheck", this, 1, 1, this);
 	AddEffect("FetchVehicles", this, 1, 4, this);
@@ -103,7 +103,7 @@ public func Connect(object connect_to)
 	SetAction("DriveIdle");
 }
 
-private func Destruction()
+func Destruction()
 {
 	if(partner)
 		partner->LoseConnection();
@@ -177,7 +177,7 @@ public func ExecuteSync()
 }
 
 // sets additional vertices to partner's position
-private func OvertakePartnerVertices(int off_x, int off_y)
+func OvertakePartnerVertices(int off_x, int off_y)
 {
 	var update_mode = 2; // force immediate update and store information
 	
@@ -201,7 +201,7 @@ public func MakeSlaveVertices()
 public func IsMaster() { return partner && is_master && partner_was_synced; }
 public func IsSlave() { return partner && !is_master && partner_was_synced; }
 
-private func FxTryToSyncTimer(object target, effect, int time)
+func FxTryToSyncTimer(object target, effect, int time)
 {
 	var diff = Abs(partner->GetY() - GetY());
 	if(diff > 5) return 1;
@@ -237,7 +237,7 @@ public func ForwardEngineStop()
 /* Security checks */
 
 // Repositions the case if for some reason it's too far up
-private func FxElevatorUpperLimitCheckTimer(target, effect, time)
+func FxElevatorUpperLimitCheckTimer(target, effect, time)
 {
 	if (!elevator || IsSlave()) 
 		return FX_Execute_Kill;
@@ -269,7 +269,7 @@ private func FxElevatorUpperLimitCheckTimer(target, effect, time)
 }
 
 // Returns the first clonk found pushing this case
-private func GetCasePusher()
+func GetCasePusher()
 {
 	var in_rect = Find_InRect(-13, -13, 26, 26);
 	if (IsMaster())
@@ -317,7 +317,7 @@ public func OutOfRange(object vehicle)
 	return false;
 }
 
-private func FxFetchVehiclesTimer(object target, proplist effect, int time)
+func FxFetchVehiclesTimer(object target, proplist effect, int time)
 {
 	if (!elevator)
 		return FX_Execute_Kill;
@@ -374,7 +374,7 @@ private func FxFetchVehiclesTimer(object target, proplist effect, int time)
 // Keeps track of whether the elevator is currently powered.
 local has_power;
 
-private func GetNeededPower()
+func GetNeededPower()
 {
 	if (partner_was_synced)
 		return 2 * Elevator_needed_power;
@@ -421,7 +421,7 @@ public func OnEnoughPower(int amount)
 }
 
 // Stores the movement when power goes out, resumes movement when power is back (RestoreMovementData)
-private func StoreMovementData(int y_dir, string action, bool user_requested)
+func StoreMovementData(int y_dir, string action, bool user_requested)
 {
 	if (y_dir == nil)
 	{
@@ -442,7 +442,7 @@ private func StoreMovementData(int y_dir, string action, bool user_requested)
 	effect.user_requested = user_requested;
 }
 
-private func RestoreMovementData()
+func RestoreMovementData()
 {
 	var effect = GetEffect("StoredMovementData", this);
 	if (!effect)
@@ -458,7 +458,7 @@ private func RestoreMovementData()
 
 /* Movement */
 
-private func SetMoveDirection(int dir, bool user_requested, bool drill)
+func SetMoveDirection(int dir, bool user_requested, bool drill)
 {
 	if (IsSlave())
 		return partner->SetMoveDirection(dir, user_requested, drill, has_power);
@@ -495,7 +495,7 @@ private func SetMoveDirection(int dir, bool user_requested, bool drill)
 	}
 }
 
-private func Halt(bool user_requested, bool power_out)
+func Halt(bool user_requested, bool power_out)
 {
 	if (IsSlave())
 		return;
@@ -523,7 +523,7 @@ private func Halt(bool user_requested, bool power_out)
 	return;
 }
 
-private func StopAutomaticMovement()
+func StopAutomaticMovement()
 {
 	if (GetEffect("MoveTo", this))
 	{
@@ -550,7 +550,7 @@ public func MoveTo(int y, int delay, object target, bool user_requested)
 	return;
 }
 
-private func FxMoveToTimer(object target, proplist effect, int time)
+func FxMoveToTimer(object target, proplist effect, int time)
 {
 	if (time < effect.delay) return FX_OK;
 	// what would take more than 10 seconds?
@@ -598,7 +598,7 @@ private func FxMoveToTimer(object target, proplist effect, int time)
 }
 
 // Checks whether the elevator should not move because someone's holding it, returns true if idle.
-private func CheckIdle()
+func CheckIdle()
 {
 	// I have no mind of my own
 	if (IsSlave()) 
@@ -612,12 +612,12 @@ private func CheckIdle()
 
 /* Contact */
 
-private func ContactTop()
+func ContactTop()
 {
 	Halt();
 }
 
-private func ContactBottom()
+func ContactBottom()
 {
 	// try to dig free
 	if (GetAction() == "Drill")
@@ -703,7 +703,7 @@ public func Control2Master(string call, object clonk)
 
 /*-- Digging --*/
 
-private func Drilling()
+func Drilling()
 {
 	var additional_y = 1;
 	var rect = Rectangle(GetX() - 12, GetY() - 13 - additional_y, GetX() + 12, GetY() + 13 + additional_y);

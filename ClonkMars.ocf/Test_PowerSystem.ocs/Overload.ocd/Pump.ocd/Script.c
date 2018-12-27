@@ -168,7 +168,7 @@ public func OnPumpControl(symbol_or_object, string action, bool alt)
 	UpdateInteractionMenus(this.GetPumpControlMenuEntries);	
 }
 
-private func SetInfoMessage(string msg)
+func SetInfoMessage(string msg)
 {
 	if (last_status_message == msg) return;
 	last_status_message = msg;
@@ -298,7 +298,7 @@ public func OnEnoughPower()
 // TODO: these functions may be useful in the liquid tank, maybe move it to that library
 
 /** Returns object to which the liquid is pumped */
-private func GetDrainObject()
+func GetDrainObject()
 {
 	var drain = GetDrainPipe();
 	if (drain && drain->GetConnectedLine())
@@ -307,7 +307,7 @@ private func GetDrainObject()
 }
 
 /** Returns object from which the liquid is pumped */
-private func GetSourceObject()
+func GetSourceObject()
 {
 	var source = GetSourcePipe();
 	if (source && source->GetConnectedLine())
@@ -316,7 +316,7 @@ private func GetSourceObject()
 }
 
 /** PhaseCall of Pump: Pump the liquid from the source to the drain pipe */
-protected func Pumping()
+func Pumping()
 {
 	// at this point we can assert that we have power
 	
@@ -519,7 +519,7 @@ public func CheckState()
 }
 
 /** Get current height the pump has to push liquids upwards (input.y - output.y) */
-private func GetPumpHeight()
+func GetPumpHeight()
 {
 	// compare each the surfaces of the bodies of liquid pumped
 	
@@ -542,7 +542,7 @@ private func GetPumpHeight()
 
 /** Recheck power usage/production for current pump height
 	and make the pump a producer / consumer for the power system */
-private func UpdatePowerUsage()
+func UpdatePowerUsage()
 {
 	var new_power;
 	if (IsUsingPower())
@@ -579,13 +579,13 @@ private func UpdatePowerUsage()
 }
 
 // Return whether the pump should be using power in the current state.
-private func IsUsingPower()
+func IsUsingPower()
 {
 	return switched_on && (GetAction() == "Pump" || GetAction() == "WaitForPower");
 }
 
 // Transform pump height (input.y - output.y) into required power.
-private func PumpHeight2Power(int pump_height)
+func PumpHeight2Power(int pump_height)
 {
 	// Pumping upwards will always cost the minimum energy.
 	// Pumping downwards will only produce energy after an offset.
@@ -607,7 +607,7 @@ private func PumpHeight2Power(int pump_height)
 }
 
 // Returns whether there is liquid at the source pipe to pump.
-private func GetLiquidSourceMaterial()
+func GetLiquidSourceMaterial()
 {
 	// Get the source object and check whether there is liquid.
 	var source_obj = GetSourceObject();
@@ -633,7 +633,7 @@ private func GetLiquidSourceMaterial()
 }
 
 // Returns whether the drain pipe is free or the liquid container accepts the given material.
-private func GetLiquidDrainOk(string liquid)
+func GetLiquidDrainOk(string liquid)
 {
 	if (!liquid)
 		return false;
@@ -679,7 +679,7 @@ public func GetAirDrainOk()
 }
 
 // Set the state of the pump, retaining the animation position and updating the power usage.
-private func SetState(string act)
+func SetState(string act)
 {
 	if (act == GetAction()) 
 		return;
@@ -727,7 +727,7 @@ func ToggleOnOff(bool no_menu_refresh)
 
 /*-- Material Selection --*/
 
-private func InitMaterialSelection()
+func InitMaterialSelection()
 {
 	// Add all liquids to the list of ones allowed to pump.
 	pump_materials = [];
@@ -746,7 +746,7 @@ public func SetMaterialSelection(array mats)
 	return;
 }
 
-private func RemoveFromMaterialSelection(id mat)
+func RemoveFromMaterialSelection(id mat)
 {
 	// Remove all child materials (DuroLava for lava) as well
 	var def, index;
@@ -760,7 +760,7 @@ private func RemoveFromMaterialSelection(id mat)
 	return RemoveArrayValue(pump_materials, mat);
 }
 
-private func AddToMaterialSelection(id mat)
+func AddToMaterialSelection(id mat)
 {
 	// Add all child materials (DuroLava for lava) as well
 	var def, index;
@@ -776,7 +776,7 @@ private func AddToMaterialSelection(id mat)
 	return PushBack(pump_materials, mat);
 }
 
-private func IsInMaterialSelection(/* any */ mat)
+func IsInMaterialSelection(/* any */ mat)
 {
 	if (GetType(mat) == C4V_Def)
 		return IsValueInArray(pump_materials, mat);
@@ -841,7 +841,7 @@ public func OnPumpMaterials(symbol_or_object, string action, bool alt)
 
 /*-- Properties --*/
 
-protected func Definition(def) 
+func Definition(def) 
 {
 	// for title image
 	SetProperty("PictureTransformation", Trans_Rotate(50, 0, 1, 0), def);

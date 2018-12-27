@@ -17,7 +17,7 @@ public func IsPowerDisplay() { return true; }
 public func HasInteractionMenu() { return true; }
 
 
-private func GetInteractionMenus(object clonk)
+func GetInteractionMenus(object clonk)
 {
 	var menus = _inherited(clonk, ...) ?? [];
 	// Only add a power menu if the structure is a flagpole (Library_Flag).
@@ -39,7 +39,7 @@ private func GetInteractionMenus(object clonk)
 }
 
 
-private func GetPowerDisplayMenuEntries(object clonk)
+func GetPowerDisplayMenuEntries(object clonk)
 {
 	var menu_entries = [];
 	// Get the power network for this object.
@@ -112,7 +112,7 @@ private func GetPowerDisplayMenuEntries(object clonk)
 
 
 // Update the hover info display of the interaction menu.
-private func OnPowerDisplayHover(id symbol, string extra_data, desc_menu_target, menu_id)
+func OnPowerDisplayHover(id symbol, string extra_data, desc_menu_target, menu_id)
 {
 	var text = "";
 	// Get the power network for this object.
@@ -154,7 +154,7 @@ private func OnPowerDisplayHover(id symbol, string extra_data, desc_menu_target,
 }
 
 
-private func GetStoredPowerString(int stored_power)
+func GetStoredPowerString(int stored_power)
 {
 	// Show power per bulb per minute.
 	stored_power /= (36 * 60);
@@ -165,7 +165,7 @@ private func GetStoredPowerString(int stored_power)
 
 
 // Called when the power balance of this network changed.
-private func OnPowerBalanceChange(object network)
+func OnPowerBalanceChange(object network)
 {
 	// Update the interaction menus.
 	UpdateInteractionMenus(this.GetPowerDisplayMenuEntries);

@@ -130,7 +130,7 @@ public func Interact(object clonk)
 
 /* -- Construction logic -- */
 
-private func StartConstructing(int by_player)
+func StartConstructing(int by_player)
 {
 	if (!definition) return;
 
@@ -149,7 +149,7 @@ private func StartConstructing(int by_player)
 
 
 // Override is necessary so that clonk starts constructing immediately after adding materials
-private func TakeConstructionMaterials(object from_clonk)
+func TakeConstructionMaterials(object from_clonk)
 {
 	_inherited(from_clonk, ...);
 	
@@ -160,13 +160,13 @@ private func TakeConstructionMaterials(object from_clonk)
 }
 
 
-private func CanContinueConstructing(object clonk)
+func CanContinueConstructing(object clonk)
 {
 	return progressive_building.progress_con < progressive_building.progress_max;
 }
 
 
-private func ContinueConstructing(object clonk)
+func ContinueConstructing(object clonk)
 {
 	if (!definition) return;
 	
@@ -174,7 +174,7 @@ private func ContinueConstructing(object clonk)
 }
 
 
-private func SetConstructionSiteOverlayDefault(id type, int dir, object stick, int w, int h)
+func SetConstructionSiteOverlayDefault(id type, int dir, object stick, int w, int h)
 {
 	// Basic layer: invisibile
 	SetClrModulation(RGBa(255, 255, 255, 0));
@@ -186,7 +186,7 @@ private func SetConstructionSiteOverlayDefault(id type, int dir, object stick, i
 }
 
 
-private func DoConstructionProgress(int change, object builder)
+func DoConstructionProgress(int change, object builder)
 {
 	// Change the progress
 	progressive_building.progress_con = BoundBy(progressive_building.progress_con + change, 0, progressive_building.progress_max);
@@ -206,7 +206,7 @@ private func DoConstructionProgress(int change, object builder)
 }
 
 
-private func UpdateMaximumProgress()
+func UpdateMaximumProgress()
 {
 	var amount = GetAvailableComponentCount();
 	var max = progressive_building.component_count;
@@ -215,7 +215,7 @@ private func UpdateMaximumProgress()
 }
 
 
-private func UpdateConstructionProgress()
+func UpdateConstructionProgress()
 {
 	// Update construction site display
 	if (progressive_building.con_site)
@@ -240,7 +240,7 @@ private func UpdateConstructionProgress()
 }
 
 
-private func InitializeConstructionSite(object construction)
+func InitializeConstructionSite(object construction)
 {
 	construction->SetObjectLayer(progressive_building.con_site);
 	construction->SetCon(100);
@@ -258,7 +258,7 @@ private func InitializeConstructionSite(object construction)
 	construction->~OnStartConstructing();
 }
 
-private func FinishConstructing(object construction)
+func FinishConstructing(object construction)
 {
 	construction->SetObjectLayer(nil);
 	construction->~OnFinishConstructing();
@@ -291,7 +291,7 @@ public func Set(id structure, int dir, object stick)
 
 
 // Gets the number of available components of a type.
-private func GetAvailableComponentCount(id component)
+func GetAvailableComponentCount(id component)
 {
 	if (progressive_building.full_material)
 	{
@@ -304,13 +304,13 @@ private func GetAvailableComponentCount(id component)
 }
 
 
-private func GetComponentName(id component)
+func GetComponentName(id component)
 {
 	return Format("%i", component);
 }
 
 
-private func GetAvailableComponents()
+func GetAvailableComponents()
 {
 	var available_material = [];
 	if (definition == nil)
@@ -339,7 +339,7 @@ private func GetAvailableComponents()
 }
 
 
-private func GetAvailableMaterialMenuEntries(object clonk)
+func GetAvailableMaterialMenuEntries(object clonk)
 {
 	var entries = [];
 	PushBack(entries, GetProgressMenuEntry());
@@ -359,7 +359,7 @@ private func GetAvailableMaterialMenuEntries(object clonk)
 }
 
 
-private func UpdateStatus(object item)
+func UpdateStatus(object item)
 {
 	// Update possible progress
 	UpdateMaximumProgress();
@@ -375,7 +375,7 @@ private func UpdateStatus(object item)
 }
 
 
-private func GetProgressMenuEntry()
+func GetProgressMenuEntry()
 {
 	var menu = 
 	{
@@ -399,7 +399,7 @@ private func GetProgressMenuEntry()
 }
 
 
-private func GetBasement()
+func GetBasement()
 {
 	if (progressive_building && progressive_building.con_site)
 	{
@@ -408,13 +408,13 @@ private func GetBasement()
 }
 
 
-private func UpdateFullMaterial()
+func UpdateFullMaterial()
 {
 	progressive_building.full_material = full_material;
 }
 
 
-private func GetMissingComponents()
+func GetMissingComponents()
 {
 	var return_value = _inherited(...);
 	UpdateFullMaterial();

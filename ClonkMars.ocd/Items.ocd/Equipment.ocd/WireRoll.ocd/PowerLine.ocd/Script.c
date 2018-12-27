@@ -9,7 +9,7 @@ local pipe_kit;
 /* -- Engine callbacks -- */
 
 
-private func Construction()
+func Construction()
 {
 	// Initialize the single proplist for the library.
 	if (lib_linked == nil)
@@ -20,7 +20,7 @@ private func Construction()
 }
 
 
-private func Destruction()
+func Destruction()
 {
 	PowerLine->RefreshAllLineNetworks();
 	if (GetActionTarget(0)) GetActionTarget(0)->~OnLineLineRemoval();
@@ -29,7 +29,7 @@ private func Destruction()
 }
 
 
-private func Initialize()
+func Initialize()
 {
 	SetAction("Connect");
 	SetVertexXY(0, GetX(), GetY());
@@ -107,7 +107,7 @@ public func GetLineKit()
 }
 
 
-private func OnLineBreak(bool no_msg)
+func OnLineBreak(bool no_msg)
 {
 	Sound("Objects::LineSnap");
 	if (!no_msg)
@@ -126,7 +126,7 @@ private func OnLineBreak(bool no_msg)
 }
 
 
-private func OnLineChange()
+func OnLineChange()
 {
 	// Notify action targets about line change.
 	var act1 = GetActionTarget(0);
@@ -154,7 +154,7 @@ public func GetLineLength()
 }
 
 
-private func BreakMessage()
+func BreakMessage()
 {
 	var line_end = GetLineKit();
 	if (line_end) line_end->Report("$TxtLineBroke$");
@@ -210,7 +210,7 @@ local lib_linked;
 
 /* -- Library Code -- */
 
-private func RefreshAllLineNetworks()
+func RefreshAllLineNetworks()
 {
 	Log("Refresh all line networks");
 	var all_lines = FindObjects(Find_Func("IsPowerLine"));
@@ -226,7 +226,7 @@ private func RefreshAllLineNetworks()
 
 // Refreshes the linked objects for this object and also updates the linked objects of the objects linked to this object.
 // TODO: Maybe there is a need to update the links of the objects which were linked before but are not now.
-private func RefreshLinkedObjects(array found_objects)
+func RefreshLinkedObjects(array found_objects)
 {
 	// Construct a list fo currently linked objects (to this object).
 	var current_linked_objects = [];
@@ -292,7 +292,7 @@ private func RefreshLinkedObjects(array found_objects)
 
 
 // Copy the linked objects from another object (from) and its object list.
-private func CopyLinkedObjects(object from, array object_list)
+func CopyLinkedObjects(object from, array object_list)
 {
 	lib_linked.linked_objects = object_list[:];
 	for (var i = GetLength(lib_linked.linked_objects) - 1; i >= 0; --i)

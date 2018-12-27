@@ -61,7 +61,7 @@ local FxBuilding = new Effect{
 };
 
 
-private func WeldingFX(int x, int y)
+func WeldingFX(int x, int y)
 {
 	WeldingSpark(x, y,  5, RGB(0, 100, 255));
 	WeldingSpark(x, y, 7, RGB(0, 80, 225));
@@ -69,7 +69,7 @@ private func WeldingFX(int x, int y)
 }
 
 
-private func WeldingSpark(int x, int y, int radius, int rgb)
+func WeldingSpark(int x, int y, int radius, int rgb)
 {
 	CreateParticle("MagicSpark", PV_Random(x-2, x+2), PV_Random(y-2, y+2), PV_Random(-radius, +radius), PV_Random(-radius, 0), PV_Random(30, 45), Particles_Colored(Particles_Glimmer(), rgb), 3);
 	
