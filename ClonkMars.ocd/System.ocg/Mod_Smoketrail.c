@@ -1,5 +1,5 @@
 
-// gives a more dusty feel to the smoke trail
+// Gives a more dusty feel to the smoke trail
 global func FxSmokeTrailStart(object target, proplist e, int temp, int color)
 {
 	_inherited(target, e, temp, color);
