@@ -13,7 +13,8 @@
 #include Library_PowerSystem_Consumer
 #include Library_PowerSystem_Producer
 #include Library_PowerSystem_DisplayStatus
-#include Library_Tank
+#include Library_LiquidContainer
+#include Library_PipeControl
 
 
 
@@ -35,7 +36,6 @@ local stored_material_amount;
 /** This object is a liquid pump, thus pipes can be connected. */
 public func IsLiquidPump() { return true; }
 public func IsLiquidContainer() { return false; }
-public func IsLiquidTank() { return false; }
 
 
 // The pump is rather complex for players. If anything happened, tell it to the player via the interaction menu.

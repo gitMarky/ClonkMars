@@ -1,7 +1,8 @@
 #include Library_MarsStructure
 #include Library_MarsResearch
 #include Library_ConstructionAnimation
-#include Library_Tank
+#include Library_LiquidContainer
+#include Library_PipeControl
 #include Library_ResourceSelection
 
 

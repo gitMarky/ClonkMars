@@ -12,7 +12,8 @@
 #include Library_PowerSystem_Producer
 #include Library_PowerSystem_DisplayStatus
 #include Library_Flag
-#include Library_Tank
+#include Library_LiquidContainer
+#include Library_PipeControl
 
 local DefaultFlagRadius = 200;
 
