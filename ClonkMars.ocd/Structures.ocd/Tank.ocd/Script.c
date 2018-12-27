@@ -431,4 +431,122 @@ func GetResourceSelectionIcon(id resource, bool enabled)
 
 func UpdateOilTank()
 {
+	var current_resource;
+	if (Contents())
+	{
+		current_resource = Contents()->GetID();
+	}
+	var current_value = GetLiquidAmount(current_resource);
+	var current_max = GetLiquidContainerMaxFillLevel(current_resource);
+
+	// Add the effect
+	var fx = GetEffect(FxVisualizeTankLevel.Name, this);
+	if (!fx && current_resource)
+	{
+		fx = CreateEffect(FxVisualizeTankLevel, 1, 2);
+	}
+	if (!fx)
+	{
+		return;
+	}
+
+	// Determine values
+	var old_resource = fx.resource;
+	var old_value = fx.to;
+	var old_max = fx.max;
+
+	// No change?
+	if (current_resource == old_resource
+	&&  current_value == old_value
+	&&  current_max == old_max)
+	{
+		return;
+	}
+
+	if (current_resource) // Update the resource
+	{
+		fx.resource = current_resource;
+		fx.to = current_value;
+		fx.max = current_max;
+	}
+	else // Just show the old resource as vanishing
+	{
+		fx.to = 0;
+	}
+	fx.graphics_name = ""; // Needs a value, otherwise the icons will be colored green
+	fx->Refresh();
 }
+
+
+local FxVisualizeTankLevel = new Effect
+{
+	Name = "FxVisualizeTankLevel",
+
+	Refresh = func ()
+	{
+		if (this.bar)
+		{
+			this.bar->Close();
+		}
+		var vis = VIS_Allies | VIS_Owner;
+		var controller = Target->GetController();
+
+		if (controller == NO_OWNER)
+		{
+			vis = VIS_All;
+		}
+
+		var off_x = -(Target->GetDefCoreVal("Width", "DefCore") * 3) / 8;
+		var off_y = Target->GetDefCoreVal("Height", "DefCore") / 2 - 10;
+		var bar_properties = {
+			size = 1000,
+			bars = this.max / 500,
+			graphics_name = this.graphics_name,
+			back_graphics_name = this.back_graphics_name,
+			image = this.resource,
+			fade_speed = 1
+		};
+
+		this.bar = Target->CreateProgressBar(GUI_BarProgressBar, this.max, this.current, 35, controller, {x = off_x, y = off_y}, vis, bar_properties);
+
+		// Appear on a GUI level in front of other objects, e.g. trees.
+		this.bar->SetPlane(1010);
+	},
+
+
+	Timer = func ()
+	{
+		if (!this.bar)
+		{
+			return FX_OK;
+		}
+		if (this.current == this.to)
+		{
+			return FX_OK;
+		}
+
+		if (this.to < this.current)
+		{
+			this.current = Max(this.current - 100, this.to);
+		}
+		else
+		{
+			this.current = Min(this.current + 100, this.to);
+		}
+
+		this.bar->SetValue(this.current);
+		if (this.to == 0 && this.to == this.current)
+		{
+			return FX_Execute_Kill;
+		}
+		else
+		{
+			return FX_OK;
+		}
+	},
+	
+	GetRelativeProgress = func ()
+	{
+		return this.current * 10 / Max(1, this.max);
+	},
+};
