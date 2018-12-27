@@ -3,7 +3,7 @@
 global func FxSmokeTrailStart(object target, proplist e, int temp, int color)
 {
 	_inherited(target, e, temp, color);
-	
+
 	if (temp) return;
 
 	var alpha = 100;

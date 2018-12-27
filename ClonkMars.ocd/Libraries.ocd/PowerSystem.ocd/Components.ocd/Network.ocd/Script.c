@@ -9,7 +9,7 @@ public func AddPowerProducer(object producer)
 {
 	if (!IsValueInArray(power_producers, producer))
 	{
-		PushBack(power_producers, producer);		
+		PushBack(power_producers, producer);	
 		SortProducers(); // This is necessary only when adding an object to the list
 		GetPowerSystem()->DebugInfo("POWR - AddPowerProducer(): network = %v, frame = %d, producer = %s, all producers: %v", this, FrameCounter(), LogObject(producer), power_producers);
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
@@ -28,7 +28,7 @@ public func RemovePowerProducer(object producer)
 		{
 			producer->OnPowerProductionStop();
 		}
-		RemoveArrayValue(power_producers, producer);		
+		RemoveArrayValue(power_producers, producer);	
 		GetPowerSystem()->DebugInfo("POWR - RemovePowerProducer(): network = %v, frame = %d, producer = %s, all producers: %v", this, FrameCounter(), LogObject(producer), power_producers);
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
@@ -57,7 +57,7 @@ public func RemovePowerConsumer(object consumer)
 {
 	if (IsValueInArray(power_consumers, consumer))
 	{
-		RemoveArrayValue(power_consumers, consumer);		
+		RemoveArrayValue(power_consumers, consumer);	
 		GetPowerSystem()->DebugInfo("POWR - RemovePowerConsumer(): network = %v, frame = %d, consumer = %s, all consumers: %v", this, FrameCounter(), LogObject(consumer), power_consumers);
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
@@ -85,7 +85,7 @@ public func RemovePowerStorage(object storage)
 {
 	if (IsValueInArray(power_storages, storage))
 	{
-		RemoveArrayValue(power_storages, storage);		
+		RemoveArrayValue(power_storages, storage);	
 		GetPowerSystem()->DebugInfo("POWR - RemovePowerStorage(): network = %v, frame = %d, storage = %s, all storages: %v", this, FrameCounter(), LogObject(storage), power_storages);
 		SchedulePowerBalanceUpdate(); // Check the power balance of this network, since a change has been made.
 	}
@@ -406,7 +406,7 @@ func LogState(string tag)
  */
 public func SaveScenarioObject()
 {
-	if (GetID() == GetPowerSystem()) 
+	if (GetID() == GetPowerSystem())
 	{
 		return false;
 	}
@@ -455,7 +455,7 @@ local FxUpdatePowerBalance = new Effect {
 
 /**
  * Checks the power balance after a change to this network: i.e. removal or addition
- * of a consumer or producer. 
+ * of a consumer or producer.
  */
 func DoPowerBalanceUpdate()
 {
@@ -463,11 +463,11 @@ func DoPowerBalanceUpdate()
 	var power_demand = 0;	// how much is demanded?
 	var power_capacity = 0;	// how much can be saved?
 	var lowest_demand = nil;
-	
+
 	RemoveHoles(power_producers);
 	RemoveHoles(power_consumers);
 	RemoveHoles(power_storages);
-	
+
 	GetPowerSystem()->DebugInfo("==========================================================================");
 	GetPowerSystem()->DebugInfo("POWR - Performing power balance update for network %v in frame %d", this, FrameCounter());
 
@@ -477,7 +477,7 @@ func DoPowerBalanceUpdate()
 	{
 		var demand = consumer->GetPowerConsumption();
 		power_demand += demand;
-		
+	
 		if (lowest_demand == nil || demand < lowest_demand)
 		{
 			lowest_demand = demand;
@@ -486,7 +486,7 @@ func DoPowerBalanceUpdate()
 	var should_produce_power = GetPowerAvailable() >= lowest_demand;
 
 	GetPowerSystem()->DebugInfo("POWR - Consumers demand %d units", power_demand);
-	
+
 	// Add up all storage powers to get total storage power
 	for (var storage in power_storages)
 	{
@@ -522,14 +522,14 @@ func DoPowerBalanceUpdate()
 			}
 		}
 
-		// Production is on?	
+		// Production is on?
 		if (producer->IsPowerProductionActive())
 		{
 			power_level += supply;
 			GetPowerSystem()->DebugInfo("POWR - %d units created by %s", supply, LogObject(producer));
 		}
 	}
-	
+
 	GetPowerSystem()->DebugInfo("POWR - Producers supply %d units", power_level);
 
 	// Supply the consumers
@@ -580,7 +580,7 @@ func DoPowerBalanceUpdate()
 		storage->SetStorageInput(-storage->GetPowerProduction());
 	}
 	while (power_level > 0)
-	{	
+	{
 		var total_change = 0;
 		for (var storage in power_storages)
 		{
@@ -598,7 +598,7 @@ func DoPowerBalanceUpdate()
 	{
 		GetPowerSystem()->DebugInfo("Store %d power in %s", storage->GetStorageInput(), LogObject(storage));
 	}
-	
+
 	GetPowerSystem()->DebugInfo("POWR - Wasted energy is %d units", power_level);
 	GetPowerSystem()->DebugInfo("==========================================================================");
 

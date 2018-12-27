@@ -1,7 +1,7 @@
 /**
 	Sawmill
 	Cuts trees or other objects into wood. Accepts only objects purely made from wood (like trees).
-	
+
 	@authors Ringwaul, Clonkonaut
 */
 
@@ -74,16 +74,16 @@ func FindTrees()
 	var tree = FindObject(Find_AtPoint(), Find_Func("IsTree"), Find_Not(Find_Func("IsStanding")), Find_Func("GetComponent", Wood));
 	if (!tree)
 		return;
-	
+
 	return Saw(tree);
 }
 
 // Returns whether the object is made purely out of wood.
 func CheckWoodObject(object target)
 {
-	if (target->GetComponent(nil, 0) != Wood) 
+	if (target->GetComponent(nil, 0) != Wood)
 		return false;
-	if (target->GetComponent(nil, 1)) 
+	if (target->GetComponent(nil, 1))
 		return false;
 	return true;
 }
@@ -104,7 +104,7 @@ public func GetInteractionMenus(object clonk)
 		Priority = 20
 	};
 	PushBack(menus, prod_menu);
-	
+
 	return menus;
 }
 
@@ -218,7 +218,7 @@ public func EjectWood()
 
 	wood->Exit(-25 * GetCalcDir(), -8, 30 - Random(59), -2 * GetCalcDir(), 1);
 	Sound("Structures::EjectionPop");
-	
+
 	// Refresh interaction menus to show the wood count.
 	UpdateInteractionMenus(this.GetInfoMenuEntries);
 }
@@ -301,7 +301,7 @@ local ActMap = {
 		},
 };
 
-func Definition(def) 
+func Definition(def)
 {
 	SetProperty("PictureTransformation", Trans_Mul(Trans_Translate(2000, 0, 7000), Trans_Rotate(-20, 1, 0, 0),Trans_Rotate(30, 0, 1, 0)), def);
 	return _inherited(def, ...);

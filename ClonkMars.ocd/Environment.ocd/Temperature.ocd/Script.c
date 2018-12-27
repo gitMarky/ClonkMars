@@ -1,6 +1,6 @@
 /**
 	Temperature
-	
+
 	Adds a grid of temperature points to the map that tell the tempeature at
 	a specific position.
  */
@@ -12,7 +12,7 @@ local MinTemperature = -27315;	// global minimum temperature, in 1e-2 degrees Ce
 local MaxTemperature = 100000;	// global maximum temperature, in 1e-2 degrees Celsius
 
 local PlanetMinTemperature = -8000;	// local minimum temperature, in 1e-2 degrees Celsius;
-local PlanetMaxTemperature = +8000;	// local maximum temperature, in 1e-2 degrees Celsius; 
+local PlanetMaxTemperature = +8000;	// local maximum temperature, in 1e-2 degrees Celsius;
 
 local DistanceSunlight = 100;	// ground heats up to this many pixels below the surface
 local DistanceGround = 100;		// ground heats / cools in multiples of these many pixels
@@ -36,10 +36,10 @@ global func GetTemperatureAt(int x, int y, int prec)
 		x += GetX();
 		y += GetY();
 	}
-	
+
 	var control = Temperature->GetTemperatureControl();
 	AssertNotNil(control);
-	
+
 	return control->Point(x, y)->GetTemp(prec);
 }
 
@@ -50,10 +50,10 @@ global func SetTemperatureAt(int x, int y, int amount)
 		x += GetX();
 		y += GetY();
 	}
-	
+
 	var control = Temperature->GetTemperatureControl();
 	AssertNotNil(control);
-	
+
 	control->Point(x, y)->SetTemp(amount);
 }
 
@@ -121,7 +121,7 @@ static const TemperaturePoint = new Global
 	Speed = 1000,		// speed adjustment
 	X = 0,				// position, in global coordinates, precision 1
 	Y = 0,				// position, in global coordinates, precision 1
-	
+
 	SetPosition = func (int x, int y)
 	{
 		this.X = x;
@@ -136,7 +136,7 @@ static const TemperaturePoint = new Global
 			this.Temp = BoundBy(amount, Temperature.MinTemperature, Temperature.MaxTemperature);
 		}
 		else
-		{			
+		{		
 			var material = GetMat(this.X, this.Y);
 			var temperature = Temperature->GetMaterialTemperature(material);
 			if (temperature) SetTemp(temperature);
@@ -153,7 +153,7 @@ static const TemperaturePoint = new Global
 	{
 		SetTemp(this.Temp + amount * this.Speed  / 1000);
 	},
-	
+
 	SetChangeSpeed = func (int amount)
 	{
 		if (amount)
@@ -168,7 +168,7 @@ static const TemperaturePoint = new Global
 		}
 		return this;
 	},
-	
+
 	GetMat = func (int x, int y)
 	{
 		if (x < 0)
@@ -206,14 +206,14 @@ local FxTemperatureControl = new Effect
 		for (var i = 0; i < 100; ++i)
 		{
 			Timer();
-		}	
+		}
 	},
 
 	Timer = func ()
 	{
 		// difference
 		this.temperature = GetTemperature();
-		
+	
 		// iterate over all points
 		for (var column in this.grid)
 		for (var point in column)
@@ -227,8 +227,8 @@ local FxTemperatureControl = new Effect
 			change = Temperature->CalcTempChange_UpperBorder(point, change);
 			point->ChangeTemp(change);
 		}
-		
-		
+	
+	
 		var prec = 100;
 		// influence neighbors, update graphics
 		var width = GetLength(this.grid);
@@ -240,7 +240,7 @@ local FxTemperatureControl = new Effect
 				var point = this.grid[x][y];
 				var temperature = CalcAverageTemperature(x, y, prec);
 				point->ChangeTemp(temperature - point->GetTemp(prec));
-				
+			
 				// display the temperature in debug mode
 				var temp = BoundBy(point->GetTemp(), -60, 128);
 				if (this.debug)
@@ -251,7 +251,7 @@ local FxTemperatureControl = new Effect
 			}
 		}
 	},
-	
+
 	CreateGrid = func(int sample_distance)
 	{
 		Log("Creating temperature grid");
@@ -265,7 +265,7 @@ local FxTemperatureControl = new Effect
 			for (var y = 0; y < amount_y; ++y)
 			{
 				this.grid[x][y] = new TemperaturePoint {};
-				
+			
 				var global_x = (x - 1) * this.grid_distance;
 				var global_y = (y - 1) * this.grid_distance;
 
@@ -275,22 +275,22 @@ local FxTemperatureControl = new Effect
 			}
 		}
 	},
-	
+
 	Point = func (int x, int y)
 	{
 		x = BoundBy(x, -this.grid_distance, LandscapeWidth() + this.grid_distance);
 		y = BoundBy(y, -this.grid_distance, LandscapeHeight() + this.grid_distance);
 		var index_x = 1 + x / this.grid_distance;
 		var index_y = 1 + y / this.grid_distance;
-		
+	
 		return this.grid[index_x][index_y];
 	},
-	
+
 	CalcAverageTemperature = func(int index_x, int index_y, int prec)
 	{
 		var center = this.grid[index_x][index_y];
 		var samples = [center, center]; // center has double weight
-		
+	
 		// left side
 		if (index_x > 0)
 		{
@@ -300,7 +300,7 @@ local FxTemperatureControl = new Effect
 		{
 			PushBack(samples, center);
 		}
-		
+	
 		// right side
 		if (index_x == GetLength(this.grid) - 1)
 		{
@@ -310,7 +310,7 @@ local FxTemperatureControl = new Effect
 		{
 			PushBack(samples, this.grid[index_x + 1][index_y]);
 		}
-		
+	
 		// top side
 		if (index_y > 0)
 		{
@@ -320,7 +320,7 @@ local FxTemperatureControl = new Effect
 		{
 			PushBack(samples, center);
 		}
-		
+	
 		// bottom side
 		if (index_y == GetLength(this.grid[0]) - 1)
 		{
@@ -330,7 +330,7 @@ local FxTemperatureControl = new Effect
 		{
 			PushBack(samples, this.grid[index_x][index_y+1]);
 		}
-		
+	
 		// calculation
 		var average = 0;
 		for (var sample in samples)
@@ -379,7 +379,7 @@ func CalcTempChange_Sun(proplist point, int change)
 				break;
 			}
 		}
-		
+	
 		return BoundBy(change + sunlight, PlanetMinTemperature, PlanetMaxTemperature);
 	}
 

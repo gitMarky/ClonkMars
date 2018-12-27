@@ -1,15 +1,15 @@
 /**
 	Power Consumer
 	Handles some aspects of power consuming structures, this library should be
-	included by	all power consuming structures. Certain functions should be 
+	included by	all power consuming structures. Certain functions should be
 	overloaded and others can be used to implement the consumption of power in
 	a uniform way consistent with the network, see text below.
 
-	
+
 	Important notes when including this library:
 	 * The object including this library should return _inherited(...) in the
 	   Construction and Destruction callback if overloaded.
-	
+
 	@author Zapper, Maikel, Marky
 */
 
@@ -57,13 +57,13 @@ func SetPowerConsumption(int amount)
 	{
 		FatalError(Format("Power consumption must be >= 0, was %d", amount));
 	}
-	
+
 	// Callback to visualization
 	if (HasEnoughPower())
 	{
 		this->~VisualizePowerChange(GetPowerConsumption(), amount, false);
 	}
-	
+
 	// Update the value
 	lib_power_system.consumer.power_need = amount;
 }
@@ -77,7 +77,7 @@ func SetPowerConsumption(int amount)
  * @return the priority. Typical return values are:
  *	       - Pump:      25
  *         - Workshop:  50
- *         - Elevator: 100	
+ *         - Elevator: 100
  */
 func GetConsumerPriority()
 {
@@ -93,7 +93,7 @@ func GetConsumerPriority()
  * @par priority typical values are:
  *	       - Pump:      25
  *         - Workshop:  50
- *         - Elevator: 100	
+ *         - Elevator: 100
  */
 func SetConsumerPriority(int priority)
 {
@@ -110,7 +110,7 @@ func SetConsumerPriority(int priority)
 
 /**
  * Find out whether this consumer has enough power.
- * 
+ *
  * The power system asks this before issuing the callbacks
  * OnEnoughPower() and OnNotEnoughPower().
  */
@@ -124,20 +124,20 @@ public func HasEnoughPower()
  * Callback by the power network. Overload this function to start the consumers
  * functionality, since enough power is available. return inherited(amount, ...)
  * to remove the no-power symbol.
- * 
+ *
  * It is not allowed to (un)register a power request in this callback.
  */
 func OnEnoughPower(int amount)
 {
 	// Remove the no-power symbol.
 	RemoveStatusSymbol(Library_PowerConsumer);
-	
+
 	// Callback to visualization
 	this->~VisualizePowerChange(0, GetPowerConsumption(), false);
-	
+
 	// Update the status
 	lib_power_system.consumer.has_enough_power = true;
-	
+
 	// Let the parent class handle things
 	_inherited(amount, ...);
 }
@@ -147,20 +147,20 @@ func OnEnoughPower(int amount)
  * Callback by the power network. Overload this function to stop the consumers
  * functionality, since not enough power is available. return inherited(amount, ...)
  * to add the no-power symbol.
- * 
+ *
  * It is not allowed to (un)register a power request in this callback.
  */
 func OnNotEnoughPower(int amount)
 {
 	// Show the no-power symbol.
 	ShowStatusSymbol(Library_PowerConsumer);
-	
+
 	// Callback to visualization
 	this->~VisualizePowerChange(GetPowerConsumption(), 0, true);
 
 	// Update the status
 	lib_power_system.consumer.has_enough_power = false;
-	
+
 	// Let the parent class handle things
 	_inherited(amount, ...);
 }
@@ -196,7 +196,7 @@ func UnregisterPowerRequest()
 
 /**
  * All power related local variables are stored in a single proplist.
- * This reduces the chances of clashing local variables. 
+ * This reduces the chances of clashing local variables.
  *
  * See Construction for which variables are being used.
  */
@@ -220,7 +220,7 @@ func Construction()
 
 	// Power is not needed when the no power need rule is active.
 	lib_power_system.consumer.ignore_power_need = FindObject(Find_ID(Rule_NoPowerNeed));
-	
+
 	// Default values
 	lib_power_system.consumer.power_need = 0;			// Works without power by default
 	lib_power_system.consumer.priority = 0;				// No priority

@@ -40,6 +40,6 @@ public func TakeBreath(int max_supply)
 		var take_oxygen = Abs(supplier->DoOxygen(-rest));
 		take_breath += take_oxygen;
 	}
-	
+
 	return BoundBy(take_breath, 0, max_supply);
 }

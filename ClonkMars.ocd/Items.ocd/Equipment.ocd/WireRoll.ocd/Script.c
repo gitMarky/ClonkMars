@@ -56,15 +56,15 @@ public func GetInventoryIconOverlay()
 	var red = percentage * 255 / 100;
 	var green = 255 - red;
 	// Overlay a usage bar.
-	var overlay = 
+	var overlay =
 	{
 		Bottom = "0.75em",
 		Margin = ["0.1em", "0.25em"],
 		BackgroundColor = RGB(0, 0, 0),
-		margin = 
+		margin =
 		{
 			Margin = "0.05em",
-			bar = 
+			bar =
 			{
 				BackgroundColor = RGB(red, green, 0),
 				Right = Format("%d%%", percentage),
@@ -116,13 +116,13 @@ public func GetConnectedLine()
 
 /**
  * Connects a line to an object.
- * 
+ *
  * The line kit will connect the line to the target object and itself first.
  * Otherwise, if the line kit already has a line, it connects that line to the target.
  *
  * Note: Reports a fatal error if the line would be connected to more than two targets
  *       at the same time.
- *      
+ *     
  * @par target the target object
  */
 func AddLineConnectionTo(object target, bool block_cutting)
@@ -152,10 +152,10 @@ func AddLineConnectionTo(object target, bool block_cutting)
 
 /**
  Cuts the connection between the line and an object.
- 
+
  Note: Reports a fatal error if the target was not
        connected to the line.
- 
+
  @par target the target object
  */
 func CutLineConnection(object target)
@@ -164,7 +164,7 @@ func CutLineConnection(object target)
 	if (!line) return;
 
 	// connected only to the kit and a structure
-	if (line->IsConnectedTo(this, true)) 
+	if (line->IsConnectedTo(this, true))
 	{
 		target->OnLineDisconnect(this);
 		line->RemoveObject();
@@ -231,13 +231,13 @@ func Report(string message)
 {
 	var reporter = this;
 	var next = Contained();
-	
+
 	while(next)
 	{
 		reporter = next;
 		next = reporter->Contained();
 	}
-	
+
 	reporter->Message(message, ...);
 }
 

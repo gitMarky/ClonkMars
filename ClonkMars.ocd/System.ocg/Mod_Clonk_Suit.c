@@ -19,7 +19,7 @@ public func SetSkin(int new_skin)
 {
 	// Remember skin
 	skin = new_skin;
-	
+
 	// Adventurer
 	if(skin == 0)
 	{
@@ -40,7 +40,7 @@ public func SetSkin(int new_skin)
 		skin_name = "Alchemist";
 		gender = 0;
 	}
-	
+
 	// Farmer
 	if(skin == 3)
 	{
@@ -50,10 +50,10 @@ public func SetSkin(int new_skin)
 
 	// Does not need a backpack
 	RemoveBackpack();
-	
+
 	// Give a space suit (without helmet)
 	SetGraphics("Suit", SpaceSuit);
-	
+
 	// Attach a head that is matching the clonk skin
 	skin_mesh_helper = skin_mesh_helper ?? CreateObject(ClonkCustomSkins);
 	skin_mesh_helper->SetGraphics(Format("Head%s", skin_name));
@@ -75,6 +75,6 @@ public func SetSkin(int new_skin)
 public func Destruction()
 {
 	if (skin_mesh_helper) skin_mesh_helper->RemoveObject();
-	
+
 	return _inherited(...);
 }

@@ -13,7 +13,7 @@ public func BreatheAt()
 	{
 		y = -5;
 	}
-	
+
 	return { X = GetVertex(head_vertex, 0),
 	         Y = GetVertex(head_vertex, 1) + y};
 }
@@ -30,10 +30,10 @@ public func OnBreathe()
 		for (var respirator in FindObjects(Find_Container(this), Find_Func("IsRespirator")))
 		{
 			var refill = Min(respirator->GetMaxOxygen() - respirator->GetOxygen(), supplier_refill);
-	
+
 			var taken = supplier->DoOxygen(-refill);
 			var given = respirator->DoOxygen(-taken);
-	
+
 			supplier->DoOxygen(given - taken); // just in case, should yield 0 most of the time
 		}
 	}

@@ -77,7 +77,7 @@ func CollectFromStack(object item)
 		// Get one sample object and try to insert it into the barrel
 		var candidate = item->TakeObject();
 		candidate->Enter(this);
-		
+	
 		// Put it back if it was not collected
 		if (candidate && !(candidate->Contained()))
 		{
@@ -212,7 +212,7 @@ public func OnPipeConnect(object pipe, string specific_pipe_state)
 local FxDisperseLiquid = new Effect
 {
 	Name = "FxDisperseLiquid",
-	
+
 	Construction = func()
 	{
 		this.Interval = 2;
@@ -249,7 +249,7 @@ public func IsContainer() { return true; }
 
 public func GetInteractionMenus(object clonk)
 {
-	var menus = _inherited(clonk, ...) ?? [];		
+	var menus = _inherited(clonk, ...) ?? [];	
 	var materials_menu =
 	{
 		title = "$TankMaterials$",
@@ -293,7 +293,7 @@ func GetValveControlMenuEntries(object clonk)
 		action = PUMP_Menu_Action_Switch_On;
 	}
 
-	return [{symbol = symbol, extra_data = action, 
+	return [{symbol = symbol, extra_data = action,
 		custom =
 		{
 			Right = "100%", Bottom = "2em",
@@ -367,7 +367,7 @@ func OnTankMaterialsClick(id resource, string action, object clonk)
 	{
 		SetResourceSelection([]);
 	}
-	UpdateInteractionMenus(this.GetResourceSelectionMenuEntries);	
+	UpdateInteractionMenus(this.GetResourceSelectionMenuEntries);
 }
 
 func OnValveControlClick()
@@ -379,7 +379,7 @@ func OnValveControlClick()
 	}
 	else
 	{
-		CreateEffect(FxDisperseLiquid, 100, 2);	
+		CreateEffect(FxDisperseLiquid, 100, 2);
 	}
 	UpdateInteractionMenus(this.GetValveControlMenuEntries);
 }

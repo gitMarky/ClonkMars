@@ -22,7 +22,7 @@ public func Construction()
 		finished = false,	// if done
 		full_material = false, // mirrors full_material. Necessary, because GetMissingComponents() sets full_material to true at one point, and other functions return values depend on that value. This caused a bug where one material was enough for the building to think that it needs no more material
 	};
-	
+
 	// determine max component count
 	return _inherited(...);
 }
@@ -55,7 +55,7 @@ public func Destruction()
 
 public func GetInteractionMenus(object clonk)
 {
-	var menus = _inherited(clonk, ...) ?? [];		
+	var menus = _inherited(clonk, ...) ?? [];	
 	var comp_menu =
 	{
 		title = "Available material", // TODO
@@ -92,7 +92,7 @@ func IsInteractable(object clonk)
 public func GetInteractionMetaInfo(object clonk)
 {
 	var text;
-	
+
 	if (clonk->GetAction() == "Build")
 	{
 		text = "$TxtConstructStop$";
@@ -142,7 +142,7 @@ func StartConstructing(int by_player)
 	// Create the site?
 	progressive_building.con_site = CreateConstructionSite();
 	InitializeConstructionSite(progressive_building.con_site);
-	
+
 	// Clean up stuck objects
 	EnsureObjectsLyingAround(lying_around);
 }
@@ -152,7 +152,7 @@ func StartConstructing(int by_player)
 func TakeConstructionMaterials(object from_clonk)
 {
 	_inherited(from_clonk, ...);
-	
+
 	if (CanContinueConstructing(from_clonk))
 	{
 		ContinueConstructing(from_clonk);
@@ -169,7 +169,7 @@ func CanContinueConstructing(object clonk)
 func ContinueConstructing(object clonk)
 {
 	if (!definition) return;
-	
+
 	clonk->SetAction("Build", this);
 }
 
@@ -191,13 +191,13 @@ func DoConstructionProgress(int change, object builder)
 	// Change the progress
 	progressive_building.progress_con = BoundBy(progressive_building.progress_con + change, 0, progressive_building.progress_max);
 	UpdateConstructionProgress();
-	
+
 	// Cancel building
 	if (!CanContinueConstructing(builder))
 	{
 		builder->~StopBuilding();
 	}
-	
+
 	// Finish site?
 	if (progressive_building.progress_con >= 1000)
 	{
@@ -234,7 +234,7 @@ func UpdateConstructionProgress()
 			progressive_building.con_site->SetObjDrawTransform(1000, 0, 0, 0, progressive_building.progress_con, yoff);
 		}
 	}
-	
+
 	// Update possibly open menus.
 	UpdateInteractionMenus([this.GetAvailableMaterialMenuEntries]);
 }
@@ -246,7 +246,7 @@ func InitializeConstructionSite(object construction)
 	construction->SetCon(100);
 	construction->MovePosition(0, -1);
 	this.Plane = construction.Plane + 1;
-	
+
 	if (construction->~GetBasementID())
 	{
 		construction.lib_structure = construction.lib_structure ?? {};
@@ -273,7 +273,7 @@ func FinishConstructing(object construction)
 public func Set(id structure, int dir, object stick)
 {
 	_inherited(structure, dir, stick);
-	
+
 	// Update max component amount
 	var component;
 	for (var i = 0; component = definition->GetComponent(nil, i); ++i)
@@ -283,7 +283,7 @@ public func Set(id structure, int dir, object stick)
 
 	// Create construction site
 	StartConstructing(GetOwner());
-	
+
 	// Update the appearance
 	UpdateMaximumProgress();
 	UpdateConstructionProgress();
@@ -334,7 +334,7 @@ func GetAvailableComponents()
 			PushBack(available_material, {id = component, count = amount});
 		}
 	}
-	
+
 	return available_material;
 }
 
@@ -377,9 +377,9 @@ func UpdateStatus(object item)
 
 func GetProgressMenuEntry()
 {
-	var menu = 
+	var menu =
 	{
-		Bottom = "1em", Priority = 1, 
+		Bottom = "1em", Priority = 1,
 		BackgroundColor = RGBa(0, 0, 0, 100),
 		max =
 		{

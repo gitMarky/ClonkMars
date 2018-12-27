@@ -38,16 +38,16 @@ func VisualizePowerChange(int old_value, int new_value, bool loss)
 	{
 		fx.back_graphics_name = "Red";
 	}
-	else 
+	else
 	{
 		fx.back_graphics_name = nil;
 	}
 
-	if (new_value < 0) 
+	if (new_value < 0)
 	{
 		fx.graphics_name = "Yellow";
 	}
-	else if	(new_value > 0) 
+	else if	(new_value > 0)
 	{
 		fx.graphics_name = "Green";
 	}
@@ -57,7 +57,7 @@ func VisualizePowerChange(int old_value, int new_value, bool loss)
 		{
 			fx.graphics_name = "Yellow";
 		}
-		else 
+		else
 		{
 			fx.graphics_name = "Green";
 		}
@@ -71,29 +71,29 @@ local FxVisualPowerChange = new Effect {
 
 	Refresh = func ()
 	{
-		if (this.bar) 
+		if (this.bar)
 		{
 			this.bar->Close();
 		}
 		var vis = VIS_Allies | VIS_Owner;
 		var controller = Target->GetController();
-		
-		if (controller == NO_OWNER) 
+	
+		if (controller == NO_OWNER)
 		{
 			vis = VIS_All;
 		}
-			
+		
 		var off_x = -(Target->GetDefCoreVal("Width", "DefCore") * 3) / 8;
 		var off_y = Target->GetDefCoreVal("Height", "DefCore") / 2 - 10;
 		var bar_properties = {
-			size = 1000, 
-			bars = this.max / 10, 
-			graphics_name = this.graphics_name, 
-			back_graphics_name = this.back_graphics_name, 
-			image = Icon_Lightbulb, 
-			fade_speed = 1	
+			size = 1000,
+			bars = this.max / 10,
+			graphics_name = this.graphics_name,
+			back_graphics_name = this.back_graphics_name,
+			image = Icon_Lightbulb,
+			fade_speed = 1
 		};
-		
+	
 		this.bar = Target->CreateProgressBar(GUI_BarProgressBar, this.max, this.current, 35, controller, {x = off_x, y = off_y}, vis, bar_properties);
 
 		// Appear on a GUI level in front of other objects, e.g. trees.
@@ -103,24 +103,24 @@ local FxVisualPowerChange = new Effect {
 
 	Timer = func ()
 	{
-		if (!this.bar) 
+		if (!this.bar)
 		{
 			return FX_Execute_Kill;
 		}
-		if (this.current == this.to) 
+		if (this.current == this.to)
 		{
 			return FX_OK;
 		}
-		
-		if (this.to < this.current) 
+	
+		if (this.to < this.current)
 		{
 			this.current = Max(this.current - 15, this.to);
 		}
-		else 
+		else
 		{
 			this.current = Min(this.current + 15, this.to);
 		}
-	
+
 		this.bar->SetValue(this.current);
 		return FX_OK;
 	}

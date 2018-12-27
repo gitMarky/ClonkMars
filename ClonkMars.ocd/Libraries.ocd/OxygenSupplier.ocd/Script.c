@@ -1,6 +1,6 @@
 /**
 	Library_OxygenSupplier
-	
+
 	Library for objects that can supply oxygen (to a respirator).
 */
 

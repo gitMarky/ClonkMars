@@ -4,7 +4,7 @@
 	+ switch on and off
 	+ consume/produce a variable amount of power depending on the height of
 	  source and drain
-	
+
 	@author Maikel, ST-DDT, Sven2, Newton
 */
 
@@ -74,14 +74,14 @@ public func GetPumpControlMenuEntries(object clonk)
 {
 	var menu_entries = [];
 	// default design of a control menu item
-	var custom_entry = 
+	var custom_entry =
 	{
 		Right = "100%", Bottom = "2em",
 		BackgroundColor = {Std = 0, OnHover = 0x50ff0000},
 		image = {Right = "2em"},
 		text = {Left = "2em"}
 	};
-	
+
 	// Add info message about what is going on with the pump.
 	var status = "$StateOk$";
 	var lightbulb_graphics = "Green";
@@ -100,7 +100,7 @@ public func GetPumpControlMenuEntries(object clonk)
 				text = {Prototype = custom_entry.text, Text = status},
 				image = {Prototype = custom_entry.image, Symbol = Icon_Lightbulb, GraphicsName = lightbulb_graphics}
 			}});
-			
+		
 	// switch on and off
 	if (!switched_on)
 		PushBack(menu_entries, GetPumpMenuEntry(custom_entry, Icon_Play, "$MsgTurnOn$", 1, PUMP_Menu_Action_Switch_On));
@@ -112,7 +112,7 @@ public func GetPumpControlMenuEntries(object clonk)
 
 public func GetPumpMenuEntry(proplist custom_entry, symbol, string text, int priority, extra_data)
 {
-	return {symbol = symbol, extra_data = extra_data, 
+	return {symbol = symbol, extra_data = extra_data,
 		custom =
 		{
 			Prototype = custom_entry,
@@ -124,7 +124,7 @@ public func GetPumpMenuEntry(proplist custom_entry, symbol, string text, int pri
 
 public func GetInteractionMenus(object clonk)
 {
-	var menus = _inherited(clonk, ...) ?? [];		
+	var menus = _inherited(clonk, ...) ?? [];	
 	var control_menu =
 	{
 		title = "$Control$",
@@ -165,7 +165,7 @@ public func OnPumpControl(symbol_or_object, string action, bool alt)
 	if (action == PUMP_Menu_Action_Switch_On || action == PUMP_Menu_Action_Switch_Off)
 		ToggleOnOff(true);
 
-	UpdateInteractionMenus(this.GetPumpControlMenuEntries);	
+	UpdateInteractionMenus(this.GetPumpControlMenuEntries);
 }
 
 func SetInfoMessage(string msg)
@@ -275,7 +275,7 @@ public func IsAirPipeConnected()
 public func GetConsumerPriority()
 {
 	if (IsAirPipeConnected())
-		return 125;	
+		return 125;
 	return 25;
 }
 
@@ -319,12 +319,12 @@ func GetSourceObject()
 func Pumping()
 {
 	// at this point we can assert that we have power
-	
+
 	// something went wrong in the meantime?
 	// let the central function handle that on next check
-	if (!GetSourcePipe() && !IsAirPipeConnected()) 
+	if (!GetSourcePipe() && !IsAirPipeConnected())
 		return;
-		
+	
 	// Get the drain object.
 	var drain_obj = GetDrainObject();
 
@@ -339,7 +339,7 @@ func Pumping()
 	}
 
 	var pump_ok = true;
-	
+
 	// is empty? -> try to get liquid
 	if (!stored_material_name)
 	{
@@ -380,7 +380,7 @@ func Pumping()
 		if (stored_material_amount <= 0)
 			stored_material_name = nil;
 	}
-	
+
 	if (pump_ok)
 	{
 		clog_count = 0;
@@ -443,7 +443,7 @@ public func CheckState()
 	var is_fullcon = GetCon() >= 100;
 	// The pump can work without source if it needs to supply air.
 	var can_pump = (GetSourcePipe() || IsAirPipeConnected()) && is_fullcon && switched_on;
-	
+
 	// Can't pump at all -> wait.
 	if (!can_pump)
 	{
@@ -511,7 +511,7 @@ public func CheckState()
 				clog_count = 0;
 				SetState("Pump");
 			}
-			
+		
 			// regularly update the power usage while pumping or waiting for power
 			UpdatePowerUsage();
 		}
@@ -522,7 +522,7 @@ public func CheckState()
 func GetPumpHeight()
 {
 	// compare each the surfaces of the bodies of liquid pumped
-	
+
 	// find Y position of surface of liquid that is pumped to target
 	var source_obj = GetSourceObject();
 	var source_x = source_obj.ApertureOffsetX;
@@ -549,14 +549,14 @@ func UpdatePowerUsage()
 		new_power = PumpHeight2Power(GetPumpHeight());
 	else
 		new_power = 0;
-	
+
 	// do nothing if not necessary
 	if (new_power == power_used)
 	{
 		// But still set powered to true if power_used was not positive.
 		return;
 	}
-	
+
 	// and update energy system
 	if (new_power > 0) // become a consumer
 	{
@@ -573,7 +573,7 @@ func UpdatePowerUsage()
 		UnregisterPowerProduction();
 		UnregisterPowerRequest();
 	}
-	
+
 	power_used = new_power;
 	return;
 }
@@ -613,20 +613,20 @@ func GetLiquidSourceMaterial()
 	var source_obj = GetSourceObject();
 	if (!source_obj)
 		return;
-	// The source is a liquid container: check which material will be supplied.	
+	// The source is a liquid container: check which material will be supplied.
 	if (source_obj->~IsLiquidContainer())
 	{
 		var liquid = source_obj->HasLiquid(pump_materials);
 		if (liquid)
 			return liquid->GetLiquidType();
 		return;
-	}	
+	}
 	var is_liquid = source_obj->GBackLiquid(source_obj.ApertureOffsetX, source_obj.ApertureOffsetY);
 	var liquid = MaterialName(source_obj->GetMaterial(source_obj.ApertureOffsetX, source_obj.ApertureOffsetY));
 	if (!is_liquid)
 	{
 		// Try different offsets, so we can resume pumping after clog because 1px of earth was dropped on the source pipe.
-		source_obj->~CycleApertureOffset(this); 
+		source_obj->~CycleApertureOffset(this);
 		return;
 	}
 	return liquid;
@@ -681,7 +681,7 @@ public func GetAirDrainOk()
 // Set the state of the pump, retaining the animation position and updating the power usage.
 func SetState(string act)
 {
-	if (act == GetAction()) 
+	if (act == GetAction())
 		return;
 
 	// Set animation depending on the current action.
@@ -700,13 +700,13 @@ func SetState(string act)
 	{
 		SetAnimationPosition(animation, Anim_Const(anim_pos));
 	}
-	
+
 	// Deactivate power usage when not pumping.
 	if (power_used && (act == "Wait" || act == "WaitForLiquid"))
 	{
 		UnregisterPowerProduction();
 		UnregisterPowerRequest();
-		
+	
 		power_used = 0;
 	}
 	// Finally, set the action.
@@ -736,8 +736,8 @@ func InitMaterialSelection()
 		if (def->~IsLiquid() && def != Library_Liquid)
 			PushBack(pump_materials, def);
 	// Accepted mat defaults to nil.
-	accepted_mat = nil;		
-	return;	
+	accepted_mat = nil;	
+	return;
 }
 
 public func SetMaterialSelection(array mats)
@@ -782,8 +782,8 @@ func IsInMaterialSelection(/* any */ mat)
 		return IsValueInArray(pump_materials, mat);
 	for (var def in pump_materials)
 		if (def->GetLiquidType() == mat)
-			return true;		
-	return false;	
+			return true;	
+	return false;
 }
 
 public func GetPumpMaterialsMenuEntries(object clonk)
@@ -804,8 +804,8 @@ public func GetPumpMaterialsMenuEntries(object clonk)
 				act = PUMP_Menu_Action_Material_Enable;
 				status = Icon_Cancel;
 			}
-			PushBack(menu_entries, 
-				{symbol = def, extra_data = act, 
+			PushBack(menu_entries,
+				{symbol = def, extra_data = act,
 					custom =
 					{
 						Right = "2em", Bottom = "2em",
@@ -835,13 +835,13 @@ public func OnPumpMaterials(symbol_or_object, string action, bool alt)
 		AddToMaterialSelection(symbol_or_object);
 	else if (action == PUMP_Menu_Action_Material_Disable)
 		RemoveFromMaterialSelection(symbol_or_object);
-	UpdateInteractionMenus(this.GetPumpMaterialsMenuEntries);	
+	UpdateInteractionMenus(this.GetPumpMaterialsMenuEntries);
 }
 
 
 /*-- Properties --*/
 
-func Definition(def) 
+func Definition(def)
 {
 	// for title image
 	SetProperty("PictureTransformation", Trans_Rotate(50, 0, 1, 0), def);

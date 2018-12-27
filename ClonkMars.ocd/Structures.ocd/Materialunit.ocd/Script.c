@@ -106,7 +106,7 @@ func OnProductionProgress(id product, int progress)
 		{
 			var exit_x = 12 * GetCalcDir();
 			var exit_y = 9;
-			CreateParticle("Fire", PV_Random(exit_x - 2, exit_x + 2), exit_y, PV_Random(-1, 1), 0, PV_Random(18, 20), 
+			CreateParticle("Fire", PV_Random(exit_x - 2, exit_x + 2), exit_y, PV_Random(-1, 1), 0, PV_Random(18, 20),
 			{
 				Prototype = Particles_Fire(),
 				ForceY = 5,

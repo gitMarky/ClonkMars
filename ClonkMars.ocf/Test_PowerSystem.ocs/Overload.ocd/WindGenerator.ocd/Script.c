@@ -1,8 +1,8 @@
 /**
-	Wind Generator 
+	Wind Generator
 	Converts wind into a steady power supply.
-	
-	@author Maikel	
+
+	@author Maikel
 */
 
 #include Library_Structure
@@ -37,7 +37,7 @@ public func IsHammerBuildable() { return true; }
 func Initialize()
 {
 	// First initialize the libraries (especially the flag library).
-	_inherited(...);	
+	_inherited(...);
 	// Create a helper object for the wheel.
 	wheel = CreateObject(WindGenerator_Wheel, 0, 0, NO_OWNER);
 	wheel->SetParent(this);
@@ -70,13 +70,13 @@ func GetWeightedWind()
 	{
 		var raw_wind = GetWind(x_coords[i], -30);
 		weighted_wind_sum += weights[i] * raw_wind;
-		
+	
 		if (Abs(raw_wind) > max_wind) max_wind = Abs(raw_wind);
 	}
 	var wind_output = weighted_wind_sum / 100;
 	if (max_wind != 0)
 		last_wind_efficiency = 100 * Abs(wind_output) / max_wind;
-	
+
 	return wind_output;
 }
 
@@ -84,12 +84,12 @@ func GetWeightedWind()
 public func Wind2Turn()
 {
 	// Only produce power if fully constructed.
-	if (GetCon() < 100) 
+	if (GetCon() < 100)
 		return;
-	// Determine the current power production.	
+	// Determine the current power production.
 	var power = 0;
 	if (!wheel->Stuck() && !wheel->HasStopped())
-	{		
+	{	
 		// Produced power ranges from 0 to 80 in steps of 10.
 		power = Abs(wheel->GetRDir(MinRevolutionTime() / 90));
 		power = BoundBy((10 * power + 60) / 125 * 10, 0, 80);
@@ -128,7 +128,7 @@ public func GetInteractionMenus(object clonk)
 		Priority = 20
 	};
 	PushBack(menus, prod_menu);
-	
+
 	return menus;
 }
 
@@ -142,7 +142,7 @@ public func GetInfoMenuEntries()
 			hint = "$EfficiencyBad$||$EfficiencyGeneral$";
 		else if (last_wind_efficiency < 75)
 			hint = "$EfficiencyMedium$||$EfficiencyGeneral$";
-		text = Format("$Efficiency$: %3d%%|%s", last_wind_efficiency, hint); 
+		text = Format("$Efficiency$: %3d%%|%s", last_wind_efficiency, hint);
 	}
 	var info_text =
 	{
@@ -155,7 +155,7 @@ public func GetInfoMenuEntries()
 
 /*-- Properties --*/
 
-func Definition(def) 
+func Definition(def)
 {
 	SetProperty("PictureTransformation", Trans_Mul(Trans_Translate(2000, 0, 7000), Trans_Rotate(-20, 1, 0, 0), Trans_Rotate(30, 0, 1, 0)), def);
 	return _inherited(def, ...);

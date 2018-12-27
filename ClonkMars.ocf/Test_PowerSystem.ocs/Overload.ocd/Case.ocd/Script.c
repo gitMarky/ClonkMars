@@ -53,7 +53,7 @@ public func DrawCustomInteractionSelector(object dummy, object clonk, int intera
 		var max_y = clonk->GetY() - GetY();
 		// Relocate the dummy to the Clonk.
 		dummy->SetVertex(0, VTX_Y, -max_y);
-		
+	
 		// And draw some particles upwards.
 		var particles =
 		{
@@ -61,7 +61,7 @@ public func DrawCustomInteractionSelector(object dummy, object clonk, int intera
 			Size = PV_Sin(PV_Step(5, PV_Random(90)), 2, 3),
 		};
 		particles = Particles_Colored(particles, GetPlayerColor(clonk->GetOwner()));
-		
+	
 		var dir = 1;
 		if (max_y < 0) dir = -1;
 		max_y = Abs(max_y);
@@ -89,7 +89,7 @@ func Initialize()
 
 	front->SetAction("Attach", this);
 	back->SetAction("Attach", this);
-	
+
 	lib_power_system.consumer.has_enough_power = false;
 
 	return _inherited(...);
@@ -180,7 +180,7 @@ public func ExecuteSync()
 func OvertakePartnerVertices(int off_x, int off_y)
 {
 	var update_mode = 2; // force immediate update and store information
-	
+
 	for(var i = 0; i < ElevatorCase_additional_vertex_count; ++i)
 	{
 		SetVertex(ElevatorCase_additional_vertex_index_begin + i, VTX_X, GetVertex(ElevatorCase_normal_vertex_index_begin + i, VTX_X) + off_x, update_mode);
@@ -239,7 +239,7 @@ public func ForwardEngineStop()
 // Repositions the case if for some reason it's too far up
 func FxElevatorUpperLimitCheckTimer(target, effect, time)
 {
-	if (!elevator || IsSlave()) 
+	if (!elevator || IsSlave())
 		return FX_Execute_Kill;
 
 	var d = GetY() - (elevator->GetY() + 20);
@@ -601,7 +601,7 @@ func FxMoveToTimer(object target, proplist effect, int time)
 func CheckIdle()
 {
 	// I have no mind of my own
-	if (IsSlave()) 
+	if (IsSlave())
 		return false;
 
 	// If there is someone pushing the case it is not idle.
@@ -639,7 +639,7 @@ func ContactBottom()
 // Send elevator to the clicked position.
 public func ControlUseStart(object clonk, int x, int y)
 {
-	if (IsSlave()) 
+	if (IsSlave())
 		return Control2Master("ControlUseStart", clonk, x, y);
 	MoveTo(GetY() + y, 0, nil, true);
 	Sound("UI::Click", {player = clonk->GetOwner()});
@@ -650,10 +650,10 @@ public func ControlUseStart(object clonk, int x, int y)
 public func ControlDown(object clonk)
 {
 	if (!elevator) return true;
-	
+
 	if (IsSlave())
 		return Control2Master("ControlDown", clonk);
-	
+
 	// Pressing down when already on ground results in drilling.
 	var drill = !!GetContact(-1, CNAT_Bottom);
 
@@ -665,17 +665,17 @@ public func ControlDown(object clonk)
 public func ControlUp(object clonk)
 {
 	if (!elevator) return true;
-	
-	if (IsSlave()) 
+
+	if (IsSlave())
 		return Control2Master("ControlUp", clonk);
-	
+
 	// what is that player even doing
 	if (GetY() <= elevator->GetY() + 20)
 	{
 		Sound("UI::Click", {player = clonk->GetOwner()});
 		return true;
 	}
-	
+
 	StopAutomaticMovement();
 	SetMoveDirection(COMD_Up, true, false);
 	return true;
@@ -683,14 +683,14 @@ public func ControlUp(object clonk)
 
 public func ControlStop(object clonk, int control)
 {
-	if (IsSlave()) 
+	if (IsSlave())
 		return Control2Master("ControlStop", clonk, control);
-	
+
 	if (control == CON_Up && GetYDir() <= 0)
 		Halt(true);
 	else if (control == CON_Down && GetYDir() >= 0)
 		Halt(true);
-	
+
 	return true;
 }
 

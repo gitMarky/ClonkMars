@@ -21,6 +21,6 @@ func Initialize()
 	SetStorageCapacity(1500 * POWER_SYSTEM_TICK); // 150 seconds * 10 production * 36 frames
 	SetProducerPriority(50);
 	RegisterPowerStorage(this);
-	
+
 	return _inherited(...);
 }

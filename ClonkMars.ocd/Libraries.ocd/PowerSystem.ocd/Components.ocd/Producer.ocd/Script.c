@@ -1,15 +1,15 @@
 /**
 	Power Producer
-	Handles some aspects of power producing structures, this library should be 
-	included by all power producing structures. Certain functions should be 
+	Handles some aspects of power producing structures, this library should be
+	included by all power producing structures. Certain functions should be
 	overloaded and others can be used to implement the production of power
 	in a uniform way consistent with the network, see text below.
-	 
+	
 
 	Important notes when including this library:
 	 * The object including this library should return _inherited(...) in the
 	   Construction and Destruction callback if overloaded.
-	
+
 	@author Zapper, Maikel, Marky
 */
 
@@ -50,7 +50,7 @@ func SetPowerProduction(int amount)
 	{
 		FatalError(Format("Power production must be >= 0, was %d", amount));
 	}
-	
+
 	// Callback to visualization
 	if (IsPowerProductionActive())
 	{
@@ -60,7 +60,7 @@ func SetPowerProduction(int amount)
 	// Update
 	lib_power_system.producer.power_production = amount;
 	GetPowerSystem()->UpdateNetworkForPowerLink(this);
-	
+
 	// Let parent class handle things
 	_inherited(amount, ...);
 }
@@ -69,12 +69,12 @@ func SetPowerProduction(int amount)
 /**
  * Producer priority: the willingsness of a producer to deliver energy.
  * This is high for steady producers like the wind generator and low
- * for producers like the steam engine. 
+ * for producers like the steam engine.
  *
  * @return the priority. Typical return values are:
  *	       - Windmill:    100
  *         - Compensator:  50
- *         - Steam engine:  0	
+ *         - Steam engine:  0
  */
 func GetProducerPriority()
 {
@@ -85,12 +85,12 @@ func GetProducerPriority()
 /**
  * Sets the producer priority: the willingsness of a producer to deliver energy.
  * This is high for steady producers like the wind generator and low
- * for producers like the steam engine. 
+ * for producers like the steam engine.
  *
  * @par priority typical values are:
  *	       - Windmill:    100
  *         - Compensator:  50
- *         - Steam engine:  0	
+ *         - Steam engine:  0
  */
 func SetProducerPriority(int priority)
 {
@@ -137,7 +137,7 @@ func UnregisterPowerProduction()
 
 /**
  * Find out whether this producer is producing power.
- * 
+ *
  * The power system asks this before issuing the callbacks
  * OnPowerProductionStart() and OnPowerProductionStop()
  */
@@ -162,24 +162,24 @@ public func SetPowerProductionActive(bool status)
  * By default this is the case, if the amount is less than or equal to the power production.
  * Usually the network should not request more than the possible production.
  */
-func CanPowerProductionStart(int amount) 
-{ 
+func CanPowerProductionStart(int amount)
+{
 	return amount <= GetPowerProduction();
 }
 
 
 /**
- * Callback by the power network. Overload this function and start the production 
- * of power in this structure for the requested amount if possible. 
+ * Callback by the power network. Overload this function and start the production
+ * of power in this structure for the requested amount if possible.
  */
-func OnPowerProductionStart(int amount) 
+func OnPowerProductionStart(int amount)
 {
 	// Set status
 	SetPowerProductionActive(true);
 
 	// Callback to visualization
 	this->~VisualizePowerChange(0, GetPowerProduction(), false);
-	
+
 	// Let parent class handle things
 	_inherited(amount, ...);
 }
@@ -196,7 +196,7 @@ func OnPowerProductionStop(int amount)
 
 	// Callback to visualization
 	this->~VisualizePowerChange(GetPowerProduction(), 0, true);
-	
+
 	// Let parent class handle things
 	_inherited(amount, ...);
 }
@@ -207,7 +207,7 @@ func OnPowerProductionStop(int amount)
 
 /**
  * All power related local variables are stored in a single proplist.
- * This reduces the chances of clashing local variables. 
+ * This reduces the chances of clashing local variables.
  *
  * See Construction for which variables are being used.
  */
@@ -228,7 +228,7 @@ func Construction()
 	{
 		lib_power_system.producer = {};
 	}
-	
+
 	// Default values
 	lib_power_system.producer.power_production = 0;		// Works without power by default
 	lib_power_system.producer.priority = 0;				// No priority

@@ -4,9 +4,9 @@
 public func OnAfterLaunch()
 {
 	_inherited(...);
-	
+
 	var fx = GetEffect("IntMeteor", this);
-	
+
 	if (fx)
 	{
 		fx.smoketrail.Alpha = PV_KeyFrames(1000, 0, 0, 30, 30, 1000, 0);

@@ -2,7 +2,7 @@
 	Power Display
 	Include this library into a structure that should display
 	the status of the power network in the interaction menu.
-	
+
 	@author Maikel
 */
 
@@ -50,22 +50,22 @@ func GetPowerDisplayMenuEntries(object clonk)
 	// If the no power need rule is active just state that.
 	if (FindObject(Find_ID(Rule_NoPowerNeed)))
 	{
-		var entry = 
+		var entry =
 		{
 			Style = GUI_FitChildren,
 			Bottom = "1.1em",
 			BackgroundColor = {Std = 0, OnHover = 0x50ff0000},
 			Priority = 0,
-			text = 
+			text =
 			{
 				Style = GUI_TextVCenter | GUI_TextLeft,
-				Text = "$MsgPowerNoNeed$"		
+				Text = "$MsgPowerNoNeed$"	
 			}
 		};
 		PushBack(menu_entries, {symbol = Icon_Lightbulb, extra_data = "nopowerneed", custom = entry});
-		return menu_entries;	
-	} 
-	
+		return menu_entries;
+	}
+
 	// Get all the power data.
 	var power_production_current = power_network->GetActivePowerAvailable(true) / 10;
 	var power_production_capacity = power_network->GetBarePowerAvailable() / 10;
@@ -73,8 +73,8 @@ func GetPowerDisplayMenuEntries(object clonk)
 	var power_consumption_need = power_network->GetPowerConsumptionNeed() / 10;
 	var power_stored = power_network->GetStoredPower();
 	var power_stored_capacity = power_network->GetStoredPowerCapacity();
-	
-	var entry_prototype = 
+
+	var entry_prototype =
 	{
 		Style = GUI_FitChildren | GUI_TextVCenter | GUI_TextLeft,
 		Bottom = "1.1em",
@@ -82,25 +82,25 @@ func GetPowerDisplayMenuEntries(object clonk)
 	};
 
 	// Show power production.
-	var entry = 
+	var entry =
 	{
 		Prototype = entry_prototype,
 		Priority = 0,
 		Text = Format("$MsgPowerProduction$ %d {{Icon_Lightbulb}} ($MsgPowerProductionCapacity$ %d {{Icon_Lightbulb}})", power_production_current, power_production_capacity)
 	};
 	PushBack(menu_entries, {symbol = Icon_Lightbulb, extra_data = "production", custom = entry});
-	
+
 	// Show power consumption.
-	var entry = 
+	var entry =
 	{
 		Prototype = entry_prototype,
 		Priority = 1,
 		Text = Format("$MsgPowerConsumption$ %d {{Icon_Lightbulb}} ($MsgPowerConsumptionDemand$ %d {{Icon_Lightbulb}})", power_consumption_current, power_consumption_need)
 	};
 	PushBack(menu_entries, {symbol = Icon_Lightbulb, extra_data = "consumption", custom = entry});
-	
+
 	// Show power storage.
-	var entry = 
+	var entry =
 	{
 		Prototype = entry_prototype,
 		Priority = 2,
@@ -142,7 +142,7 @@ func OnPowerDisplayHover(id symbol, string extra_data, desc_menu_target, menu_id
 				text = Format("%s $DescPowerOverproduction$", text, over_production);
 			else if (over_production < 0)
 				text = Format("%s $DescPowerUnderproduction$", text, -over_production);
-			
+		
 		}
 		else if (extra_data == "nopowerneed")
 		{

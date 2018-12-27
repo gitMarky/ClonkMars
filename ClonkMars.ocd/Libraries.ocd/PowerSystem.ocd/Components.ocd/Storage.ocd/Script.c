@@ -63,7 +63,7 @@ func SetStoredPower(int to_power)
  * Returns the amount of stored power in the storage.
  */
 func GetStoredPower()
-{ 
+{
 	return lib_power_system.storage.stored_power;
 }
 
@@ -199,7 +199,7 @@ func OnStorageStop()
 
 /**
  * All power related local variables are stored in a single proplist.
- * This reduces the chances of clashing local variables. 
+ * This reduces the chances of clashing local variables.
  *
  * See Construction for which variables are being used.
  */
@@ -220,7 +220,7 @@ func Construction()
 	{
 		lib_power_system.storage = {};
 	}
-	
+
 	// Default values
 	lib_power_system.storage.max_rate = 0;		// Do not store by default
 	lib_power_system.storage.input = 0;			// Do not store by default

@@ -19,7 +19,7 @@ local panel_angle = 0;	// made this a property, because it is way easier to debu
 func Construction()
 {
 	_inherited(...);
-	
+
 	if (GetOwner() == NO_OWNER)
 	{
 		SetColor(RGB(150, 111, 139));
@@ -72,13 +72,13 @@ func SolarPanelProducePower()
 
 			var day_length = day_end - day_start;
 			var day_progress = BoundBy(time.time - day_start, 0, day_length);
-			
+		
 			var phase = day_progress * 180 / day_length;
 			rot_h = -80 + phase * 8 / 9;	// range from -80 to 80
 			rot_v = +80 - Sin(phase, 40);	// range from +80 to +40
 			//Log("Solar panel: day_length %d, day_progress %d, phase %d, rot h %d, rot v %d", day_length, day_progress, phase, rot_h, rot_v);
 		}
-		
+	
 		// Calculate light intensite
 		// - First, determine the angle that points to the sky from the current position
 		var dx = +Sin(rot_h, 1000);
@@ -102,7 +102,7 @@ func SetDishRotation(int horizontal, int vertical, int time)
 {
 	horizontal = BoundBy(Normalize(horizontal, -180), -90, 90);
 	vertical = BoundBy(55 - vertical, -35, 55);
-	
+
 	var transform;
 	if (horizontal == 0 && vertical == 0)
 	{

@@ -1,23 +1,23 @@
 /**
 	Power Library
 	Handles the aspects for a single power networks, for each network in a round
-	a copy of this library object is created. For each network it is being kept 
-	track of which are the idle/active producers and idle/active consumers and 
-	power is requested from producers and distributed for consumers according 
+	a copy of this library object is created. For each network it is being kept
+	track of which are the idle/active producers and idle/active consumers and
+	power is requested from producers and distributed for consumers according
 	to priority.
-	
+
 	Callbacks to the power producers (see producer library for details):
 	 * OnPowerProductionStart(int amount)
 	 * OnPowerProductionStop(int amount)
 	 * GetProducerPriority()
 	 * IsSteadyPowerProducer()
-	 
+	
 	Callbacks to the power consumers (see consumer library for details):
 	 * OnEnoughPower(int amount)
 	 * OnNotEnoughPower(int amount)
 	 * GetConsumerPriority()
 	 * GetActualPowerConsumer()
-	 
+	
 	The network object keeps track of the producers and consumers in lists.
 	 * lib_power.idle_producers (currently not producing power)
 	 * lib_power.active_producers (currently producing power)
@@ -25,7 +25,7 @@
 	 * lib_power.active_consumers (supplied consumers)
 	Producers are stored according to {obj, prod_amount, priority} and consumers
 	according to {obj, cons_amount, priority}.
-	
+
 	The power library and its components Library_Producer, Library_Consumer and
 	Library_Storage depend on the following other definitions:
 	 * StatusSymbol
@@ -168,11 +168,11 @@ public func TransferPowerLink(object link)
 	{
 		return FatalError("TransferPowerLink() either not called from definition context or no link specified.");
 	}
-	
+
 	DebugInfo("**************************************************************************");
 	DebugInfo("POWR - Transfer power link for %v", link);
-	
-	
+
+
 	// Get the new network for this power link.
 	var new_network = GetPowerNetwork(link);
 	// Loop over existing networks and find the link.
@@ -192,19 +192,19 @@ public func TransferPowerLink(object link)
 		if (producer)
 		{
 			old_network->RemovePowerProducer(producer);
-			new_network->AddPowerProducer(producer);		
+			new_network->AddPowerProducer(producer);	
 		}
 		var consumer = old_network->GetConsumerLink(link);
 		if (consumer)
 		{
 			old_network->RemovePowerConsumer(consumer);
-			new_network->AddPowerConsumer(consumer);		
+			new_network->AddPowerConsumer(consumer);	
 		}
 		var storage = old_network->GetStorageLink(link);
 		if (storage)
 		{
 			old_network->RemovePowerStorage(storage);
-			new_network->AddPowerStorage(storage);		
+			new_network->AddPowerStorage(storage);	
 		}
 	}
 	GetPowerSystem()->DebugInfo("**************************************************************************");
@@ -236,10 +236,10 @@ func DoRefreshAllPowerNetworks()
 {
 	// Don't do anything if there are no power helpers created yet.
 	if (GetType(POWER_SYSTEM_NETWORKS) != C4V_Array) return;
-	
+
 	// Special handling for neutral networks of which there should be at most one.
 	var neutral_network_count = 0;
-	
+
 	// Do the same for all other helpers: delete / refresh.
 	for (var index = GetLength(POWER_SYSTEM_NETWORKS) - 1; index >= 0; index--)
 	{
@@ -262,7 +262,7 @@ func DoRefreshAllPowerNetworks()
 			neutral_network_count += 1;
 		}
 	}
-	
+
 	if (neutral_network_count > 1)
 	{
 		FatalError(Format("There were a total of %d neutral networks, at most there should be one", neutral_network_count));
@@ -312,25 +312,25 @@ public func GetPowerNetwork(object for_obj)
 	{
 		return FatalError("GetPowerNetwork() either not called from definition context or no object specified.");
 	}
-	
+
 	Init();
-	
+
 	// Get the actual power consumer for this object. This can for example be the elevator for the case.
 	var actual;
 	while (actual = for_obj->~GetActualPowerConsumer())
 	{
 		// Stop a possible infinite loop.
-		if (actual == for_obj) 
+		if (actual == for_obj)
 			break;
 		for_obj = actual;
 	}
 
-	// Get the link corresponding to the object.	
+	// Get the link corresponding to the object.
 	var link = this->GetPowerLink(for_obj);
-	
+
 	// Find the network helper object for this link.
 	var helper = nil;
-	
+
 	// Just get the helper from the link.
 	if (link)
 	{
@@ -361,14 +361,14 @@ public func GetPowerNetwork(object for_obj)
 			helper = CreateNetwork(true);
 		}
 	}
-	
+
 	return helper;
 }
 
 
 /**
  * Definition call: Find out which object is the power link for a node.
- * 
+ *
  * Is defined by the plugins.
  */
 func GetPowerLink(object for_obj)

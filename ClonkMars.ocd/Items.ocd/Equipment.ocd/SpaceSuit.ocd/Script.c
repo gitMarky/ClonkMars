@@ -1,7 +1,7 @@
 /**
 	Space suit
 	Connected to a pump it provides the user with air underwater.
-	
+
 	@author: Marky
 	@credits: pluto, Clonkonaut for the diving helmet
 */

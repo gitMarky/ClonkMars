@@ -1,6 +1,6 @@
 /**
 	Atmosphere
-	
+
 	@author Marky
 */
 

@@ -3,7 +3,7 @@
 
 	This object supplies the base functionality for structures with doors.
 	Closing and opening the door is handled by an effect.
-	
+
 */
 
 static const ANIM_SLOT_Door = 10;
@@ -79,7 +79,7 @@ func CloseEntrance()
 func KeepOpen()
 {
 	var control = GetEffect(FxDoorControl.Name, this);
-	
+
 	if (control)
 	{
 		control->StayOpen();
@@ -94,12 +94,12 @@ local FxDoorControl = new Effect
 	Construction = func()
 	{
 		var default_delay = 20;
-	
+
 		this.time_opening = GetActionLength("OpenDoor")  ?? (Target.DoorTimeToOpen ?? default_delay);
 		this.time_opened =  GetActionLength("DoorOpen")  ?? (Target.DoorTimeIsOpen ?? default_delay);
 		this.time_closing = GetActionLength("CloseDoor") ?? (Target.DoorTimeToClose ?? default_delay);
 		this.time_open = this.time_opened;
-		
+	
 		this.is_open = false;
 		this.sound_open = true;
 		this.sound_close = true;
@@ -116,7 +116,7 @@ local FxDoorControl = new Effect
 			if (this.sound_open)
 			{
 				this.sound_open = false;
-				Target->SoundOpenDoor();	
+				Target->SoundOpenDoor();
 			}
 			if (this.anim_open)
 			{
@@ -172,7 +172,7 @@ local FxDoorControl = new Effect
 
 	GetActionLength = func(string name)
 	{
-		if (Target.ActMap && Target.ActMap[name]) 
+		if (Target.ActMap && Target.ActMap[name])
 		{
 			return (Target.ActMap[name].Delay ?? 1) * (Target.ActMap[name].Length ?? 1);
 		}
@@ -189,7 +189,7 @@ local FxDoorControl = new Effect
 			this.time_open = this.time_opened;
 		}
 	},
-	
+
 	DoorAnimation = func(string animation, int slot, int duration)
 	{
 		Target->PlayAnimation(animation, ANIM_SLOT_Door + slot, Anim_Linear(0, 0, Target->GetAnimationLength(animation), duration + 1, ANIM_Remove), Anim_Linear(0, 0, 1000, 1, ANIM_Remove));

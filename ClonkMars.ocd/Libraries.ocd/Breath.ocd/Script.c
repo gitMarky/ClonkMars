@@ -2,7 +2,7 @@
 	Library_Breath
 
 	Implements custom breath system.
-	
+
 	If you include this, make sure to call _inherited() in the following functions:
 	- Construction
 	- DoBreath
@@ -56,7 +56,7 @@ local FxBreathe = new Effect
 		{
 			return FX_Execute_Kill;
 		}
-		
+	
 		// skip handling breath?
 		if (Target.library_breath.NoBreath) return FX_OK;
 
@@ -65,7 +65,7 @@ local FxBreathe = new Effect
 			// do nothing at the moment
 			var max_supply = (Target->GetMaxBreath() - Target->GetBreath());
 			var take_breath = Target->~TakeBreath(max_supply) ?? max_supply;
-			
+		
 			if (take_breath > 0)
 			{
 				Target->DoBreath(take_breath);
@@ -93,7 +93,7 @@ local FxBreathe = new Effect
 			{
 				Target->DoEnergy(-1);
 			}
-			
+		
 			// needs a deep breath later
 			this.do_deep_breath = true;
 		}

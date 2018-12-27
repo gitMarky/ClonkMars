@@ -1,7 +1,7 @@
 /**
 	Compensator
 	A small structure which stores surplus energy available in a network.
-	
+
 	@author Zapper, Maikel
 */
 
@@ -32,12 +32,12 @@ func Initialize()
 	leftcharge->Init(this);
 	rightcharge = CreateObjectAbove(Compensator_ChargeShower, -6 * GetCalcDir(), 10, NO_OWNER);
 	rightcharge->Init(this);
-	
+
 	SetStoragePower(20);
 	SetStorageCapacity(10800); // 15 seconds * 36 frames * 20 production
 	SetProducerPriority(50);
 	RegisterPowerStorage(this);
-	
+
 	return _inherited(...);
 }
 
@@ -45,13 +45,13 @@ func Incineration(int caused_by)
 {
 	if (GetStoredPower() == 0)
 		return Extinguish();
-		
+	
 	// Set controller for correct kill tracing.
 	SetController(caused_by);
 	for (var i = 0; i < 2; ++i)
 	{
 		var x = -7 + 14 * i;
-		var b = CreateObject(Compensator_BurningBattery, x, 6, NO_OWNER); 
+		var b = CreateObject(Compensator_BurningBattery, x, 6, NO_OWNER);
 		b->SetSpeed(-30 + 60 * i + RandomX(-10, 10), RandomX(-50, -30));
 	}
 	return Explode(30);
@@ -74,8 +74,8 @@ func RefreshAnimationPosition()
 	rightcharge->To(Max(0, charge-50)*2);
 }
 
-public func OnPowerProductionStart(int amount) 
-{ 
+public func OnPowerProductionStart(int amount)
+{
 	// Sparkle effect when releasing power.
 	if (!GetEffect("Sparkle", this))
 		AddEffect("Sparkle", this, 1, 1, this);
@@ -92,7 +92,7 @@ public func OnPowerProductionStop(int amount)
 func FxSparkleTimer(object target, proplist effect, int time)
 {
 	effect.Interval *= 2;
-	if (effect.Interval > 36 * 3) 
+	if (effect.Interval > 36 * 3)
 		return -1;
 	CreateParticle("ElectroSpark", PV_Random(-3, 3), PV_Random(-15, -13), PV_Random(-5, 5), PV_Random(-5, 1), 10, Particles_ElectroSpark1(), 10);
 	return 1;

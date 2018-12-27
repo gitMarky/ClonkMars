@@ -26,7 +26,7 @@ public func TakeBreath(int max_supply)
 	{
 		take_breath += Min(respirator->GetOxygen(), rest);
 	}
-	
+
 	return BoundBy(take_breath, 0, max_supply);
 }
 

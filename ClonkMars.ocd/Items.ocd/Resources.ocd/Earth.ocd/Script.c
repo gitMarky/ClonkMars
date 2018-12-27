@@ -13,7 +13,7 @@ func Construction()
 
 func Hit()
 {
-	
+
 	CastPXS("Earth", GetMaterialAmount() * GetStackCount(), 18);
 	Sound("Hits::GeneralHit?");
 	RemoveObject();

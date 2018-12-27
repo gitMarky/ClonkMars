@@ -80,9 +80,9 @@ public func SwitchConnection(object connected_to, object obj)
 
 	if (target0 == connected_to) target0 = obj;
 	if (target1 == connected_to) target1 = obj;
-	
+
 	SetActionTargets(target0, target1);
-	
+
 	PowerLine->RefreshAllLineNetworks();
 }
 
@@ -120,7 +120,7 @@ func OnLineBreak(bool no_msg)
 		if (GetActionTarget(0)) GetActionTarget(0)->~OnLineDisconnect(GetLineKit());
 		if (GetActionTarget(1)) GetActionTarget(1)->~OnLineDisconnect(GetLineKit());
 	}
-	
+
 	PowerLine->RefreshAllLineNetworks();
 	return;
 }
@@ -130,10 +130,10 @@ func OnLineChange()
 {
 	// Notify action targets about line change.
 	var act1 = GetActionTarget(0);
-	var act2 = GetActionTarget(1);	
+	var act2 = GetActionTarget(1);
 	if (act1) act1->~OnLineLengthChange(this);
 	if (act2) act2->~OnLineLengthChange(this);
-	
+
 	// Break line if it is too long.
 	if (GetLineLength() > this.LineMaxLength)
 	{
@@ -191,19 +191,19 @@ local ActMap = {
 
 /**
 	Link Library
-	
+
 	Helps creating a network of linked objects.
-	
+
 	Important notes when including this library:
 	 * The object including this library should return _inherited(...) in the
 	   Construction, Initialize and Destruction callback if overloaded.
-	
+
 	@author Zapper, Maikel
 */
 
 
 // All object related local variables are stored in a single proplist.
-// This reduces the chances of clashing local variables. See 
+// This reduces the chances of clashing local variables. See
 // Construction for which variables are being used.
 local lib_linked;
 
@@ -214,12 +214,12 @@ func RefreshAllLineNetworks()
 {
 	Log("Refresh all line networks");
 	var all_lines = FindObjects(Find_Func("IsPowerLine"));
-	
+
 	for (var line in all_lines)
 	{
 		line->RefreshLinkedObjects(all_lines);
 	}
-	
+
 	GetPowerSystem()->RefreshAllPowerNetworks();
 }
 
@@ -236,7 +236,7 @@ func RefreshLinkedObjects(array found_objects)
 	while (GetLength(iterate_objects))
 	{
 		// Store all the objects found in the last iteration which are not this object.
-		for (var link in iterate_objects) 
+		for (var link in iterate_objects)
 		{
 			if (link != this)
 				PushBack(current_linked_objects, link);
@@ -249,12 +249,12 @@ func RefreshLinkedObjects(array found_objects)
 			for (var link in found_objects)
 			{
 				// And must not be an already found object or this object.
-				if (GetIndexOf(current_linked_objects, link) != -1 || link == this) 
+				if (GetIndexOf(current_linked_objects, link) != -1 || link == this)
 				{
 					continue;
 				}
-				// Neither may it be an already found object in this loop.	
-				if (GetIndexOf(iterate_objects, link) != -1) 
+				// Neither may it be an already found object in this loop.
+				if (GetIndexOf(iterate_objects, link) != -1)
 				{
 					continue;
 				}
@@ -273,7 +273,7 @@ func RefreshLinkedObjects(array found_objects)
 
 	// Update the linked objects of this object.
 	lib_linked.linked_objects = current_linked_objects;
-	
+
 	// Update the linked objects for all other linked objects as well.
 	for (var other in GetLinkedObjects())
 	{
@@ -310,7 +310,7 @@ public func GetLinkedObjects() {return lib_linked.linked_objects; }
 
 public func GetPowerHelper() { return lib_linked.power_helper; }
 
-public func SetPowerHelper(object to, bool update_linked_objects, bool report_inconsistency) 
+public func SetPowerHelper(object to, bool update_linked_objects, bool report_inconsistency)
 {
 	var old_network = GetPowerHelper();
 	lib_linked.power_helper = to;

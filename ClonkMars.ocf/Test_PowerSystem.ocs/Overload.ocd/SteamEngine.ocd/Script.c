@@ -1,9 +1,9 @@
 /**
- 	Steam Engine 
+ 	Steam Engine
  	Burns fuels like coal, wood and oil to produce power. The steam engine
- 	produces 120 units of power independent of the fuel. However, the fuel 
+ 	produces 120 units of power independent of the fuel. However, the fuel
  	determines the amount of fuel and thereby the burn time.
- 	
+ 
  	@author Maikel (orignal script), Marky (fuel liquid)
 */
 
@@ -60,9 +60,9 @@ public func ContentsCheck()
 		fuel->Exit(-45, 21, -20, -1, -1, -30);
 		Sound("Chuff");
 	}
-	
+
 	// If active don't do anything.
-	if (IsWorking()) 
+	if (IsWorking())
 		return;
 
 	// If there is fuel available let the network know.
@@ -93,10 +93,10 @@ public func CanPowerProductionStart(int amount)
 }
 
 // Callback from the power library for production of power request.
-public func OnPowerProductionStart(int amount) 
-{ 
+public func OnPowerProductionStart(int amount)
+{
 	// There is enough fuel so start producing power and notify network of this.
-	if (GetAction() == "Idle") 
+	if (GetAction() == "Idle")
 		SetAction("Work");
 	_inherited(amount, ...);
 }
@@ -148,7 +148,7 @@ func WorkAbort()
 {
 	// Sound can be safely stopped here since this action will always end with an abort call.
 	Sound("Structures::SteamEngine", {loop_count = -1});
-	return;	
+	return;
 }
 
 func RefillFuel()
@@ -160,14 +160,14 @@ func RefillFuel()
 	if (no_fuel || should_keep_reserve)
 	{
 		var fuel_extracted;
-	
+
 		// Search for new fuel among the contents.
 		var fuel = GetFuelContents();
 		if (fuel)
 		{
 			fuel_extracted = fuel->~GetFuelAmount();
 			if (!fuel->~OnFuelRemoved(fuel_extracted)) fuel->RemoveObject();
-	
+
 			DoFuelAmount(fuel_extracted * 18);
 		}
 	}
@@ -284,7 +284,7 @@ local ActMap = {
 	},
 };
 
-func Definition(def) 
+func Definition(def)
 {
 	SetProperty("MeshTransformation", Trans_Mul(Trans_Rotate(25, 0, 1, 0), Trans_Scale(625)), def);
 	SetProperty("PictureTransformation", Trans_Mul(Trans_Translate(-4000, -18000, 60000), Trans_Rotate(25, 0, 1, 0), Trans_Scale(625)), def);

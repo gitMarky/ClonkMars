@@ -18,16 +18,16 @@ global func GetAngleFree(int angle, int value, int x, int y)
 
 	// Angle is definitely not free if the starting point is covered
 	if (GBackSemiSolid(AbsX(x), AbsY(y))) return 0;
-	
+
 	var dx = +Sin(angle, 50);
 	var dy = -Cos(angle, 50);
-	
+
 	var pos_x, pos_y;
 	while (true)
 	{
 		pos_x = x + dx;
 		pos_y = y + dy;
-		
+	
 		// Workaround für 1px-wall at the side
 		if (pos_x < 0 && GameCall("LeftClosed") && GetMaterial(AbsX(0), AbsY(pos_y)) == -1)
 		{
@@ -37,7 +37,7 @@ global func GetAngleFree(int angle, int value, int x, int y)
 		{
 			return value;
 		}
-		
+	
 		// Path segment is free and there is no liquid? Continue
 		if (PathFree(pos_x, pos_y, x, y) && !GBackLiquid(AbsX(pos_x), AbsY(pos_y)))
 		{
@@ -51,7 +51,7 @@ global func GetAngleFree(int angle, int value, int x, int y)
 		{
 			return 0;
 		}
-		
+	
 		// Go to the next path segment
 		x = pos_x;
 		y = pos_y;

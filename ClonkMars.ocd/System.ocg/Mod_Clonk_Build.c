@@ -51,12 +51,12 @@ local FxBuilding = new Effect{
 			Target->StopBuilding();
 		}
 	},
-	
+
 	Destruction = func()
 	{
 		if (Target) Target->Sound("Clonk_Build", {loop_count = -1});
 	},
-	
+
 	KneelDuration = 30,
 };
 
@@ -72,7 +72,7 @@ func WeldingFX(int x, int y)
 func WeldingSpark(int x, int y, int radius, int rgb)
 {
 	CreateParticle("MagicSpark", PV_Random(x-2, x+2), PV_Random(y-2, y+2), PV_Random(-radius, +radius), PV_Random(-radius, 0), PV_Random(30, 45), Particles_Colored(Particles_Glimmer(), rgb), 3);
-	
+
 	if (!Random(30))
 	{
 		CreateParticle("Magic", x, y, 0, 0, PV_Random(10, 20), { Prototype = Particles_Colored(Particles_MuzzleFlash(), rgb), Size = PV_Random(15, 25), Alpha = PV_Linear(PV_Random(120, 60), 0)}, 1);
