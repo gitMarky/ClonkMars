@@ -4,6 +4,7 @@
 #include Library_LiquidContainer
 #include Library_PipeControl
 #include Library_ResourceSelection
+#include Library_PipeControl
 
 
 /* --- Properties --- */
@@ -152,36 +153,9 @@ public func IsLiquidContainerForMaterial(string liquid_name)
 }
 
 
-
 /* --- Liquid Control --- */
 
-// The liquid tank may have one drain and one source.
-public func QueryConnectPipe(object pipe, bool show_message)
-{
-	if (GetDrainPipe() && GetSourcePipe())
-	{
-		if (show_message) pipe->Report("$MsgHasPipes$");
-		return true;
-	}
-	else if (GetSourcePipe() && pipe->IsSourcePipe())
-	{
-		if (show_message) pipe->Report("$MsgSourcePipeProhibited$");
-		return true;
-	}
-	else if (GetDrainPipe() && pipe->IsDrainPipe())
-	{
-		if (show_message) pipe->Report("$MsgDrainPipeProhibited$");
-		return true;
-	}
-	else if (pipe->IsAirPipe())
-	{
-		if (show_message) pipe->Report("$MsgPipeProhibited$");
-		return true;
-	}
-	return false;
-}
 
-// Set to source or drain pipe.
 public func OnPipeConnect(object pipe, string specific_pipe_state)
 {
 	if (PIPE_STATE_Source == specific_pipe_state)
@@ -196,18 +170,17 @@ public func OnPipeConnect(object pipe, string specific_pipe_state)
 	}
 	else
 	{
-		if (!GetDrainPipe())
-		{
-			OnPipeConnect(pipe, PIPE_STATE_Drain);
-		}
-		else if (!GetSourcePipe())
+		if (!GetSourcePipe())
 		{
 			OnPipeConnect(pipe, PIPE_STATE_Source);
+		}
+		else if (!GetDrainPipe())
+		{
+			OnPipeConnect(pipe, PIPE_STATE_Drain);
 		}
 	}
 	pipe->Report("$MsgConnectedPipe$");
 }
-
 
 
 local FxDisperseLiquid = new Effect

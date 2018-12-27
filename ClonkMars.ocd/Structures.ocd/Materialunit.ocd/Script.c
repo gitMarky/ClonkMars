@@ -5,6 +5,7 @@
 #include Library_DoorControlFx
 #include Library_DamageControl
 #include Library_OxygenSupplier
+#include Library_PipeControl
 
 
 public func PowerNeed() { return 100; }
@@ -16,6 +17,11 @@ local Description = "$Description$";
 local ContainBlast = true;
 local HitPoints = 70;
 local Components = { Metal=2, Plastic=2 };
+
+// Can attach one drain pipe to the material unit
+local PipeLimit_Air = 0;
+local PipeLimit_Source = 0;
+local PipeLimit_Drain = 1;
 
 local AnimName_DoorOpen = "door_open";
 local AnimName_DoorOpened = "door_openend"; // Yes, the typo is in the animation...
@@ -52,6 +58,12 @@ func Destruction()
 	return _inherited(...);
 }
 
+/* --- Component selection --- */
+
+func Find_AvailableToProducer()
+{
+	return Find_Or(Find_Container(this), Find_Container(GetConnectedObject(GetDrainPipe())));
+}
 
 /* --- Production --- */
 
@@ -214,4 +226,24 @@ func RemoveSmelterLight()
 	{
 		smelter_light->RemoveObject();
 	}
+}
+
+/* --- Pipe Control --- */
+
+
+public func OnPipeConnect(object pipe, string specific_pipe_state)
+{
+	if (PIPE_STATE_Drain == specific_pipe_state)
+	{
+		SetDrainPipe(pipe);
+		pipe->SetDrainPipe();
+	}
+	else
+	{
+		if (!GetDrainPipe())
+		{
+			OnPipeConnect(pipe, PIPE_STATE_Drain);
+		}
+	}
+	pipe->Report("$MsgConnectedPipe$");
 }
