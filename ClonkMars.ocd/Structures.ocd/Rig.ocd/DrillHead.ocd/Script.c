@@ -12,7 +12,6 @@ local ActMap = {
 		Delay = 5,
 		FacetBase = 1,
 		NextAction = "Move",
-		StartCall = "Processing",
 	},
 	
 	Stop = {
@@ -39,7 +38,6 @@ local ActMap = {
 		NextAction = "Drill",
 		StartCall = "Drilling",
 		Sound = "Structures::Elevator::Drilling",
-		DigFree = 1
 	},
 };
 
@@ -56,18 +54,29 @@ func Initialize()
 	this.ActMap = { Prototype = this.ActMap };
 	this.ActMap.Drill = { Prototype = this.ActMap.Drill };
 	SetLightRange(20);
+	SetLightColor(RGB(100, 100, 100));
+	AddTimer(this.FocusView, 1);
 }
 
 func ContactBottom()
 {
-	Halt();
+	if (GetAction() == "Move")
+	{
+		Halt();
+	}
 }
+
+/* --- Scenario saving --- */
+
+func SaveScenarioObject() { return false; }
 
 /* --- Movement --- */
 
 
-func SetMoveDirection(int dir, bool drill)
+func SetMoveDirection(int dir, bool drill, int controller)
 {
+	SetController(controller);
+
 	// No change?
 	if (dir == COMD_Up && (GetYDir() < 0)) return;
 	if (dir == COMD_Down && (GetYDir() > 0)) return;
@@ -131,11 +140,11 @@ func Drilling()
 	var drill_material = GetMaterial(0, 3);
 	var density = GetMaterialVal("Density", "Material", drill_material);	
 	
-	if ((Material("Vehicle") == drill_material)
-	||  (Material("Everrock") == drill_material))
+	if (density > MaxDrillDensity)
 	{
 		Sound("Objects::Pickaxe::ClangHard?");
 		Sparks();
+		Halt();
 		return;
 	}
 
@@ -161,11 +170,6 @@ func Drilling()
 	else // Go slow in hard material
 	{
 		ClearFreeRect(GetX() - 1, GetY(), 3, 4);
-		if (!Random(5))
-		{
-			Sound("Objects::Pickaxe::Clang?");
-			Sparks();
-		}
 	}
 }
 
@@ -180,5 +184,13 @@ func Sparks()
 	spark.B = 255;
 	spark.R = PV_Random(0, 128, 2);
 	spark.OnCollision = PC_Bounce();
-	CreateParticle("StarSpark", 0, 0, PV_Random(-30, 30), PV_Random(-30, 30), PV_Random(10, 50), spark, 1);
+	CreateParticle("StarSpark", 0, 2, PV_Random(-30, 30), PV_Random(-30, 30), PV_Random(10, 50), spark, 30);
+}
+
+func FocusView()
+{
+	if (GetAction() == "Move" || GetAction() == "Drill")
+	{
+		SetPlrView(GetController(), this);
+	}
 }

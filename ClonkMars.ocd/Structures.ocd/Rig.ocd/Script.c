@@ -2,6 +2,7 @@
 #include Library_MarsResearch
 #include Library_PowerSystem_Consumer
 #include Library_PowerSystem_DisplayStatus
+#include Library_DamageControl
 #include Library_ConstructionAnimation
 
 /* --- Properties --- */
@@ -14,12 +15,35 @@ local Components = { Metal=3, Silicon=1 };
 local Touchable = 2;
 
 local drillhead;
+local rig_light;
 
 
 /* --- Engine Callbacks --- */
 
 func Initialize()
 {
+	if (!rig_light)
+	{
+		rig_light = CreateObject(Dummy, -19, -8, NO_OWNER);
+		rig_light->SetObjectLayer(rig_light);
+		rig_light.Visibility = VIS_All;
+		rig_light->SetLightRange(40);
+	}
+	rig_light->SetLightColor(RGB(255, 255, 220));
+	_inherited(...);
+}
+
+
+func Destruction()
+{
+	if (drillhead)
+	{
+		drillhead->RemoveObject();
+	}
+	if (rig_light)
+	{
+		rig_light->RemoveObject();
+	}
 }
 
 /* --- Controls --- */
@@ -60,8 +84,7 @@ func SetMoveDirection(int direction, int controller)
 		if (HasEnoughPower())
 		{
 			var drill = drillhead->GetContact(-1, CNAT_Bottom) && direction == COMD_Down;
-			drillhead->SetMoveDirection(direction, drill);
-			SetPlrView(controller, drillhead);
+			drillhead->SetMoveDirection(direction, drill, controller);
 		}
 		else
 		{
@@ -74,7 +97,7 @@ func DrillHeadCheck()
 {
 	if (!drillhead) 
 	{
-		drillhead = CreateObject(Structure_OilRig_DrillHead, 13, 36, GetOwner());
+		drillhead = CreateObject(Structure_OilRig_DrillHead, 10, 41, GetOwner());
 		drillhead->SetRig(this);
 	}
 	return drillhead;
