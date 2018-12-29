@@ -96,7 +96,7 @@ func SetMoveDirection(int dir, bool drill, int controller)
 	SetComDir(dir);
 	if (derrick)
 	{
-		derrick->~StartEngine();
+		derrick->~StopEngine();
 	}
 }
 
@@ -123,14 +123,32 @@ func SetRig(object rig)
 func Processing()
 {
 	if (derrick
-	&&  derrick->~AcceptTransfer()
 	&&  derrick->~HasEnoughPower())
 	{
-		// Materialtransfer
-		//for (var i = 0; i < 3; i++)	
-		//	ObjectInsertMaterial(ExtractLiquid(0, 0), pPumpTarget);
-		// Blubbern
-		//if (!Random(5)) Bubble(0, 0);
+		var transferred = false;
+		var material = GetMaterial(0, 0);
+		if (material != -1)
+		{
+			for (var i = 0; (i < 3) && derrick->~AcceptLiquidTransfer(MaterialName(material)); ++i)
+			{
+				var liquid = ExtractLiquidAmount(0, 0, 1, true);
+				if (liquid)
+				{
+					derrick->~DoLiquidTransfer(MaterialName(liquid[0]), liquid[1]);
+					transferred = true;
+				}
+			}
+		}
+
+		if (transferred)
+		{
+			derrick->~StartEngine();
+			if (!Random(5)) Bubble(3);
+		}
+		else
+		{
+			derrick->~StopEngine();
+		}
 	}
 }
 

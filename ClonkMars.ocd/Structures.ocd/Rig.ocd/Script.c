@@ -4,6 +4,7 @@
 #include Library_PowerSystem_DisplayStatus
 #include Library_DamageControl
 #include Library_ConstructionAnimation
+#include Library_PipeControl
 
 /* --- Properties --- */
 
@@ -17,6 +18,10 @@ local Touchable = 2;
 local drillhead;
 local rig_light;
 
+// Can attach one source pipe to the oil rig
+local PipeLimit_Air = 0;
+local PipeLimit_Source = 1;
+local PipeLimit_Drain = 0;
 
 /* --- Engine Callbacks --- */
 
@@ -106,4 +111,45 @@ func DrillHeadCheck()
 func GetNeededPower()
 {
 	return 20;
+}
+
+/* --- Pipe Control --- */
+
+
+public func OnPipeConnect(object pipe, string specific_pipe_state)
+{
+	if (PIPE_STATE_Source == specific_pipe_state)
+	{
+		SetSourcePipe(pipe);
+		pipe->SetSourcePipe();
+	}
+	else
+	{
+		if (!GetSourcePipe())
+		{
+			OnPipeConnect(pipe, PIPE_STATE_Source);
+		}
+	}
+	pipe->Report("$MsgConnectedPipe$");
+}
+
+func AcceptLiquidTransfer(string liquid_name)
+{
+	var target = GetConnectedObject(GetSourcePipe(), true);
+	if (target)
+	{
+		var liquid = Library_LiquidContainer->GetLiquidDef(liquid_name) ?? liquid_name;
+		return target->~AcceptsLiquid(liquid, 1);
+	}
+	return false;
+}
+
+func DoLiquidTransfer(string liquid_name, int amount)
+{
+	var target = GetConnectedObject(GetSourcePipe(), true);
+	if (target && target->~IsLiquidContainerForMaterial(liquid_name))
+	{
+		var liquid = Library_LiquidContainer->GetLiquidDef(liquid_name) ?? liquid_name;
+		target->~PutLiquid(liquid, amount);
+	}
 }
