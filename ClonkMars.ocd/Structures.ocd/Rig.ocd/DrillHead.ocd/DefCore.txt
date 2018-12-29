@@ -1,0 +1,17 @@
+[DefCore]
+id=Structure_OilRig_DrillHead
+Version=8,0
+Category=C4D_Structure
+Width=3
+Height=4
+Offset=-1,-1
+Vertices=1
+VertexY=2
+VertexCNAT=CNAT_Bottom
+VertexFriction=100
+Value=3
+Mass=5
+Picture=3,0,35,35
+HorizontalFix=1
+HideInCreator=true
+
