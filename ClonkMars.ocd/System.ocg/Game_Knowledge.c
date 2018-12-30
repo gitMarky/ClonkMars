@@ -1,15 +1,14 @@
 
-
 // Gives the player plans at the scenario start.
 global func GivePlayerInitialKnowledge(int player)
 {
 	GivePlayerKnowledge(player,
 	[
-		// basic structures for a settlement and production
+		// Basic structures for a settlement and production
 		Structure_Base,
-		// basic tools
+		// Basic tools
 		Shovel,
-		// basic resources.
+		// Basic resources.
 		Metal, Plastic
 	]);
 }
@@ -27,10 +26,8 @@ global func GivePlayerBasicKnowledge(int player)
 		Structure_MaterialUnit,
 		Structure_OilRig,
 		Structure_OilTank,
-		// basic tools
-		Shovel,
-		// basic resources.
-		Metal, Plastic
+		// Basic tools
+		WireRoll, PipeKit, ConKit
 	]);
 }
 
