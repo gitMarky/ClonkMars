@@ -2,6 +2,11 @@
 	SurfaceScan
 
 	Adds a grid of info points to the map that reveals FoW at tunnels and liquids.
+	
+	Should have been enabled/disabled by landscape scan after building a base, but
+	for now it is enabled always, because the visibility seems to have no effect on
+	the light display.
+	That seems to come into play only with hostility.
  */
  
 /* --- Engine Callbacks --- */
@@ -113,7 +118,7 @@ local FxLandscapeControl = new Effect
 
 				point->SetPosition(global_x, global_y);
 				point->SetObjectLayer(this.control_visibility);
-				point->SetLightColor(RGB(10, 10, 10));
+				point->SetLightColor(RGB(40, 40, 40));
 				point->SetLightRange(this.grid_distance, this.grid_distance);
 				point.Visibility = VIS_LayerToggle;
 			}
