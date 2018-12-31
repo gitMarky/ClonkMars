@@ -12,9 +12,9 @@ local Components = {Metal = 1};
 
 public func GetCarryBone() { return "main"; }
 
-public func GetCarryMode(object clonk, bool secondary)
+public func GetCarryMode(object clonk, bool secondary, bool inactive)
 {
-	if (secondary)
+	if (secondary || inactive)
 	{
 		return CARRY_None;
 	}

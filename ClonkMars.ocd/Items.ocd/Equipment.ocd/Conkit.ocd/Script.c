@@ -1,7 +1,15 @@
 #include Library_Constructor
+#include Library_MarsResearch
 // TODO #include L_RC // Recycling
 
-/* -- Engine callbacks -- */
+/* --- Properties --- */
+
+local Name = "$Name$";
+local Description = "$Description$";
+local Collectible = true;
+local Components = {Metal = 1, Plastic = 1};
+
+/* --- Engine callbacks --- */
 
 func Definition(def type)
 {
@@ -16,7 +24,7 @@ func Hit()
 }
 
 
-/* -- Constructor library -- */
+/* --- Constructor library --- */
 
 public func CanBuild(id construction_plan)
 {
@@ -49,16 +57,21 @@ public func FxControlConstructionPreviewStop(object clonk, proplist fx, int reas
 	}
 }
 
+/* --- Display --- */
 
+public func GetCarryBone() { return "handle"; }
 
-/* -- Production & research -- */
+public func GetCarryMode(object clonk, bool secondary, bool inactive)
+{
+	if (secondary || inactive)
+	{
+		return CARRY_None;
+	}
+	return CARRY_Hand;
+}
 
-public func IsMarsResearch() { return true; }
+public func GetCarryTransform(object user, bool secondary, bool inactive)
+{
+	return Trans_Rotate(90, 1, 0, 0);
+}
 
-
-/* -- Properties -- */
-
-local Name = "$Name$";
-local Description = "$Description$";
-local Collectible = true;
-local Components = {Metal = 1, Plastic = 1};
